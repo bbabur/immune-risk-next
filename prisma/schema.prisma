@@ -1,0 +1,228 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:C:/Users/Burak Babur/Desktop/immune_risk_assessment/immune_risk_assesment/immune_risk.db"
+}
+
+model Patient {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Demografik bilgiler
+  firstName String? @map("first_name")
+  lastName  String? @map("last_name")
+  birthDate String @map("birth_date")
+  gender    String
+  height    Float?
+  weight    Float?
+  ethnicity String?
+
+  // Doğum bilgileri
+  birthWeight     Float? @map("birth_weight")
+  gestationalAge  Int?   @map("gestational_age")
+  cordFallDay     Int?   @map("cord_fall_day")
+
+  // Aile bilgileri
+  parentalConsanguinity Boolean @default(false) @map("parental_consanguinity")
+
+  // Risk değerlendirme sonuçları
+  ruleBasedScore   Int?    @map("rule_based_score")
+  mlScore          Float?  @map("ml_score")
+  finalRiskLevel   String? @map("final_risk_level")
+
+  // Final tanı
+  hasImmuneDeficiency Boolean?  @map("has_immune_deficiency")
+  diagnosisType       String?   @map("diagnosis_type")
+  diagnosisDate       String? @map("diagnosis_date")
+
+  // İlişkiler
+  clinicalFeatures  ClinicalFeature[]
+  familyHistory     FamilyHistory[]
+  hospitalizations  Hospitalization[]
+  infections        Infection[]
+  labResults        LabResult[]
+  treatments        Treatment[]
+  vaccinations      Vaccination[]
+  riskAssessments   RiskAssessment[]
+
+  @@map("patients")
+}
+
+model ClinicalFeature {
+  id           Int      @id @default(autoincrement())
+  patientId    Int      @map("patient_id")
+  dateRecorded DateTime @default(now()) @map("date_recorded")
+
+  // Büyüme ve gelişme
+  growthFailure    Boolean @default(false) @map("growth_failure")
+  heightPercentile Float?  @map("height_percentile")
+  weightPercentile Float?  @map("weight_percentile")
+
+  // Cilt sorunları
+  chronicSkinIssue   Boolean @default(false) @map("chronic_skin_issue")
+  skinIssueType      String? @map("skin_issue_type")
+  skinIssueDuration  Int?    @map("skin_issue_duration")
+
+  // Diğer klinik özellikler
+  chronicDiarrhea   Boolean @default(false) @map("chronic_diarrhea")
+  diarrheaDuration  Int?    @map("diarrhea_duration")
+  bcgLymphadenopathy Boolean @default(false) @map("bcg_lymphadenopathy")
+  persistentThrush  Boolean @default(false) @map("persistent_thrush")
+  deepAbscesses     Boolean @default(false) @map("deep_abscesses")
+  abscessLocation   String? @map("abscess_location")
+
+  // Konjenital kalp hastalığı
+  chd     Boolean @default(false)
+  chdType String? @map("chd_type")
+
+  patient Patient @relation(fields: [patientId], references: [id])
+
+  @@map("clinical_features")
+}
+
+model FamilyHistory {
+  id        Int @id @default(autoincrement())
+  patientId Int @map("patient_id")
+
+  familyIeiHistory        Boolean @default(false) @map("family_iei_history")
+  ieiRelationship         String? @map("iei_relationship")
+  ieiType                 String? @map("iei_type")
+  familyEarlyDeath        Boolean @default(false) @map("family_early_death")
+  earlyDeathAge           Int?    @map("early_death_age")
+  earlyDeathCause         String? @map("early_death_cause")
+  earlyDeathRelationship  String? @map("early_death_relationship")
+  otherConditions         String? @map("other_conditions")
+
+  patient Patient @relation(fields: [patientId], references: [id])
+
+  @@map("family_history")
+}
+
+model Hospitalization {
+  id            Int       @id @default(autoincrement())
+  patientId     Int       @map("patient_id")
+  admissionDate DateTime  @map("admission_date")
+  dischargeDate DateTime? @map("discharge_date")
+  reason        String
+  diagnosis     String?
+
+  icuAdmission             Boolean @default(false) @map("icu_admission")
+  icuDays                  Int?    @map("icu_days")
+  ivAntibioticRequirement  Boolean @default(false) @map("iv_antibiotic_requirement")
+  antibioticsUsed          String? @map("antibiotics_used")
+  notes                    String?
+
+  patient    Patient     @relation(fields: [patientId], references: [id])
+  infections Infection[]
+
+  @@map("hospitalizations")
+}
+
+model Infection {
+  id   Int @id @default(autoincrement())
+  patientId Int @map("patient_id")
+
+  date     DateTime?
+  type     String
+  severity String?
+
+  treatment         String?
+  antibioticUsed    String? @map("antibiotic_used")
+  antibioticFailure Boolean @default(false) @map("antibiotic_failure")
+
+  hospitalizationRequired Boolean @default(false) @map("hospitalization_required")
+  hospitalizationId       Int?    @map("hospitalization_id")
+
+  patient         Patient          @relation(fields: [patientId], references: [id])
+  hospitalization Hospitalization? @relation(fields: [hospitalizationId], references: [id])
+
+  @@map("infections")
+}
+
+model LabResult {
+  id        Int      @id @default(autoincrement())
+  patientId Int      @map("patient_id")
+  date      DateTime
+  testName  String   @map("test_name")
+  testValue Float?   @map("test_value")
+  testUnit  String?  @map("test_unit")
+
+  referenceMin Float?   @map("reference_min")
+  referenceMax Float?   @map("reference_max")
+  isAbnormal   Boolean? @map("is_abnormal")
+
+  labName String? @map("lab_name")
+  notes   String?
+
+  patient Patient @relation(fields: [patientId], references: [id])
+
+  @@map("lab_results")
+}
+
+model Treatment {
+  id        Int      @id @default(autoincrement())
+  patientId Int      @map("patient_id")
+  startDate DateTime @map("start_date")
+  endDate   DateTime? @map("end_date")
+  ongoing   Boolean  @default(false)
+
+  treatmentType String  @map("treatment_type")
+  medication    String?
+  dose          String?
+  frequency     String?
+
+  response    String? 
+  sideEffects String? @map("side_effects")
+  notes       String?
+
+  patient Patient @relation(fields: [patientId], references: [id])
+
+  @@map("treatments")
+}
+
+model Vaccination {
+  id        Int      @id @default(autoincrement())
+  patientId Int      @map("patient_id")
+  date      DateTime
+  vaccineName String @map("vaccine_name")
+  doseNumber  Int?   @map("dose_number")
+
+  reaction        String?
+  antibodyTested  Boolean @default(false) @map("antibody_tested")
+  antibodyResult  Float?  @map("antibody_result")
+
+  patient Patient @relation(fields: [patientId], references: [id])
+
+  @@map("vaccinations")
+}
+
+model RiskAssessment {
+  id             Int      @id @default(autoincrement())
+  patientId      Int      @map("patient_id")
+  assessmentDate DateTime @default(now()) @map("assessment_date")
+  assessedBy     String?  @map("assessed_by")
+
+  primaryScore   Int? @map("primary_score")
+  secondaryScore Int? @map("secondary_score")
+  totalScore     Int? @map("total_score")
+
+  riskLevel      String? @map("risk_level")
+  recommendation String?
+
+  modelVersion    String? @map("model_version")
+  modelConfidence Float?  @map("model_confidence")
+
+  patient Patient @relation(fields: [patientId], references: [id])
+
+  @@map("risk_assessments")
+}
