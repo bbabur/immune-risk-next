@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
   Container, 
@@ -44,7 +44,8 @@ interface FamilyHistoryForm {
   otherConditions: string;
 }
 
-export default function AddFamilyHistoryPage({ params }: { params: { id: string } }) {
+export default function AddFamilyHistoryPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params);
   const router = useRouter();
   const [patientName, setPatientName] = useState<string>('');
   const [loading, setLoading] = useState(false);
@@ -64,7 +65,7 @@ export default function AddFamilyHistoryPage({ params }: { params: { id: string 
     // Hasta bilgilerini getir
     const fetchPatient = async () => {
       try {
-        const response = await fetch(`/api/patients/${params.id}`);
+        const response = await fetch(`/api/patients/${resolvedParams.id}`);
         if (response.ok) {
           const patient = await response.json();
           setPatientName(`${patient.firstName || ''} ${patient.lastName || ''}`);
@@ -75,7 +76,7 @@ export default function AddFamilyHistoryPage({ params }: { params: { id: string 
     };
 
     fetchPatient();
-  }, [params.id]);
+  }, [resolvedParams.id]);
 
   const handleChange = (field: keyof FamilyHistoryForm, value: any) => {
     setFormData(prev => ({
@@ -89,7 +90,7 @@ export default function AddFamilyHistoryPage({ params }: { params: { id: string 
     setLoading(true);
 
     try {
-      const response = await fetch(`/api/patients/${params.id}/family-history`, {
+      const response = await fetch(`/api/patients/${resolvedParams.id}/family-history`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -107,7 +108,7 @@ export default function AddFamilyHistoryPage({ params }: { params: { id: string 
       });
 
       if (response.ok) {
-        router.push(`/patients/${params.id}`);
+        router.push(`/patients/${resolvedParams.id}`);
       } else {
         const error = await response.json();
         console.error('Aile öyküsü kaydedilemedi:', error);
@@ -125,7 +126,7 @@ export default function AddFamilyHistoryPage({ params }: { params: { id: string 
         <Box sx={{ bgcolor: 'primary.main', color: 'white', p: 2 }}>
           <Typography variant="h5" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <People />
-            Aile Öyküsü Ekle - {patientName || `Hasta #${params.id}`}
+            Aile Öyküsü Ekle - {patientName || `Hasta #${resolvedParams.id}`}
           </Typography>
         </Box>
 
@@ -244,7 +245,7 @@ export default function AddFamilyHistoryPage({ params }: { params: { id: string 
                 <Button
                   variant="outlined"
                   startIcon={<Cancel />}
-                  onClick={() => router.push(`/patients/${params.id}`)}
+                  onClick={() => router.push(`/patients/${resolvedParams.id}`)}
                 >
                   İptal
                 </Button>

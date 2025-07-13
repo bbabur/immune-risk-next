@@ -20,7 +20,7 @@ import {
   PersonAdd, 
   Psychology,
   Shield,
-  LocalHospital,
+  Vaccines,
   List,
   Settings,
   Info,
@@ -262,7 +262,7 @@ export default function HomePage() {
             <Box sx={{ flex: 1 }}>
               <Card sx={{ textAlign: 'center', boxShadow: 3, height: '100%' }}>
                 <CardContent>
-                  <LocalHospital sx={{ fontSize: 60, color: 'success.main', mb: 2 }} />
+                  <Vaccines sx={{ fontSize: 60, color: 'success.main', mb: 2 }} />
                   <Typography variant="h3" component="h3">
                     {stats.diagnosedCount}
                   </Typography>

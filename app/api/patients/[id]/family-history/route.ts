@@ -3,59 +3,72 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const data = await request.json();
-    const patientId = parseInt(params.id);
+    const resolvedParams = await params;
+    const patientId = parseInt(resolvedParams.id);
+    const body = await request.json();
 
-    // Önce mevcut aile öyküsünü kontrol et
-    const existingHistory = await prisma.familyHistory.findFirst({
-      where: { patientId }
-    });
-
-    let familyHistory;
-    if (existingHistory) {
-      // Varsa güncelle
-      familyHistory = await prisma.familyHistory.update({
-        where: { id: existingHistory.id },
-        data: {
-          familyIeiHistory: data.familyIeiHistory,
-          ieiRelationship: data.ieiRelationship,
-          ieiType: data.ieiType,
-          familyEarlyDeath: data.familyEarlyDeath,
-          earlyDeathAge: data.earlyDeathAge,
-          earlyDeathRelationship: data.earlyDeathRelationship,
-          earlyDeathCause: data.earlyDeathCause,
-          otherConditions: data.otherConditions
-        }
-      });
-    } else {
-      // Yoksa yeni kayıt oluştur
-      familyHistory = await prisma.familyHistory.create({
-        data: {
-          patientId,
-          familyIeiHistory: data.familyIeiHistory,
-          ieiRelationship: data.ieiRelationship,
-          ieiType: data.ieiType,
-          familyEarlyDeath: data.familyEarlyDeath,
-          earlyDeathAge: data.earlyDeathAge,
-          earlyDeathRelationship: data.earlyDeathRelationship,
-          earlyDeathCause: data.earlyDeathCause,
-          otherConditions: data.otherConditions
-        }
-      });
+    if (isNaN(patientId)) {
+      return NextResponse.json({ error: 'Geçersiz hasta ID' }, { status: 400 });
     }
 
-    return NextResponse.json({ 
-      message: 'Aile öyküsü başarıyla kaydedildi',
-      familyHistory 
+    // Hasta var mı kontrol et
+    const patient = await prisma.patient.findUnique({
+      where: { id: patientId }
     });
+
+    if (!patient) {
+      return NextResponse.json({ error: 'Hasta bulunamadı' }, { status: 404 });
+    }
+
+    // Aile öyküsünü kaydet
+    const familyHistory = await prisma.familyHistory.create({
+      data: {
+        patientId: patientId,
+        familyIeiHistory: body.familyIeiHistory || false,
+        ieiRelationship: body.ieiRelationship || null,
+        ieiType: body.ieiType || null,
+        familyEarlyDeath: body.familyEarlyDeath || false,
+        earlyDeathAge: body.earlyDeathAge ? parseInt(body.earlyDeathAge) : null,
+        earlyDeathRelationship: body.earlyDeathRelationship || null,
+        earlyDeathCause: body.earlyDeathCause || null,
+        otherConditions: body.otherConditions || null
+      }
+    });
+
+    return NextResponse.json(familyHistory);
   } catch (error) {
-    console.error('Error saving family history:', error);
-    return NextResponse.json(
-      { error: 'Aile öyküsü kaydedilemedi' }, 
-      { status: 500 }
-    );
+    console.error('Error creating family history:', error);
+    return NextResponse.json({ error: 'Sunucu hatası' }, { status: 500 });
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const resolvedParams = await params;
+    const patientId = parseInt(resolvedParams.id);
+
+    if (isNaN(patientId)) {
+      return NextResponse.json({ error: 'Geçersiz hasta ID' }, { status: 400 });
+    }
+
+    const familyHistory = await prisma.familyHistory.findMany({
+      where: { patientId: patientId }
+    });
+
+    return NextResponse.json(familyHistory);
+  } catch (error) {
+    console.error('Error fetching family history:', error);
+    return NextResponse.json({ error: 'Sunucu hatası' }, { status: 500 });
   } finally {
     await prisma.$disconnect();
   }

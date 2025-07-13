@@ -1171,13 +1171,13 @@ export default function PatientDetailPage() {
       {/* Tab Content */}
       {renderTabContent()}
 
-      {/* Clinical Feature Modal */}
-      <ClinicalFeatureModal
+      {/* Clinical Feature Modal - Geçici olarak devre dışı */}
+      {/* <ClinicalFeatureModal
         open={clinicalFeatureModalOpen}
         onClose={handleClinicalFeatureModalClose}
         patientId={patient?.id || 0}
         onSuccess={refreshPatientData}
-      />
+      /> */}
     </Container>
   );
 } 
