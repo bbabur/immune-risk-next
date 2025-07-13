@@ -1,77 +1,61 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params;
-    const patientId = parseInt(id);
-
-    if (isNaN(patientId)) {
-      return NextResponse.json({ error: 'Geçersiz hasta ID' }, { status: 400 });
-    }
-
     const data = await request.json();
+    const patientId = parseInt(params.id);
 
     const clinicalFeature = await prisma.clinicalFeature.create({
       data: {
-        patientId: patientId,
-        dateRecorded: new Date(data.dateRecorded || new Date()),
-        growthFailure: data.growthFailure || false,
-        heightPercentile: data.heightPercentile ? parseFloat(data.heightPercentile) : null,
-        weightPercentile: data.weightPercentile ? parseFloat(data.weightPercentile) : null,
-        chronicSkinIssue: data.chronicSkinIssue || false,
-        skinIssueType: data.skinIssueType || null,
-        skinIssueDuration: data.skinIssueDuration ? parseInt(data.skinIssueDuration) : null,
-        chronicDiarrhea: data.chronicDiarrhea || false,
-        diarrheaDuration: data.diarrheaDuration ? parseInt(data.diarrheaDuration) : null,
-        bcgLymphadenopathy: data.bcgLymphadenopathy || false,
-        persistentThrush: data.persistentThrush || false,
-        deepAbscesses: data.deepAbscesses || false,
-        abscessLocation: data.abscessLocation || null,
-        chd: data.chd || false,
-        chdType: data.chdType || null
-      }
+        patientId,
+        growthFailure: data.growthFailure,
+        heightPercentile: data.heightPercentile,
+        weightPercentile: data.weightPercentile,
+        chronicSkinIssue: data.chronicSkinIssue,
+        skinIssueType: data.skinIssueType,
+        skinIssueDuration: data.skinIssueDuration,
+        chronicDiarrhea: data.chronicDiarrhea,
+        diarrheaDuration: data.diarrheaDuration,
+        bcgLymphadenopathy: data.bcgLymphadenopathy,
+        persistentThrush: data.persistentThrush,
+        deepAbscesses: data.deepAbscesses,
+        abscessLocation: data.abscessLocation,
+        chd: data.chd,
+        chdType: data.chdType,
+      },
     });
 
-    return NextResponse.json({
-      message: 'Klinik özellik başarıyla eklendi',
-      clinicalFeature
-    });
+    return NextResponse.json(clinicalFeature);
   } catch (error) {
-    console.error('Error creating clinical feature:', error);
-    return NextResponse.json({ error: 'Klinik özellik eklenemedi' }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
+    console.error('Klinik özellikler kaydedilemedi:', error);
+    return NextResponse.json(
+      { error: 'Klinik özellikler kaydedilemedi' },
+      { status: 500 }
+    );
   }
 }
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params;
-    const patientId = parseInt(id);
-
-    if (isNaN(patientId)) {
-      return NextResponse.json({ error: 'Geçersiz hasta ID' }, { status: 400 });
-    }
-
+    const patientId = parseInt(params.id);
     const clinicalFeatures = await prisma.clinicalFeature.findMany({
-      where: { patientId: patientId },
-      orderBy: { dateRecorded: 'desc' }
+      where: { patientId },
+      orderBy: { createdAt: 'desc' },
     });
 
     return NextResponse.json(clinicalFeatures);
   } catch (error) {
-    console.error('Error fetching clinical features:', error);
-    return NextResponse.json({ error: 'Klinik özellikler alınamadı' }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
+    console.error('Klinik özellikler alınamadı:', error);
+    return NextResponse.json(
+      { error: 'Klinik özellikler alınamadı' },
+      { status: 500 }
+    );
   }
 } 

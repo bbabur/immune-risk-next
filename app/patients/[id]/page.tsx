@@ -27,7 +27,8 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Badge
+  Badge,
+  Tooltip
 } from '@mui/material';
 import {
   ArrowBack,
@@ -46,7 +47,8 @@ import {
   CheckCircle,
   Cancel,
   Warning,
-  Info
+  Info,
+  Brightness3
 } from '@mui/icons-material';
 import ClinicalFeatureModal from '../../../components/ClinicalFeatureModal';
 
@@ -181,6 +183,96 @@ interface RiskAssessment {
   recommendation?: string;
   modelVersion?: string;
   modelConfidence?: number;
+}
+
+// Klinik Özellikler Tablosu
+function ClinicalFeaturesTable({ clinicalFeatures }: { clinicalFeatures: ClinicalFeature[] }) {
+  return (
+    <TableContainer component={Paper} sx={{ mt: 3 }}>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>Tarih</TableCell>
+            <TableCell>Büyüme Geriliği</TableCell>
+            <TableCell>Cilt Problemi</TableCell>
+            <TableCell>Kronik İshal</TableCell>
+            <TableCell>BCG Lenfadenopati</TableCell>
+            <TableCell>Pamukçuk</TableCell>
+            <TableCell>Derin Apse</TableCell>
+            <TableCell>Kalp Hastalığı</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {clinicalFeatures.map((feature) => (
+            <TableRow key={feature.id} hover>
+              <TableCell>
+                {new Date(feature.dateRecorded).toLocaleDateString('tr-TR')}
+              </TableCell>
+              <TableCell>
+                {feature.growthFailure ? (
+                  <Tooltip title={`Boy: ${feature.heightPercentile}%, Kilo: ${feature.weightPercentile}%`}>
+                    <Chip label="Var" color="error" size="small" />
+                  </Tooltip>
+                ) : (
+                  <Chip label="Yok" color="success" size="small" />
+                )}
+              </TableCell>
+              <TableCell>
+                {feature.chronicSkinIssue ? (
+                  <Tooltip title={`${feature.skinIssueType} (${feature.skinIssueDuration} ay)`}>
+                    <Chip label="Var" color="error" size="small" />
+                  </Tooltip>
+                ) : (
+                  <Chip label="Yok" color="success" size="small" />
+                )}
+              </TableCell>
+              <TableCell>
+                {feature.chronicDiarrhea ? (
+                  <Tooltip title={`${feature.diarrheaDuration} ay`}>
+                    <Chip label="Var" color="error" size="small" />
+                  </Tooltip>
+                ) : (
+                  <Chip label="Yok" color="success" size="small" />
+                )}
+              </TableCell>
+              <TableCell>
+                <Chip
+                  label={feature.bcgLymphadenopathy ? "Var" : "Yok"}
+                  color={feature.bcgLymphadenopathy ? "error" : "success"}
+                  size="small"
+                />
+              </TableCell>
+              <TableCell>
+                <Chip
+                  label={feature.persistentThrush ? "Var" : "Yok"}
+                  color={feature.persistentThrush ? "error" : "success"}
+                  size="small"
+                />
+              </TableCell>
+              <TableCell>
+                {feature.deepAbscesses ? (
+                  <Tooltip title={feature.abscessLocation}>
+                    <Chip label="Var" color="error" size="small" />
+                  </Tooltip>
+                ) : (
+                  <Chip label="Yok" color="success" size="small" />
+                )}
+              </TableCell>
+              <TableCell>
+                {feature.chd ? (
+                  <Tooltip title={feature.chdType}>
+                    <Chip label="Var" color="error" size="small" />
+                  </Tooltip>
+                ) : (
+                  <Chip label="Yok" color="success" size="small" />
+                )}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
 }
 
 export default function PatientDetailPage() {
@@ -531,87 +623,7 @@ export default function PatientDetailPage() {
               <Divider sx={{ mb: 2 }} />
               
               {patient.clinicalFeatures && patient.clinicalFeatures.length > 0 ? (
-                <TableContainer component={Paper}>
-                  <Table>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Tarih</TableCell>
-                        <TableCell>Büyüme Geriliği</TableCell>
-                        <TableCell>Boy/Kilo Persentili</TableCell>
-                        <TableCell>Kronik Cilt Sorunu</TableCell>
-                        <TableCell>Kronik İshal</TableCell>
-                        <TableCell>BCG Lenfadenopati</TableCell>
-                        <TableCell>Persistan Pamukçuk</TableCell>
-                        <TableCell>Derin Apse</TableCell>
-                        <TableCell>Konjenital Kalp Hastalığı</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {patient.clinicalFeatures.map((cf) => (
-                        <TableRow key={cf.id}>
-                          <TableCell>{new Date(cf.dateRecorded).toLocaleDateString('tr-TR')}</TableCell>
-                          <TableCell>
-                            {cf.growthFailure ? 
-                              <Chip label="Evet" color="error" size="small" /> : 
-                              <Chip label="Hayır" color="success" size="small" />
-                            }
-                          </TableCell>
-                          <TableCell>
-                            Boy: {cf.heightPercentile || '-'}%, Kilo: {cf.weightPercentile || '-'}%
-                          </TableCell>
-                          <TableCell>
-                            {cf.chronicSkinIssue ? (
-                              <Box>
-                                <Chip label="Evet" color="error" size="small" />
-                                {cf.skinIssueType && <Typography variant="caption" display="block">{cf.skinIssueType}</Typography>}
-                              </Box>
-                            ) : (
-                              <Chip label="Hayır" color="success" size="small" />
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {cf.chronicDiarrhea ? 
-                              <Chip label="Evet" color="error" size="small" /> : 
-                              <Chip label="Hayır" color="success" size="small" />
-                            }
-                          </TableCell>
-                          <TableCell>
-                            {cf.bcgLymphadenopathy ? 
-                              <Chip label="Evet" color="error" size="small" /> : 
-                              <Chip label="Hayır" color="success" size="small" />
-                            }
-                          </TableCell>
-                          <TableCell>
-                            {cf.persistentThrush ? 
-                              <Chip label="Evet" color="error" size="small" /> : 
-                              <Chip label="Hayır" color="success" size="small" />
-                            }
-                          </TableCell>
-                          <TableCell>
-                            {cf.deepAbscesses ? (
-                              <Box>
-                                <Chip label="Evet" color="error" size="small" />
-                                {cf.abscessLocation && <Typography variant="caption" display="block">{cf.abscessLocation}</Typography>}
-                              </Box>
-                            ) : (
-                              <Chip label="Hayır" color="success" size="small" />
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {cf.chd ? (
-                              <Box>
-                                <Chip label="Evet" color="error" size="small" />
-                                {cf.chdType && <Typography variant="caption" display="block">{cf.chdType}</Typography>}
-                              </Box>
-                            ) : (
-                              <Chip label="Hayır" color="success" size="small" />
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
+                <ClinicalFeaturesTable clinicalFeatures={patient.clinicalFeatures} />
               ) : (
                 <Alert severity="info">
                   Henüz klinik özellik kaydı bulunmamaktadır. Yeni özellik eklemek için "Klinik Özellik Ekle" butonunu kullanın.
@@ -633,6 +645,7 @@ export default function PatientDetailPage() {
                   variant="contained" 
                   startIcon={<Add />}
                   color="primary"
+                  onClick={() => router.push(`/patients/${params.id}/add-family`)}
                 >
                   Aile Öyküsü Ekle
                 </Button>
@@ -640,7 +653,7 @@ export default function PatientDetailPage() {
               <Divider sx={{ mb: 2 }} />
               
               {patient.familyHistory && patient.familyHistory.length > 0 ? (
-                <TableContainer component={Paper}>
+                <TableContainer component={Paper} sx={{ mb: 2 }}>
                   <Table>
                     <TableHead>
                       <TableRow>
@@ -653,44 +666,71 @@ export default function PatientDetailPage() {
                     </TableHead>
                     <TableBody>
                       {patient.familyHistory.map((fh) => (
-                        <TableRow key={fh.id}>
+                        <TableRow key={fh.id} hover>
                           <TableCell>
                             {fh.familyIeiHistory ? 
-                              <Chip label="Evet" color="error" size="small" /> : 
-                              <Chip label="Hayır" color="success" size="small" />
+                              <Chip label="Var" color="error" size="small" /> : 
+                              <Chip label="Yok" color="success" size="small" />
                             }
                           </TableCell>
                           <TableCell>
-                            {fh.familyIeiHistory ? (
+                            {fh.familyIeiHistory && fh.ieiRelationship ? (
                               <Box>
-                                <Typography variant="body2">{fh.ieiRelationship || '-'}</Typography>
-                                <Typography variant="caption">{fh.ieiType || '-'}</Typography>
+                                <Typography variant="body2" fontWeight="medium">
+                                  {fh.ieiRelationship}
+                                </Typography>
+                                {fh.ieiType && (
+                                  <Typography variant="caption" color="text.secondary" display="block">
+                                    {fh.ieiType}
+                                  </Typography>
+                                )}
                               </Box>
                             ) : '-'}
                           </TableCell>
                           <TableCell>
                             {fh.familyEarlyDeath ? 
-                              <Chip label="Evet" color="error" size="small" /> : 
-                              <Chip label="Hayır" color="success" size="small" />
+                              <Chip label="Var" color="error" size="small" /> : 
+                              <Chip label="Yok" color="success" size="small" />
                             }
                           </TableCell>
                           <TableCell>
-                            {fh.familyEarlyDeath ? (
+                            {fh.familyEarlyDeath && (fh.earlyDeathAge || fh.earlyDeathCause || fh.earlyDeathRelationship) ? (
                               <Box>
-                                <Typography variant="body2">{fh.earlyDeathAge || '-'} yaş</Typography>
-                                <Typography variant="caption">{fh.earlyDeathCause || '-'}</Typography>
-                                <Typography variant="caption" display="block">{fh.earlyDeathRelationship || '-'}</Typography>
+                                {fh.earlyDeathAge && (
+                                  <Typography variant="body2" fontWeight="medium">
+                                    {fh.earlyDeathAge} yaşında
+                                  </Typography>
+                                )}
+                                {fh.earlyDeathRelationship && (
+                                  <Typography variant="caption" color="text.secondary" display="block">
+                                    {fh.earlyDeathRelationship}
+                                  </Typography>
+                                )}
+                                {fh.earlyDeathCause && (
+                                  <Typography variant="caption" color="text.secondary" display="block">
+                                    Neden: {fh.earlyDeathCause}
+                                  </Typography>
+                                )}
                               </Box>
                             ) : '-'}
                           </TableCell>
-                          <TableCell>{fh.otherConditions || '-'}</TableCell>
+                          <TableCell>
+                            <Typography variant="body2" sx={{ 
+                              maxWidth: 200,
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap'
+                            }}>
+                              {fh.otherConditions || '-'}
+                            </Typography>
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
                   </Table>
                 </TableContainer>
               ) : (
-                <Alert severity="info">
+                <Alert severity="info" sx={{ mb: 2 }}>
                   Henüz aile öyküsü kaydı bulunmamaktadır.
                 </Alert>
               )}

@@ -13,7 +13,8 @@ import {
   Avatar,
   Menu,
   MenuItem,
-  Tooltip
+  Tooltip,
+  ListItemIcon
 } from '@mui/material';
 import { 
   Home, 
@@ -24,7 +25,8 @@ import {
   Notifications,
   Settings,
   AccountCircle,
-  Menu as MenuIcon
+  Menu as MenuIcon,
+  Logout
 } from '@mui/icons-material';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -41,6 +43,25 @@ export default function Navbar() {
 
   const handleMenuClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleProfileClick = () => {
+    handleMenuClose();
+    router.push('/profile');
+  };
+
+  const handleSettingsClick = () => {
+    handleMenuClose();
+    router.push('/settings');
+  };
+
+  const handleLogout = () => {
+    handleMenuClose();
+    // Clear user data from localStorage
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    // Redirect to login
+    router.push('/login');
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -202,7 +223,11 @@ export default function Navbar() {
           </Tooltip>
           
           <Tooltip title="Ayarlar">
-            <IconButton color="inherit" size="large">
+            <IconButton 
+              color="inherit" 
+              size="large"
+              onClick={handleSettingsClick}
+            >
               <Settings />
             </IconButton>
           </Tooltip>
@@ -231,7 +256,6 @@ export default function Navbar() {
           anchorEl={anchorEl}
           open={isMenuOpen}
           onClose={handleMenuClose}
-          onClick={handleMenuClose}
           PaperProps={{
             elevation: 3,
             sx: {
@@ -244,15 +268,22 @@ export default function Navbar() {
             },
           }}
         >
-          <MenuItem>
-            <AccountCircle sx={{ mr: 2 }} />
+          <MenuItem onClick={handleProfileClick}>
+            <ListItemIcon>
+              <AccountCircle />
+            </ListItemIcon>
             Profil
           </MenuItem>
-          <MenuItem>
-            <Settings sx={{ mr: 2 }} />
+          <MenuItem onClick={handleSettingsClick}>
+            <ListItemIcon>
+              <Settings />
+            </ListItemIcon>
             Ayarlar
           </MenuItem>
-          <MenuItem>
+          <MenuItem onClick={handleLogout}>
+            <ListItemIcon>
+              <Logout />
+            </ListItemIcon>
             Çıkış Yap
           </MenuItem>
         </Menu>

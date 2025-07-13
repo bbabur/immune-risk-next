@@ -4,6 +4,7 @@ import ThemeRegistry from './lib/registry';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import { Box } from '@mui/material';
+import { NotificationProvider } from '../components/NotificationProvider';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,13 +22,15 @@ export default function RootLayout({
     <html lang="tr">
       <body className={inter.className}>
         <ThemeRegistry>
-          <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-            <Navbar />
-            <Box component="main" sx={{ flex: 1 }}>
-              {children}
+          <NotificationProvider>
+            <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+              <Navbar />
+              <Box component="main" sx={{ flex: 1 }}>
+                {children}
+              </Box>
+              <Footer />
             </Box>
-            <Footer />
-          </Box>
+          </NotificationProvider>
         </ThemeRegistry>
       </body>
     </html>

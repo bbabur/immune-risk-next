@@ -1,31 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import prisma from '@/lib/prisma';
 
-const prisma = new PrismaClient();
-
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    // Use raw SQL to bypass character encoding issues
-    const patients = await prisma.$queryRaw`
-      SELECT 
-        id,
-        first_name as firstName,
-        last_name as lastName,
-        birth_date as birthDate,
-        gender,
-        final_risk_level as finalRiskLevel,
-        has_immune_deficiency as hasImmuneDeficiency,
-        diagnosis_type as diagnosisType
-      FROM patients 
-      ORDER BY id
-    `;
-
-    return NextResponse.json(patients);
+    const { searchParams } = new URL(request.url);
+    const diagnosed = searchParams.get('diagnosed');
+    
+    if (diagnosed === 'true') {
+      // Tanı konulmuş hastaları say (hasImmuneDeficiency true olanlar)
+      const count = await prisma.patient.count({
+        where: {
+          hasImmuneDeficiency: true
+        }
+      });
+      return NextResponse.json({ count });
+    } else {
+      // Tüm hastaları getir/say
+      const patients = await prisma.patient.findMany();
+      return NextResponse.json(patients);
+    }
   } catch (error) {
-    console.error('Error fetching patients:', error);
-    return NextResponse.json({ error: 'Hasta listesi alınamadı' }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
+    console.error('Hastalar alınamadı:', error);
+    return NextResponse.json(
+      { error: 'Hastalar alınamadı' },
+      { status: 500 }
+    );
   }
 }
 

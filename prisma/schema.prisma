@@ -9,8 +9,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:C:/Users/Burak Babur/Desktop/immune_risk_assessment/immune_risk_assesment/immune_risk.db"
+  provider = "postgresql"
+  url      = "postgresql://postgres:postgres@localhost:5432/immune_risk_next?schema=public"
 }
 
 model Patient {
@@ -59,35 +59,35 @@ model Patient {
 }
 
 model ClinicalFeature {
-  id           Int      @id @default(autoincrement())
-  patientId    Int      @map("patient_id")
-  dateRecorded DateTime @default(now()) @map("date_recorded")
+  id               Int      @id @default(autoincrement())
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  patientId        Int
+  patient          Patient  @relation(fields: [patientId], references: [id])
 
   // Büyüme ve gelişme
-  growthFailure    Boolean @default(false) @map("growth_failure")
-  heightPercentile Float?  @map("height_percentile")
-  weightPercentile Float?  @map("weight_percentile")
+  growthFailure    Boolean
+  heightPercentile Float?
+  weightPercentile Float?
 
   // Cilt sorunları
-  chronicSkinIssue   Boolean @default(false) @map("chronic_skin_issue")
-  skinIssueType      String? @map("skin_issue_type")
-  skinIssueDuration  Int?    @map("skin_issue_duration")
+  chronicSkinIssue Boolean
+  skinIssueType    String?
+  skinIssueDuration Int?
 
   // Diğer klinik özellikler
-  chronicDiarrhea   Boolean @default(false) @map("chronic_diarrhea")
-  diarrheaDuration  Int?    @map("diarrhea_duration")
-  bcgLymphadenopathy Boolean @default(false) @map("bcg_lymphadenopathy")
-  persistentThrush  Boolean @default(false) @map("persistent_thrush")
-  deepAbscesses     Boolean @default(false) @map("deep_abscesses")
-  abscessLocation   String? @map("abscess_location")
+  chronicDiarrhea    Boolean
+  diarrheaDuration   Int?
+  bcgLymphadenopathy Boolean
+  persistentThrush   Boolean
+  deepAbscesses      Boolean
+  abscessLocation    String?
 
   // Konjenital kalp hastalığı
-  chd     Boolean @default(false)
-  chdType String? @map("chd_type")
+  chd     Boolean
+  chdType String?
 
-  patient Patient @relation(fields: [patientId], references: [id])
-
-  @@map("clinical_features")
+  @@index([patientId])
 }
 
 model FamilyHistory {

@@ -42,7 +42,7 @@ export async function PUT(
       data: {
         hasImmuneDeficiency: hasImmuneDeficiency,
         diagnosisType: diagnosisType || null,
-        diagnosisDate: diagnosisDate ? new Date(diagnosisDate) : null,
+        diagnosisDate: diagnosisDate || null,
         updatedAt: new Date(),
       },
     });
@@ -58,4 +58,5 @@ export async function PUT(
       { status: 500 }
     );
   }
-} 
+}
+
