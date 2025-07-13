@@ -17,6 +17,7 @@ import {
   Psychology, 
   LocalHospital,
   School,
+  Vaccines
   ArrowBack,
   RecordVoiceOver,
   Email,
@@ -36,7 +37,7 @@ const teamMembers = [
   {
     name: 'Mehmet Babur',
     role: 'Doktor',
-    icon: <LocalHospital sx={{ fontSize: 60, color: 'error.main' }} />,
+    icon: <Vaccines sx={{ fontSize: 60, color: 'error.main' }} />,
     description: 'Klinik değerlendirme, hasta verileri analizi ve tıbbi danışmanlık',
     skills: ['İmmünoloji', 'Pediatri', 'Klinik Araştırma', 'Hasta Takibi', 'Tanı'],
     color: 'error'
