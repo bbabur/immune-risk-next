@@ -10,7 +10,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://postgres:postgres@localhost:5432/immune_risk_next?schema=public"
+  url      = env("DATABASE_URL")
 }
 
 model Patient {

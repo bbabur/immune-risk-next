@@ -3,8 +3,8 @@ const path = require('path');
 
 // İki farklı veritabanını kontrol et
 const dbPaths = [
-  path.join(__dirname, '..', 'immune_risk_assesment', 'instance', 'immune_risk.db'),
-  path.join(__dirname, '..', 'immune_risk_assesment', 'instance', 'immune_risk_assessment.db')
+  path.join(__dirname, 'immune_risk_assesment', 'instance', 'immune_risk.db'),
+  path.join(__dirname, 'immune_risk_assesment', 'instance', 'immune_risk_assessment.db')
 ];
 
 dbPaths.forEach((dbPath, index) => {
