@@ -3,7 +3,8 @@ services:
     name: immune-risk-next
     env: node
     plan: free
-    buildCommand: npm ci && npm run build
+    region: oregon
+    buildCommand: ./build.sh
     startCommand: npm start
     healthCheckPath: /
     envVars:

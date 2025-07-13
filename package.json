@@ -4,14 +4,15 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "prisma migrate deploy && next build",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "prisma:seed": "node prisma/seed.js",
     "prisma:generate": "prisma generate",
     "prisma:deploy": "prisma migrate deploy",
     "prisma:studio": "prisma studio",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "deploy": "prisma migrate deploy && npm run build"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -27,8 +28,8 @@
     "next": "15.3.3",
     "pg": "^8.16.0",
     "prisma": "^6.8.2",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
