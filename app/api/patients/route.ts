@@ -56,6 +56,21 @@ export async function POST(request: NextRequest) {
       }
     });
 
+    // Bildirim oluştur
+    await prisma.notification.create({
+      data: {
+        title: 'Yeni Hasta Kaydı',
+        message: `${data.firstName} ${data.lastName} adlı hasta sisteme kaydedildi`,
+        type: 'success',
+        category: 'hasta_kaydi',
+        patientId: patient.id,
+        data: {
+          patientId: patient.id,
+          action: 'patient_created'
+        }
+      }
+    });
+
     return NextResponse.json({ 
       message: 'Hasta başarıyla kaydedildi', 
       patient: {

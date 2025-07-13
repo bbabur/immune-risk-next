@@ -54,6 +54,7 @@ model Patient {
   treatments        Treatment[]
   vaccinations      Vaccination[]
   riskAssessments   RiskAssessment[]
+  notifications     Notification[]
 
   @@map("patients")
 }
@@ -225,4 +226,27 @@ model RiskAssessment {
   patient Patient @relation(fields: [patientId], references: [id])
 
   @@map("risk_assessments")
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  title     String
+  message   String
+  type      String   @default("info") // info, success, warning, error
+  isRead    Boolean  @default(false) @map("is_read")
+  
+  // İlişkili hasta ID'si (opsiyonel)
+  patientId Int?     @map("patient_id")
+  patient   Patient? @relation(fields: [patientId], references: [id])
+  
+  // Bildirim türü (hasta_kaydi, risk_degerlendirmesi, tanı_guncellenmesi, etc.)
+  category  String   @default("system")
+  
+  // Ekstra veriler (JSON olarak)
+  data      Json?
+  
+  @@map("notifications")
 }
