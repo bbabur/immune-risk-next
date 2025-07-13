@@ -82,7 +82,7 @@ export default function AboutPage() {
             Konya Necmettin Erbakan Üniversitesi
           </Typography>
           <Typography variant="body1" sx={{ opacity: 0.9, maxWidth: 800, mx: 'auto' }}>
-            İmmün Yetmezlik Risk Değerlendirme Sistemi, multidisipliner bir ekip tarafından 
+            Çocuk İmmün Yetmezlik Risk Değerlendirme Sistemi, multidisipliner bir ekip tarafından 
             çocuk hastalarda primer immün yetmezlik riskini erken dönemde tespit etmek amacıyla geliştirilmiştir.
           </Typography>
         </Paper>
