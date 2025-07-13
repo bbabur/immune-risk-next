@@ -9,7 +9,6 @@ import {
   TextField, 
   Button, 
   Box, 
-  Grid,
   FormControl,
   InputLabel,
   Select,
@@ -190,54 +189,55 @@ export default function RegisterPatientPage() {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <Container maxWidth="lg" sx={{ py: 2 }}>
       {/* Header */}
-      <Box sx={{ mb: 4 }}>
+      <Box sx={{ mb: 2 }}>
         <Button
           component={Link}
           href="/patients"
           startIcon={<ArrowBack />}
-          sx={{ mb: 2 }}
+          sx={{ mb: 1 }}
         >
           Hasta Listesine Dön
         </Button>
         
         <Paper sx={{ 
-          p: 4, 
+          p: 2, 
           textAlign: 'center', 
           background: 'linear-gradient(135deg, #42a5f5 0%, #1976d2 100%)', 
           color: 'white',
-          borderRadius: 3
+          borderRadius: 2
         }}>
-          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}>
             <Avatar sx={{ 
-              width: 80, 
-              height: 80, 
+              width: 50, 
+              height: 50, 
               background: 'linear-gradient(135deg, #fff 0%, #f0f0f0 100%)',
               color: '#1976d2'
             }}>
-              <PersonAdd sx={{ fontSize: 50 }} />
+              <PersonAdd sx={{ fontSize: 30 }} />
             </Avatar>
           </Box>
-          <Typography variant="h3" component="h1" sx={{ mb: 2, fontWeight: 'bold' }}>
+          <Typography variant="h4" component="h1" sx={{ mb: 1, fontWeight: 'bold' }}>
             Yeni Hasta Kaydı
           </Typography>
-          <Typography variant="h6" sx={{ opacity: 0.9 }}>
+          <Typography variant="body1" sx={{ opacity: 0.9 }}>
             Hasta bilgilerini eksiksiz olarak doldurun
           </Typography>
         </Paper>
       </Box>
 
       {/* Progress Bar */}
-      <Card sx={{ mb: 4, boxShadow: 3 }}>
-        <CardContent>
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-            <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 'bold' }}>
+      <Card sx={{ mb: 2, boxShadow: 2 }}>
+        <CardContent sx={{ py: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+            <Typography variant="body1" sx={{ flexGrow: 1, fontWeight: 'bold' }}>
               Form Tamamlama Durumu
             </Typography>
             <Chip 
               label={`${getCompletionPercentage()}% Tamamlandı`}
               color={getCompletionPercentage() === 100 ? 'success' : 'primary'}
+              size="small"
               sx={{ fontWeight: 'bold' }}
             />
           </Box>
@@ -245,7 +245,7 @@ export default function RegisterPatientPage() {
             variant="determinate" 
             value={getCompletionPercentage()} 
             sx={{ 
-              height: 8, 
+              height: 6, 
               borderRadius: 1,
               backgroundColor: '#e0e0e0',
               '& .MuiLinearProgress-bar': {
@@ -257,19 +257,19 @@ export default function RegisterPatientPage() {
       </Card>
 
       {error && (
-        <Alert severity="error" sx={{ mb: 3 }}>
+        <Alert severity="error" sx={{ mb: 2 }}>
           {error}
         </Alert>
       )}
 
       <Box component="form" onSubmit={handleSubmit} noValidate>
         {/* Kişisel Bilgiler */}
-        <Card sx={{ mb: 3, boxShadow: 3 }}>
+        <Card sx={{ mb: 2, boxShadow: 2 }}>
           <Box 
             sx={{ 
               display: 'flex', 
               alignItems: 'center', 
-              p: 2, 
+              p: 1.5, 
               backgroundColor: '#f5f5f5',
               cursor: 'pointer'
             }}
@@ -279,19 +279,20 @@ export default function RegisterPatientPage() {
             <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 'bold' }}>
               Kişisel Bilgiler
             </Typography>
-            <IconButton>
+            <IconButton size="small">
               {expandedSections.personal ? <ExpandLess /> : <ExpandMore />}
             </IconButton>
           </Box>
           <Collapse in={expandedSections.personal}>
-            <CardContent>
-                             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3, mb: 3 }}>
+            <CardContent sx={{ pt: 2, pb: 2 }}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2, mb: 2 }}>
                 <TextField
                   fullWidth
                   required
                   label="Ad"
                   value={formData.firstName}
                   onChange={(e) => handleChange('firstName', e.target.value)}
+                  size="small"
                   InputProps={{
                     startAdornment: <Person sx={{ mr: 1, color: 'text.secondary' }} />
                   }}
@@ -302,12 +303,13 @@ export default function RegisterPatientPage() {
                   label="Soyad"
                   value={formData.lastName}
                   onChange={(e) => handleChange('lastName', e.target.value)}
+                  size="small"
                   InputProps={{
                     startAdornment: <Person sx={{ mr: 1, color: 'text.secondary' }} />
                   }}
                 />
               </Box>
-              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr 1fr' }, gap: 3 }}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr 1fr' }, gap: 2 }}>
                 <TextField
                   fullWidth
                   required
@@ -316,12 +318,13 @@ export default function RegisterPatientPage() {
                   value={formData.age}
                   onChange={(e) => handleChange('age', e.target.value)}
                   inputProps={{ min: 0, max: 18 }}
+                  size="small"
                   helperText="0-18 yaş arası"
                   InputProps={{
                     startAdornment: <CalendarMonth sx={{ mr: 1, color: 'text.secondary' }} />
                   }}
                 />
-                <FormControl fullWidth required>
+                <FormControl fullWidth required size="small">
                   <InputLabel>Cinsiyet</InputLabel>
                   <Select
                     value={formData.gender}
@@ -350,6 +353,7 @@ export default function RegisterPatientPage() {
                   label="Etnik Köken"
                   value={formData.ethnicity}
                   onChange={(e) => handleChange('ethnicity', e.target.value)}
+                  size="small"
                   InputProps={{
                     startAdornment: <LocationOn sx={{ mr: 1, color: 'text.secondary' }} />
                   }}
@@ -360,12 +364,12 @@ export default function RegisterPatientPage() {
         </Card>
 
         {/* Fiziksel Bilgiler */}
-        <Card sx={{ mb: 3, boxShadow: 3 }}>
+        <Card sx={{ mb: 2, boxShadow: 2 }}>
           <Box 
             sx={{ 
               display: 'flex', 
               alignItems: 'center', 
-              p: 2, 
+              p: 1.5, 
               backgroundColor: '#f5f5f5',
               cursor: 'pointer'
             }}
@@ -375,40 +379,38 @@ export default function RegisterPatientPage() {
             <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 'bold' }}>
               Fiziksel Bilgiler
             </Typography>
-            <IconButton>
+            <IconButton size="small">
               {expandedSections.physical ? <ExpandLess /> : <ExpandMore />}
             </IconButton>
           </Box>
           <Collapse in={expandedSections.physical}>
-            <CardContent>
-              <Grid container spacing={3}>
-                <Grid item xs={12} md={4}>
-                  <TextField
-                    fullWidth
-                    label="Boy (cm)"
-                    type="number"
-                    value={formData.height}
-                    onChange={(e) => handleChange('height', e.target.value ? Number(e.target.value) : '')}
-                    inputProps={{ step: 0.1 }}
-                    InputProps={{
-                      startAdornment: <Height sx={{ mr: 1, color: 'text.secondary' }} />
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <TextField
-                    fullWidth
-                    label="Kilo (kg)"
-                    type="number"
-                    value={formData.weight}
-                    onChange={(e) => handleChange('weight', e.target.value ? Number(e.target.value) : '')}
-                    inputProps={{ step: 0.1 }}
-                    InputProps={{
-                      startAdornment: <Scale sx={{ mr: 1, color: 'text.secondary' }} />
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12} md={4} sx={{ display: 'flex', alignItems: 'center' }}>
+            <CardContent sx={{ pt: 2, pb: 2 }}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr 1fr' }, gap: 2 }}>
+                <TextField
+                  fullWidth
+                  label="Boy (cm)"
+                  type="number"
+                  value={formData.height}
+                  onChange={(e) => handleChange('height', e.target.value ? Number(e.target.value) : '')}
+                  inputProps={{ step: 0.1 }}
+                  size="small"
+                  InputProps={{
+                    startAdornment: <Height sx={{ mr: 1, color: 'text.secondary' }} />
+                  }}
+                />
+                <TextField
+                  fullWidth
+                  label="Kilo (kg)"
+                  type="number"
+                  value={formData.weight}
+                  onChange={(e) => handleChange('weight', e.target.value ? Number(e.target.value) : '')}
+                  inputProps={{ step: 0.1 }}
+                  size="small"
+                  InputProps={{
+                    startAdornment: <Scale sx={{ mr: 1, color: 'text.secondary' }} />
+                  }}
+                />
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <FormControlLabel
                     control={
                       <Checkbox
@@ -423,19 +425,19 @@ export default function RegisterPatientPage() {
                       </Box>
                     }
                   />
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
             </CardContent>
           </Collapse>
         </Card>
 
         {/* Doğum Bilgileri */}
-        <Card sx={{ mb: 3, boxShadow: 3 }}>
+        <Card sx={{ mb: 2, boxShadow: 2 }}>
           <Box 
             sx={{ 
               display: 'flex', 
               alignItems: 'center', 
-              p: 2, 
+              p: 1.5, 
               backgroundColor: '#f5f5f5',
               cursor: 'pointer'
             }}
@@ -445,57 +447,54 @@ export default function RegisterPatientPage() {
             <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 'bold' }}>
               Doğum Bilgileri
             </Typography>
-            <IconButton>
+            <IconButton size="small">
               {expandedSections.medical ? <ExpandLess /> : <ExpandMore />}
             </IconButton>
           </Box>
           <Collapse in={expandedSections.medical}>
-            <CardContent>
-              <Grid container spacing={3}>
-                <Grid item xs={12} md={4}>
-                  <TextField
-                    fullWidth
-                    label="Doğum Ağırlığı (g)"
-                    type="number"
-                    value={formData.birthWeight}
-                    onChange={(e) => handleChange('birthWeight', e.target.value ? Number(e.target.value) : '')}
-                    InputProps={{
-                      startAdornment: <Scale sx={{ mr: 1, color: 'text.secondary' }} />
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <TextField
-                    fullWidth
-                    label="Gebelik Haftası"
-                    type="number"
-                    value={formData.gestationalAge}
-                    onChange={(e) => handleChange('gestationalAge', e.target.value ? Number(e.target.value) : '')}
-                    InputProps={{
-                      startAdornment: <CalendarMonth sx={{ mr: 1, color: 'text.secondary' }} />
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <TextField
-                    fullWidth
-                    label="Göbek Kordonu Düşme Günü"
-                    type="number"
-                    value={formData.cordFallDay}
-                    onChange={(e) => handleChange('cordFallDay', e.target.value ? Number(e.target.value) : '')}
-                    InputProps={{
-                      startAdornment: <LocalHospital sx={{ mr: 1, color: 'text.secondary' }} />
-                    }}
-                  />
-                </Grid>
-              </Grid>
+            <CardContent sx={{ pt: 2, pb: 2 }}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr 1fr' }, gap: 2 }}>
+                <TextField
+                  fullWidth
+                  label="Doğum Ağırlığı (g)"
+                  type="number"
+                  value={formData.birthWeight}
+                  onChange={(e) => handleChange('birthWeight', e.target.value ? Number(e.target.value) : '')}
+                  size="small"
+                  InputProps={{
+                    startAdornment: <Scale sx={{ mr: 1, color: 'text.secondary' }} />
+                  }}
+                />
+                <TextField
+                  fullWidth
+                  label="Gebelik Haftası"
+                  type="number"
+                  value={formData.gestationalAge}
+                  onChange={(e) => handleChange('gestationalAge', e.target.value ? Number(e.target.value) : '')}
+                  size="small"
+                  InputProps={{
+                    startAdornment: <CalendarMonth sx={{ mr: 1, color: 'text.secondary' }} />
+                  }}
+                />
+                <TextField
+                  fullWidth
+                  label="Göbek Kordonu Düşme Günü"
+                  type="number"
+                  value={formData.cordFallDay}
+                  onChange={(e) => handleChange('cordFallDay', e.target.value ? Number(e.target.value) : '')}
+                  size="small"
+                  InputProps={{
+                    startAdornment: <LocalHospital sx={{ mr: 1, color: 'text.secondary' }} />
+                  }}
+                />
+              </Box>
             </CardContent>
           </Collapse>
         </Card>
 
         {/* Submit Button */}
-        <Card sx={{ boxShadow: 3 }}>
-          <CardContent>
+        <Card sx={{ boxShadow: 2 }}>
+          <CardContent sx={{ py: 2 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <Box>
                 <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
@@ -509,14 +508,14 @@ export default function RegisterPatientPage() {
                 type="submit"
                 variant="contained"
                 size="large"
-                startIcon={loading ? <LinearProgress size={20} /> : <Save />}
+                startIcon={loading ? <LinearProgress sx={{ width: 20, height: 20 }} /> : <Save />}
                 disabled={loading || !isFormValid()}
                 sx={{ 
-                  px: 4, 
-                  py: 2,
+                  px: 3, 
+                  py: 1.5,
                   background: 'linear-gradient(45deg, #42a5f5 30%, #1976d2 90%)',
                   fontWeight: 'bold',
-                  fontSize: '1.1rem'
+                  fontSize: '1rem'
                 }}
               >
                 {loading ? 'Kaydediliyor...' : 'Hastayı Kaydet'}
