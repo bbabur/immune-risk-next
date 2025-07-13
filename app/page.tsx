@@ -130,8 +130,8 @@ export default function HomePage() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<Stats>({
-    patientCount: 24,
-    diagnosedCount: 6,
+    patientCount: 0,
+    diagnosedCount: 0,
     modelExists: true
   });
 

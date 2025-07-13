@@ -15,19 +15,9 @@ export async function GET(
       return NextResponse.json({ error: 'Geçersiz hasta ID' }, { status: 400 });
     }
 
-    // Hasta temel bilgilerini al
+    // Hasta temel bilgilerini al (include'lar geçici olarak kaldırıldı)
     const patient = await prisma.patient.findUnique({
-      where: { id: patientId },
-      include: {
-        familyHistory: true,
-        clinicalFeatures: true,
-        hospitalizations: true,
-        infections: true,
-        labResults: true,
-        treatments: true,
-        vaccinations: true,
-        riskAssessments: true
-      }
+      where: { id: patientId }
     });
 
     if (!patient) {
