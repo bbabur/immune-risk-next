@@ -4,17 +4,15 @@ import {
   Box, 
   Container, 
   Typography, 
-  Link,
   Stack,
   Divider,
-  IconButton
+  Avatar
 } from '@mui/material';
 import { 
   Psychology,
-  Email,
-  GitHub,
-  LinkedIn,
-  Copyright
+  Copyright,
+  Warning,
+  Shield
 } from '@mui/icons-material';
 
 export default function Footer() {
@@ -25,129 +23,58 @@ export default function Footer() {
       component="footer" 
       sx={{ 
         mt: 'auto',
-        bgcolor: 'grey.100',
-        borderTop: '1px solid',
-        borderColor: 'grey.200',
+        background: 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)',
+        color: 'white',
         py: 4
       }}
     >
       <Container maxWidth="lg">
-        <Stack spacing={3}>
-          {/* Ana footer içerik */}
-          <Box sx={{ 
-            display: 'flex', 
-            flexDirection: { xs: 'column', md: 'row' },
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            gap: 3
-          }}>
-            {/* Logo ve açıklama */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Psychology sx={{ fontSize: 32, color: 'primary.main' }} />
-              <Box>
-                <Typography variant="h6" color="primary" sx={{ fontWeight: 'bold' }}>
-                  İmmün Risk AI
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  İmmün Yetmezlik Risk Değerlendirme Sistemi
-                </Typography>
-              </Box>
-            </Box>
-
-            {/* Bağlantılar */}
-            <Box sx={{ 
-              display: 'flex', 
-              flexDirection: { xs: 'column', sm: 'row' },
-              gap: 3,
-              textAlign: { xs: 'center', sm: 'left' }
+        <Stack spacing={3} alignItems="center" textAlign="center">
+          {/* Logo ve başlık */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Avatar sx={{ 
+              width: 40, 
+              height: 40,
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              boxShadow: '0 4px 15px rgba(0,0,0,0.3)'
             }}>
-              <Box>
-                <Typography variant="subtitle2" color="text.primary" sx={{ mb: 1, fontWeight: 'bold' }}>
-                  Sistem
-                </Typography>
-                <Stack spacing={0.5}>
-                  <Link href="/" color="text.secondary" underline="hover" variant="body2">
-                    Dashboard
-                  </Link>
-                  <Link href="/patients" color="text.secondary" underline="hover" variant="body2">
-                    Hastalar
-                  </Link>
-                  <Link href="/patients/register" color="text.secondary" underline="hover" variant="body2">
-                    Yeni Hasta
-                  </Link>
-                  <Link href="/model-info" color="text.secondary" underline="hover" variant="body2">
-                    AI Model
-                  </Link>
-                </Stack>
-              </Box>
-
-              <Box>
-                <Typography variant="subtitle2" color="text.primary" sx={{ mb: 1, fontWeight: 'bold' }}>
-                  Hakkında
-                </Typography>
-                <Stack spacing={0.5}>
-                  <Typography variant="body2" color="text.secondary">
-                    Sistem v2.0
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Next.js & AI Powered
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Çocuk İmmünoloji
-                  </Typography>
-                </Stack>
-              </Box>
-            </Box>
-
-            {/* İletişim */}
-            <Box sx={{ textAlign: 'center' }}>
-              <Typography variant="subtitle2" color="text.primary" sx={{ mb: 1, fontWeight: 'bold' }}>
-                İletişim
-              </Typography>
-              <Stack direction="row" spacing={1} justifyContent="center">
-                <IconButton size="small" color="primary">
-                  <Email />
-                </IconButton>
-                <IconButton size="small" color="primary">
-                  <GitHub />
-                </IconButton>
-                <IconButton size="small" color="primary">
-                  <LinkedIn />
-                </IconButton>
-              </Stack>
-            </Box>
+              <Psychology sx={{ fontSize: 24 }} />
+            </Avatar>
+            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+              İmmün Risk AI
+            </Typography>
           </Box>
 
-          <Divider />
-
-          {/* Alt kısım - Copyright */}
-          <Box sx={{ 
-            display: 'flex', 
-            flexDirection: { xs: 'column', sm: 'row' },
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            gap: 2,
-            textAlign: { xs: 'center', sm: 'left' }
-          }}>
-            <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              <Copyright sx={{ fontSize: 16 }} />
-              {currentYear} İmmün Risk AI. Tüm hakları saklıdır.
-            </Typography>
-            
-            <Typography variant="body2" color="text.secondary">
+          {/* Güvenlik mesajı */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Shield sx={{ fontSize: 18, color: '#4caf50' }} />
+            <Typography variant="body2" sx={{ opacity: 0.9 }}>
               Güvenli ve güvenilir sağlık teknolojisi
             </Typography>
           </Box>
 
-          {/* Uyarı notu */}
+          <Divider sx={{ width: '100%', bgcolor: 'rgba(255,255,255,0.2)' }} />
+
+          {/* Uyarı */}
           <Box sx={{ 
-            bgcolor: 'warning.light', 
+            bgcolor: 'rgba(255,107,107,0.2)', 
             p: 2, 
             borderRadius: 2,
-            textAlign: 'center'
+            border: '1px solid rgba(255,107,107,0.3)'
           }}>
-            <Typography variant="caption" color="warning.dark" sx={{ fontWeight: 'bold' }}>
-              ⚠️ Bu sistem yalnızca klinik karar desteği amaçlıdır. Kesin tanı için uzman hekime başvurunuz.
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+              <Warning sx={{ fontSize: 20, color: '#ffeb3b' }} />
+              <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                Bu sistem yalnızca klinik karar desteği amaçlıdır. Kesin tanı için uzman hekime başvurunuz.
+              </Typography>
+            </Box>
+          </Box>
+
+          {/* Copyright */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Copyright sx={{ fontSize: 16, opacity: 0.8 }} />
+            <Typography variant="body2" sx={{ opacity: 0.9 }}>
+              {currentYear} İmmün Risk AI. Tüm hakları saklıdır.
             </Typography>
           </Box>
         </Stack>
