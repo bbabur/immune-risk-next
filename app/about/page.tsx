@@ -17,7 +17,7 @@ import {
   Psychology, 
   LocalHospital,
   School,
-  Vaccines
+  Vaccines,
   ArrowBack,
   RecordVoiceOver,
   Email,
