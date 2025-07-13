@@ -16,11 +16,40 @@ import {
   MenuItem,
   FormControlLabel,
   Checkbox,
-  Alert
+  Alert,
+  Paper,
+  Stepper,
+  Step,
+  StepLabel,
+  Divider,
+  Chip,
+  Avatar,
+  LinearProgress,
+  Collapse,
+  IconButton
 } from '@mui/material';
-import { PersonAdd, Save } from '@mui/icons-material';
+import { 
+  PersonAdd, 
+  Save, 
+  Person, 
+  MonitorWeight, 
+  BabyChangingStation, 
+  ArrowBack,
+  ExpandMore,
+  ExpandLess,
+  Check,
+  Male,
+  Female,
+  Height,
+  Scale,
+  FamilyRestroom,
+  LocationOn,
+  CalendarMonth,
+  LocalHospital
+} from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
 import { useNotification } from '@/components/NotificationProvider';
+import Link from 'next/link';
 
 interface PatientFormData {
   firstName: string;
@@ -54,10 +83,14 @@ export default function RegisterPatientPage() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
+  const [expandedSections, setExpandedSections] = useState({
+    personal: true,
+    physical: true,
+    medical: true
+  });
 
   const handleChange = (field: keyof PatientFormData, value: any) => {
     if (field === 'age') {
-      // Yaş için özel doğrulama (0-18 arası)
       value = Math.max(0, Math.min(18, Number(value)));
     }
     
@@ -96,7 +129,7 @@ export default function RegisterPatientPage() {
         body: JSON.stringify({
           firstName: formData.firstName,
           lastName: formData.lastName,
-          birthDate: birthDate.toISOString().split('T')[0], // YYYY-MM-DD format
+          birthDate: birthDate.toISOString().split('T')[0],
           gender: formData.gender,
           parentalConsanguinity: formData.parentalConsanguinity,
           height: formData.height ? Number(formData.height) : null,
@@ -111,14 +144,17 @@ export default function RegisterPatientPage() {
       if (response.ok) {
         const result = await response.json();
         
-        // Bildirim göster
         showNotification(
           `✅ ${formData.firstName} ${formData.lastName} başarıyla kaydedildi!`, 
           'success'
         );
         
-        // Custom event dispatch
-        window.dispatchEvent(new CustomEvent('patient-added'));
+        // Import the notification function
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('patient-added', {
+            detail: { patientName: `${formData.firstName} ${formData.lastName}` }
+          }));
+        }
         
         router.push(`/patients/${result.id}/evaluation`);
       } else {
@@ -132,49 +168,146 @@ export default function RegisterPatientPage() {
     }
   };
 
+  const toggleSection = (section: keyof typeof expandedSections) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
+  const getCompletionPercentage = () => {
+    const requiredFields = ['firstName', 'lastName', 'age', 'gender'];
+    const optionalFields = ['ethnicity', 'height', 'weight', 'birthWeight', 'gestationalAge', 'cordFallDay'];
+    
+    const completedRequired = requiredFields.filter(field => formData[field as keyof PatientFormData]).length;
+    const completedOptional = optionalFields.filter(field => formData[field as keyof PatientFormData]).length;
+    
+    return Math.round(((completedRequired / requiredFields.length) * 70) + ((completedOptional / optionalFields.length) * 30));
+  };
+
+  const isFormValid = () => {
+    return formData.firstName && formData.lastName && formData.gender && formData.age >= 0 && formData.age <= 18;
+  };
+
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Card sx={{ boxShadow: 3 }}>
-        <Box sx={{ bgcolor: 'primary.main', color: 'white', p: 2 }}>
-          <Typography variant="h5" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <PersonAdd />
+      {/* Header */}
+      <Box sx={{ mb: 4 }}>
+        <Button
+          component={Link}
+          href="/patients"
+          startIcon={<ArrowBack />}
+          sx={{ mb: 2 }}
+        >
+          Hasta Listesine Dön
+        </Button>
+        
+        <Paper sx={{ 
+          p: 4, 
+          textAlign: 'center', 
+          background: 'linear-gradient(135deg, #42a5f5 0%, #1976d2 100%)', 
+          color: 'white',
+          borderRadius: 3
+        }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+            <Avatar sx={{ 
+              width: 80, 
+              height: 80, 
+              background: 'linear-gradient(135deg, #fff 0%, #f0f0f0 100%)',
+              color: '#1976d2'
+            }}>
+              <PersonAdd sx={{ fontSize: 50 }} />
+            </Avatar>
+          </Box>
+          <Typography variant="h3" component="h1" sx={{ mb: 2, fontWeight: 'bold' }}>
             Yeni Hasta Kaydı
           </Typography>
-        </Box>
-        
+          <Typography variant="h6" sx={{ opacity: 0.9 }}>
+            Hasta bilgilerini eksiksiz olarak doldurun
+          </Typography>
+        </Paper>
+      </Box>
+
+      {/* Progress Bar */}
+      <Card sx={{ mb: 4, boxShadow: 3 }}>
         <CardContent>
-          {error && (
-            <Alert severity="error" sx={{ mb: 3 }}>
-              {error}
-            </Alert>
-          )}
-          
-          <Box component="form" onSubmit={handleSubmit} noValidate>
-            {/* Ad Soyad */}
-            <Grid container spacing={3} sx={{ mb: 3 }}>
-              <Grid item xs={12} md={6}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+            <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 'bold' }}>
+              Form Tamamlama Durumu
+            </Typography>
+            <Chip 
+              label={`${getCompletionPercentage()}% Tamamlandı`}
+              color={getCompletionPercentage() === 100 ? 'success' : 'primary'}
+              sx={{ fontWeight: 'bold' }}
+            />
+          </Box>
+          <LinearProgress 
+            variant="determinate" 
+            value={getCompletionPercentage()} 
+            sx={{ 
+              height: 8, 
+              borderRadius: 1,
+              backgroundColor: '#e0e0e0',
+              '& .MuiLinearProgress-bar': {
+                background: 'linear-gradient(90deg, #42a5f5 0%, #1976d2 100%)',
+              }
+            }} 
+          />
+        </CardContent>
+      </Card>
+
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
+      )}
+
+      <Box component="form" onSubmit={handleSubmit} noValidate>
+        {/* Kişisel Bilgiler */}
+        <Card sx={{ mb: 3, boxShadow: 3 }}>
+          <Box 
+            sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              p: 2, 
+              backgroundColor: '#f5f5f5',
+              cursor: 'pointer'
+            }}
+            onClick={() => toggleSection('personal')}
+          >
+            <Person sx={{ mr: 2, color: 'primary.main' }} />
+            <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 'bold' }}>
+              Kişisel Bilgiler
+            </Typography>
+            <IconButton>
+              {expandedSections.personal ? <ExpandLess /> : <ExpandMore />}
+            </IconButton>
+          </Box>
+          <Collapse in={expandedSections.personal}>
+            <CardContent>
+                             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3, mb: 3 }}>
                 <TextField
                   fullWidth
                   required
                   label="Ad"
                   value={formData.firstName}
                   onChange={(e) => handleChange('firstName', e.target.value)}
+                  InputProps={{
+                    startAdornment: <Person sx={{ mr: 1, color: 'text.secondary' }} />
+                  }}
                 />
-              </Grid>
-              <Grid item xs={12} md={6}>
                 <TextField
                   fullWidth
                   required
                   label="Soyad"
                   value={formData.lastName}
                   onChange={(e) => handleChange('lastName', e.target.value)}
+                  InputProps={{
+                    startAdornment: <Person sx={{ mr: 1, color: 'text.secondary' }} />
+                  }}
                 />
-              </Grid>
-            </Grid>
-
-            {/* Yaş, Cinsiyet, Etnik Köken */}
-            <Grid container spacing={3} sx={{ mb: 3 }}>
-              <Grid item xs={12} md={4}>
+              </Box>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr 1fr' }, gap: 3 }}>
                 <TextField
                   fullWidth
                   required
@@ -184,9 +317,10 @@ export default function RegisterPatientPage() {
                   onChange={(e) => handleChange('age', e.target.value)}
                   inputProps={{ min: 0, max: 18 }}
                   helperText="0-18 yaş arası"
+                  InputProps={{
+                    startAdornment: <CalendarMonth sx={{ mr: 1, color: 'text.secondary' }} />
+                  }}
                 />
-              </Grid>
-              <Grid item xs={12} md={4}>
                 <FormControl fullWidth required>
                   <InputLabel>Cinsiyet</InputLabel>
                   <Select
@@ -194,103 +328,203 @@ export default function RegisterPatientPage() {
                     label="Cinsiyet"
                     onChange={(e) => handleChange('gender', e.target.value)}
                   >
-                    <MenuItem value="">Seçiniz</MenuItem>
-                    <MenuItem value="male">Erkek</MenuItem>
-                    <MenuItem value="female">Kız</MenuItem>
+                    <MenuItem value="">
+                      <em>Seçiniz</em>
+                    </MenuItem>
+                    <MenuItem value="male">
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Male sx={{ mr: 1, color: 'blue' }} />
+                        Erkek
+                      </Box>
+                    </MenuItem>
+                    <MenuItem value="female">
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Female sx={{ mr: 1, color: 'pink' }} />
+                        Kız
+                      </Box>
+                    </MenuItem>
                   </Select>
                 </FormControl>
-              </Grid>
-              <Grid item xs={12} md={4}>
                 <TextField
                   fullWidth
                   label="Etnik Köken"
                   value={formData.ethnicity}
                   onChange={(e) => handleChange('ethnicity', e.target.value)}
+                  InputProps={{
+                    startAdornment: <LocationOn sx={{ mr: 1, color: 'text.secondary' }} />
+                  }}
                 />
-              </Grid>
-            </Grid>
+              </Box>
+            </CardContent>
+          </Collapse>
+        </Card>
 
-            {/* Boy, Kilo, Ebeveyn Akrabalığı */}
-            <Grid container spacing={3} sx={{ mb: 3 }}>
-              <Grid item xs={12} md={4}>
-                <TextField
-                  fullWidth
-                  label="Boy (cm)"
-                  type="number"
-                  value={formData.height}
-                  onChange={(e) => handleChange('height', e.target.value ? Number(e.target.value) : '')}
-                  inputProps={{ step: 0.1 }}
-                />
+        {/* Fiziksel Bilgiler */}
+        <Card sx={{ mb: 3, boxShadow: 3 }}>
+          <Box 
+            sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              p: 2, 
+              backgroundColor: '#f5f5f5',
+              cursor: 'pointer'
+            }}
+            onClick={() => toggleSection('physical')}
+          >
+            <MonitorWeight sx={{ mr: 2, color: 'primary.main' }} />
+            <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 'bold' }}>
+              Fiziksel Bilgiler
+            </Typography>
+            <IconButton>
+              {expandedSections.physical ? <ExpandLess /> : <ExpandMore />}
+            </IconButton>
+          </Box>
+          <Collapse in={expandedSections.physical}>
+            <CardContent>
+              <Grid container spacing={3}>
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    fullWidth
+                    label="Boy (cm)"
+                    type="number"
+                    value={formData.height}
+                    onChange={(e) => handleChange('height', e.target.value ? Number(e.target.value) : '')}
+                    inputProps={{ step: 0.1 }}
+                    InputProps={{
+                      startAdornment: <Height sx={{ mr: 1, color: 'text.secondary' }} />
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    fullWidth
+                    label="Kilo (kg)"
+                    type="number"
+                    value={formData.weight}
+                    onChange={(e) => handleChange('weight', e.target.value ? Number(e.target.value) : '')}
+                    inputProps={{ step: 0.1 }}
+                    InputProps={{
+                      startAdornment: <Scale sx={{ mr: 1, color: 'text.secondary' }} />
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12} md={4} sx={{ display: 'flex', alignItems: 'center' }}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={formData.parentalConsanguinity}
+                        onChange={(e) => handleChange('parentalConsanguinity', e.target.checked)}
+                      />
+                    }
+                    label={
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <FamilyRestroom sx={{ mr: 1, color: 'text.secondary' }} />
+                        Ebeveyn Akrabalığı
+                      </Box>
+                    }
+                  />
+                </Grid>
               </Grid>
-              <Grid item xs={12} md={4}>
-                <TextField
-                  fullWidth
-                  label="Kilo (kg)"
-                  type="number"
-                  value={formData.weight}
-                  onChange={(e) => handleChange('weight', e.target.value ? Number(e.target.value) : '')}
-                  inputProps={{ step: 0.1 }}
-                />
-              </Grid>
-              <Grid item xs={12} md={4} sx={{ display: 'flex', alignItems: 'center' }}>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={formData.parentalConsanguinity}
-                      onChange={(e) => handleChange('parentalConsanguinity', e.target.checked)}
-                    />
-                  }
-                  label="Ebeveyn Akrabalığı"
-                />
-              </Grid>
-            </Grid>
+            </CardContent>
+          </Collapse>
+        </Card>
 
-            {/* Doğum Bilgileri */}
-            <Grid container spacing={3} sx={{ mb: 3 }}>
-              <Grid item xs={12} md={4}>
-                <TextField
-                  fullWidth
-                  label="Doğum Ağırlığı (g)"
-                  type="number"
-                  value={formData.birthWeight}
-                  onChange={(e) => handleChange('birthWeight', e.target.value ? Number(e.target.value) : '')}
-                />
+        {/* Doğum Bilgileri */}
+        <Card sx={{ mb: 3, boxShadow: 3 }}>
+          <Box 
+            sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              p: 2, 
+              backgroundColor: '#f5f5f5',
+              cursor: 'pointer'
+            }}
+            onClick={() => toggleSection('medical')}
+          >
+            <BabyChangingStation sx={{ mr: 2, color: 'primary.main' }} />
+            <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 'bold' }}>
+              Doğum Bilgileri
+            </Typography>
+            <IconButton>
+              {expandedSections.medical ? <ExpandLess /> : <ExpandMore />}
+            </IconButton>
+          </Box>
+          <Collapse in={expandedSections.medical}>
+            <CardContent>
+              <Grid container spacing={3}>
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    fullWidth
+                    label="Doğum Ağırlığı (g)"
+                    type="number"
+                    value={formData.birthWeight}
+                    onChange={(e) => handleChange('birthWeight', e.target.value ? Number(e.target.value) : '')}
+                    InputProps={{
+                      startAdornment: <Scale sx={{ mr: 1, color: 'text.secondary' }} />
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    fullWidth
+                    label="Gebelik Haftası"
+                    type="number"
+                    value={formData.gestationalAge}
+                    onChange={(e) => handleChange('gestationalAge', e.target.value ? Number(e.target.value) : '')}
+                    InputProps={{
+                      startAdornment: <CalendarMonth sx={{ mr: 1, color: 'text.secondary' }} />
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    fullWidth
+                    label="Göbek Kordonu Düşme Günü"
+                    type="number"
+                    value={formData.cordFallDay}
+                    onChange={(e) => handleChange('cordFallDay', e.target.value ? Number(e.target.value) : '')}
+                    InputProps={{
+                      startAdornment: <LocalHospital sx={{ mr: 1, color: 'text.secondary' }} />
+                    }}
+                  />
+                </Grid>
               </Grid>
-              <Grid item xs={12} md={4}>
-                <TextField
-                  fullWidth
-                  label="Gebelik Haftası"
-                  type="number"
-                  value={formData.gestationalAge}
-                  onChange={(e) => handleChange('gestationalAge', e.target.value ? Number(e.target.value) : '')}
-                />
-              </Grid>
-              <Grid item xs={12} md={4}>
-                <TextField
-                  fullWidth
-                  label="Göbek Kordonu Düşme Günü"
-                  type="number"
-                  value={formData.cordFallDay}
-                  onChange={(e) => handleChange('cordFallDay', e.target.value ? Number(e.target.value) : '')}
-                />
-              </Grid>
-            </Grid>
+            </CardContent>
+          </Collapse>
+        </Card>
 
-            {/* Submit Button */}
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+        {/* Submit Button */}
+        <Card sx={{ boxShadow: 3 }}>
+          <CardContent>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Box>
+                <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                  Hazır mısınız?
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Hasta bilgilerini kontrol edin ve kaydedin
+                </Typography>
+              </Box>
               <Button
                 type="submit"
                 variant="contained"
                 size="large"
-                startIcon={<Save />}
-                disabled={loading}
+                startIcon={loading ? <LinearProgress size={20} /> : <Save />}
+                disabled={loading || !isFormValid()}
+                sx={{ 
+                  px: 4, 
+                  py: 2,
+                  background: 'linear-gradient(45deg, #42a5f5 30%, #1976d2 90%)',
+                  fontWeight: 'bold',
+                  fontSize: '1.1rem'
+                }}
               >
-                {loading ? 'Kaydediliyor...' : 'Kaydet'}
+                {loading ? 'Kaydediliyor...' : 'Hastayı Kaydet'}
               </Button>
             </Box>
-          </Box>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </Box>
     </Container>
   );
 } 
