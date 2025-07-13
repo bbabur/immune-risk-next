@@ -3,6 +3,10 @@
 # Build script for Render deployment
 echo "Starting build process..."
 
+# Clean cache
+echo "Cleaning npm cache..."
+npm cache clean --force
+
 # Install dependencies
 echo "Installing dependencies..."
 npm ci
