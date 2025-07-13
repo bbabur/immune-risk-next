@@ -172,6 +172,21 @@ export default function Navbar() {
           >
             AI Model
           </Button>
+          <Button 
+            color="inherit" 
+            component={Link} 
+            href="/about"
+            startIcon={<AccountCircle />}
+            sx={{ 
+              px: 2,
+              '&:hover': { 
+                backgroundColor: 'rgba(255,255,255,0.1)',
+                borderRadius: 2
+              }
+            }}
+          >
+            Hakkımızda
+          </Button>
         </Box>
 
         {/* Search Bar */}

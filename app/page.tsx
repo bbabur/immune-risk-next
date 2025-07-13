@@ -223,14 +223,34 @@ export default function HomePage() {
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <Shield sx={{ fontSize: 40, color: 'primary.main', mr: 2 }} />
-                <Typography variant="h4" component="h1" color="primary">
-                  İmmün Yetmezlik Risk Değerlendirme Sistemi
-                </Typography>
+                <Box>
+                  <Typography variant="h4" component="h1" color="primary">
+                    İmmün Yetmezlik Risk Değerlendirme Sistemi
+                  </Typography>
+                  <Typography variant="h6" sx={{ color: 'text.secondary', fontWeight: 'bold', mt: 1 }}>
+                    Konya Necmettin Erbakan Üniversitesi
+                  </Typography>
+                </Box>
               </Box>
-              <Typography variant="body1" color="text.secondary">
+              <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
                 Bu sistem, çocuk hastalarda primer immün yetmezlik riski taşıyan hastaları erken dönemde tespit etmek, 
                 takip etmek ve uygun değerlendirmelere yönlendirmek için tasarlanmıştır.
               </Typography>
+              <Box sx={{ 
+                backgroundColor: '#f5f5f5', 
+                padding: 2, 
+                borderRadius: 1,
+                border: '1px solid #e0e0e0'
+              }}>
+                <Typography variant="body2" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
+                  🏥 Necmettin Erbakan Üniversitesi İmmün Yetmezlik Araştırma Projesi
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  Bu dashboard, Konya Necmettin Erbakan Üniversitesi kapsamında yürütülen immün yetmezlik 
+                  araştırması için geliştirilmiştir. Hasta verileri, risk değerlendirmeleri ve klinik takipler 
+                  bu sistem üzerinden gerçekleştirilmektedir.
+                </Typography>
+              </Box>
             </CardContent>
           </Card>
 
@@ -416,6 +436,20 @@ export default function HomePage() {
                 </CardContent>
               </Card>
             </Box>
+          </Box>
+
+          {/* Hakkımızda Butonu */}
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+            <Button 
+              variant="outlined" 
+              color="primary"
+              startIcon={<Info />}
+              component={Link}
+              href="/about"
+              sx={{ px: 4, py: 2 }}
+            >
+              Hakkımızda
+            </Button>
           </Box>
         </Container>
       </Box>
