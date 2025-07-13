@@ -225,7 +225,7 @@ export default function HomePage() {
                 <Shield sx={{ fontSize: 40, color: 'primary.main', mr: 2 }} />
                 <Box>
                   <Typography variant="h4" component="h1" color="primary">
-                    İmmün Yetmezlik Risk Değerlendirme Sistemi
+                    Çocuk İmmün Yetmezlik Risk Değerlendirme Sistemi
                   </Typography>
                   <Typography variant="h6" sx={{ color: 'text.secondary', fontWeight: 'bold', mt: 1 }}>
                     Konya Necmettin Erbakan Üniversitesi
@@ -243,7 +243,7 @@ export default function HomePage() {
                 border: '1px solid #e0e0e0'
               }}>
                 <Typography variant="body2" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
-                  🏥 Necmettin Erbakan Üniversitesi İmmün Yetmezlik Araştırma Projesi
+                  🏥 Necmettin Erbakan Üniversitesi Çocuk İmmün Yetmezlik Araştırma Projesi
                 </Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
                   Bu dashboard, Konya Necmettin Erbakan Üniversitesi kapsamında yürütülen immün yetmezlik 

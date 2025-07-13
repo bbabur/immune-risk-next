@@ -18,6 +18,7 @@ import {
   LocalHospital,
   School,
   ArrowBack,
+  RecordVoiceOver,
   Email,
   LinkedIn
 } from '@mui/icons-material';
@@ -46,6 +47,14 @@ const teamMembers = [
     icon: <Psychology sx={{ fontSize: 60, color: 'success.main' }} />,
     description: 'Makine öğrenmesi modelleri, risk değerlendirme algoritmaları ve veri analizi',
     skills: ['Machine Learning', 'Deep Learning', 'Python', 'TensorFlow', 'Data Science'],
+    color: 'success'
+  },
+  {
+    name: 'Prof. Dr. İbrahim Reisli',
+    role: 'Danışman',
+    icon: <RecordVoiceOver sx={{ fontSize: 60, color: 'success.main' }} />,
+    description: 'Klinik değerlendirme, hasta verileri analizi ve tıbbi danışmanlık',
+    skills: ['İmmünoloji', 'Pediatri', 'Klinik Araştırma', 'Hasta Takibi', 'Tanı'],
     color: 'success'
   }
 ];
