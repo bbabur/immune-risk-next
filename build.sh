@@ -27,4 +27,8 @@ npx prisma migrate deploy
 echo "Building Next.js application..."
 npm run build
 
+# Seed database with dummy data
+echo "Adding dummy patient data..."
+npm run prisma:seed
+
 echo "Build completed successfully!" 
