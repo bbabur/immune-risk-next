@@ -257,8 +257,7 @@ const clinicalFeaturesData = [
 async function main() {
   console.log('🌱 Dummy hasta kayıtları oluşturuluyor...');
   
-  // Önce mevcut kayıtları temizle
-  await prisma.clinicalFeature.deleteMany({});
+  // Önce mevcut kayıtları temizle (sadece hasta kayıtlarını)
   await prisma.patient.deleteMany({});
   
   // Hasta kayıtlarını oluştur
@@ -268,12 +267,8 @@ async function main() {
     });
   }
   
-  // Klinik özellik kayıtlarını oluştur
-  for (const clinicalFeature of clinicalFeaturesData) {
-    await prisma.clinicalFeature.create({
-      data: clinicalFeature
-    });
-  }
+  // Klinik özellik kayıtları şimdilik eklenmeyecek
+  // ClinicalFeature tablosu mapping sorunu var
   
   console.log('✅ 10 dummy hasta kaydı başarıyla oluşturuldu!');
   console.log('📊 Hasta dağılımı:');
