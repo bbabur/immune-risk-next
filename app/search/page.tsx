@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
   Container,
@@ -33,7 +33,7 @@ interface Patient {
   diagnosisType?: string;
 }
 
-export default function SearchPage() {
+function SearchPageContent() {
   const [searchTerm, setSearchTerm] = useState('');
   const [results, setResults] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(false);
@@ -246,5 +246,13 @@ export default function SearchPage() {
         </Box>
       </Paper>
     </Container>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SearchPageContent />
+    </Suspense>
   );
 } 
