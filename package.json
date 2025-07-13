@@ -30,18 +30,18 @@
     "prisma": "^6.8.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "sqlite3": "^5.1.7"
+    "sqlite3": "^5.1.7",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32",
+    "tailwindcss": "^3.3.6"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "autoprefixer": "^10.4.16",
     "eslint": "^9",
     "eslint-config-next": "15.3.3",
-    "postcss": "^8.4.32",
-    "tailwindcss": "^3.3.6",
     "ts-node": "^10.9.2",
     "typescript": "^5"
   }
