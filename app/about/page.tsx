@@ -51,7 +51,7 @@ const teamMembers = [
     color: 'success'
   },
   {
-    name: 'Prof. Dr. İbrahim Reisli',
+    name: 'Prof. Dr. İsmail Reisli',
     role: 'Danışman',
     icon: <RecordVoiceOver sx={{ fontSize: 60, color: 'success.main' }} />,
     description: 'Klinik değerlendirme, hasta verileri analizi ve tıbbi danışmanlık',
