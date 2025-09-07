@@ -2,11 +2,24 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 interface ImportPatientData {
-  // Excel başlıklarına uygun şekilde düzenlendi
+  // Excel başlıklarına uygun şekilde düzenlendi - flexible field mapping
   'sıra'?: number;
   'dosya no'?: string;
   'ad'?: string;
+  'Ad'?: string;
+  'ADI'?: string;
+  'İsim'?: string;
+  'isim'?: string;
+  'first_name'?: string;
+  'firstName'?: string;
   'cins'?: string;
+  'Cins'?: string;
+  'CINS'?: string;
+  'Cinsiyet'?: string;
+  'cinsiyet'?: string;
+  'Sex'?: string;
+  'sex'?: string;
+  'gender'?: string;
   'yaş-ay'?: number;
   'doğum şekli'?: string;
   'doğum kilo'?: number;
@@ -113,6 +126,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Debug: Log first patient's keys to see actual column headers
+    if (patients.length > 0) {
+      console.log('Available columns:', Object.keys(patients[0]));
+    }
+
     const results = {
       success: 0,
       failed: 0,
@@ -123,10 +141,14 @@ export async function POST(request: NextRequest) {
       const patientData = patients[i] as ImportPatientData;
       
       try {
+        // Flexible field mapping
+        const firstName = patientData['ad'] || patientData['Ad'] || patientData['ADI'] || patientData['İsim'] || patientData['isim'] || patientData['first_name'] || patientData['firstName'];
+        const gender = patientData['cins'] || patientData['Cins'] || patientData['CINS'] || patientData['Cinsiyet'] || patientData['cinsiyet'] || patientData['Sex'] || patientData['sex'] || patientData['gender'];
+
         // Validate required fields
-        if (!patientData['ad'] || !patientData['cins']) {
+        if (!firstName || !gender) {
           results.failed++;
-          results.errors.push(`Satır ${i + 1}: Zorunlu alanlar eksik (ad, cins)`);
+          results.errors.push(`Satır ${i + 1}: Zorunlu alanlar eksik (ad: '${firstName}', cins: '${gender}')`);
           continue;
         }
 
@@ -137,10 +159,10 @@ export async function POST(request: NextRequest) {
         await prisma.$transaction(async (tx) => {
           const patient = await tx.patient.create({
             data: {
-              firstName: patientData['ad'] || '',
+              firstName: firstName || '',
               lastName: '', // Excel'de soyad ayrı kolonu yok
               birthDate: birthDate || new Date().toISOString(),
-              gender: patientData['cins'] || '',
+              gender: gender || '',
               height: null, // Excel'de boy bilgisi yok
               weight: null, // Excel'de kilo bilgisi yok  
               ethnicity: null,
