@@ -18,7 +18,7 @@ import {
   CircularProgress,
   Chip
 } from '@mui/material';
-import { PersonAdd, Visibility, Assessment, Male, Female } from '@mui/icons-material';
+import { PersonAdd, Visibility, Assessment, Male, Female, Upload } from '@mui/icons-material';
 import Link from 'next/link';
 
 interface Patient {
@@ -186,15 +186,26 @@ export default function PatientsPage() {
           <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold' }}>
             👥 Hasta Listesi
           </Typography>
-          <Button
-            component={Link}
-            href="/patients/register"
-            variant="contained"
-            sx={{ bgcolor: 'white', color: 'primary.main', '&:hover': { bgcolor: 'grey.100' } }}
-            startIcon={<PersonAdd />}
-          >
-            Yeni Hasta Ekle
-          </Button>
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Button
+              component={Link}
+              href="/patients/import"
+              variant="outlined"
+              sx={{ bgcolor: 'white', color: 'primary.main', borderColor: 'white', '&:hover': { bgcolor: 'grey.100' } }}
+              startIcon={<Upload />}
+            >
+              Excel İçe Aktar
+            </Button>
+            <Button
+              component={Link}
+              href="/patients/register"
+              variant="contained"
+              sx={{ bgcolor: 'white', color: 'primary.main', '&:hover': { bgcolor: 'grey.100' } }}
+              startIcon={<PersonAdd />}
+            >
+              Yeni Hasta Ekle
+            </Button>
+          </Box>
         </Box>
         
         <Box sx={{ p: 2 }}>
