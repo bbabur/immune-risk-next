@@ -14,6 +14,7 @@ import {
   Container,
   Box,
   Alert,
+  AlertTitle,
   CircularProgress,
   Chip
 } from '@mui/material';
@@ -44,13 +45,19 @@ export default function PatientsPage() {
     try {
       const response = await fetch('/api/patients');
       if (!response.ok) {
-        throw new Error('Hasta verileri alınamadı');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.details || `API Hatası: ${response.status}`);
       }
       const data = await response.json();
       setPatients(data);
     } catch (error) {
-      setError('Hasta verileri yüklenirken hata oluştu');
-      console.error('Error fetching patients:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Bilinmeyen hata';
+      setError(`Hasta verileri yüklenirken hata oluştu: ${errorMessage}`);
+      console.error('Error fetching patients:', {
+        error,
+        timestamp: new Date().toISOString(),
+        url: '/api/patients'
+      });
     } finally {
       setLoading(false);
     }
@@ -136,7 +143,29 @@ export default function PatientsPage() {
   if (error) {
     return (
       <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Alert severity="error">{error}</Alert>
+        <Alert 
+          severity="error"
+          action={
+            <Button 
+              color="inherit" 
+              size="small" 
+              onClick={() => {
+                setError(null);
+                setLoading(true);
+                fetchPatients();
+              }}
+            >
+              TEKRAR DENE
+            </Button>
+          }
+        >
+          <AlertTitle>Hasta Verileri Yüklenirken Hata Oluştu</AlertTitle>
+          {error}
+          <br />
+          <Typography variant="caption" sx={{ mt: 1, display: 'block' }}>
+            İnternet bağlantınızı kontrol edin veya sayfayı yenileyin.
+          </Typography>
+        </Alert>
       </Container>
     );
   }

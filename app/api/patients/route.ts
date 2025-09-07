@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 
 export async function GET(request: Request) {
   try {
@@ -21,8 +21,16 @@ export async function GET(request: Request) {
     }
   } catch (error) {
     console.error('Hastalar alınamadı:', error);
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      url: request.url
+    });
     return NextResponse.json(
-      { error: 'Hastalar alınamadı' },
+      { 
+        error: 'Hastalar alınamadı',
+        details: error instanceof Error ? error.message : 'Bilinmeyen hata'
+      },
       { status: 500 }
     );
   }

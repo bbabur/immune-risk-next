@@ -22,5 +22,5 @@ services:
 databases:
   - name: immune-risk-db
     databaseName: immune_risk_db
-    user: immune_risk_user
+    user: immuneriskuser
     plan: free 
