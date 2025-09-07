@@ -21,6 +21,7 @@ sleep 10
 
 # Run database migrations
 echo "Running database migrations..."
+npx prisma db push --force-reset
 npx prisma migrate deploy
 
 # Build the application
