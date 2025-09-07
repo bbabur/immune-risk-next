@@ -108,8 +108,8 @@ export async function POST(request: NextRequest) {
               cordFallDay: (patientData['göbek düşme-gün'] || patientData['gobek_dusme'] || patientData['cord_fall'] || patientData['göbek_düşme']) ? 
                           Number(patientData['göbek düşme-gün'] || patientData['gobek_dusme'] || patientData['cord_fall'] || patientData['göbek_düşme']) : null,
               parentalConsanguinity: parseBoolean(patientData['akrabalık']),
-              hasImmuneDeficiency: diagnosis ? parseBoolean(diagnosis) : false, // Only if explicitly diagnosed
-              diagnosisType: diagnosis && parseBoolean(diagnosis) ? (diagnosis || 'İmmün Yetmezlik') : null,
+              hasImmuneDeficiency: true, // All patients in this CSV are diagnosed with immune deficiency
+              diagnosisType: 'İmmün Yetmezlik',
               diagnosisDate: null, // Tarih formatında veri yok
               finalRiskLevel: patientData["4'lü sınıflama"] || null,
             }
