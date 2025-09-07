@@ -61,6 +61,12 @@ export async function POST(request: NextRequest) {
         const diagnosis = patientData['tanı'] || patientData['Tanı'] || patientData['TANI'] || patientData['ana tanı'] || patientData['tani_durumu'] ||
                          patientData['diagnosis'] || patientData['Diagnosis'] || patientData['hastalık'] || patientData['hastaluk'];
         
+        // Calculate birth date from age in months - flexible age mapping
+        const ageInMonths = patientData['yaş-ay'] || patientData['yaş'] || patientData['yas'] || 
+                           patientData['yaş_ay'] || patientData['yas_ay'] || patientData['age'] || 
+                           patientData['age_months'] || patientData['YAŞ'] || patientData['YAS'];
+        const birthDate = calculateBirthDate(ageInMonths);
+
         // Log the first few patients to debug
         if (i < 3) {
           console.log(`Patient ${i + 1} keys:`, Object.keys(patientData));
@@ -68,9 +74,10 @@ export async function POST(request: NextRequest) {
             firstName, 
             gender, 
             diagnosis,
-            birthWeight: patientData['doğum kilo'],
-            gestAge: patientData['doğum hf'],
-            cordFall: patientData['göbek düşme-gün']
+            ageInMonths,
+            birthWeight: patientData['doğum kilo'] || patientData['dogum_kilo'] || 'NOT_FOUND',
+            gestAge: patientData['doğum hf'] || patientData['dogum_hf'] || 'NOT_FOUND',
+            cordFall: patientData['göbek düşme-gün'] || patientData['gobek_dusme'] || 'NOT_FOUND'
           });
         }
 
@@ -80,9 +87,6 @@ export async function POST(request: NextRequest) {
           results.errors.push(`Satır ${i + 1}: Zorunlu alanlar eksik (ad: '${firstName}', cins: '${gender}')`);
           continue;
         }
-
-        // Calculate birth date from age in months
-        const birthDate = calculateBirthDate(patientData['yaş-ay']);
 
         // Create patient with transaction
         await prisma.$transaction(async (tx) => {
@@ -95,9 +99,12 @@ export async function POST(request: NextRequest) {
               height: null, // Excel'de boy bilgisi yok
               weight: null, // Excel'de kilo bilgisi yok  
               ethnicity: null,
-              birthWeight: patientData['doğum kilo'] ? Number(patientData['doğum kilo']) : null,
-              gestationalAge: patientData['doğum hf'] ? Number(patientData['doğum hf']) : null,
-              cordFallDay: patientData['göbek düşme-gün'] ? Number(patientData['göbek düşme-gün']) : null,
+              birthWeight: (patientData['doğum kilo'] || patientData['dogum_kilo'] || patientData['birth_weight'] || patientData['doğum_kilo']) ? 
+                          Number(patientData['doğum kilo'] || patientData['dogum_kilo'] || patientData['birth_weight'] || patientData['doğum_kilo']) : null,
+              gestationalAge: (patientData['doğum hf'] || patientData['dogum_hf'] || patientData['gestational_age'] || patientData['doğum_hf']) ? 
+                             Number(patientData['doğum hf'] || patientData['dogum_hf'] || patientData['gestational_age'] || patientData['doğum_hf']) : null,
+              cordFallDay: (patientData['göbek düşme-gün'] || patientData['gobek_dusme'] || patientData['cord_fall'] || patientData['göbek_düşme']) ? 
+                          Number(patientData['göbek düşme-gün'] || patientData['gobek_dusme'] || patientData['cord_fall'] || patientData['göbek_düşme']) : null,
               parentalConsanguinity: parseBoolean(patientData['akrabalık']),
               hasImmuneDeficiency: diagnosis ? parseBoolean(diagnosis) : true, // CSV'deki tüm hastalar tanılı
               diagnosisType: diagnosis || patientData['ana tanı'] || 'İmmün Yetmezlik',
