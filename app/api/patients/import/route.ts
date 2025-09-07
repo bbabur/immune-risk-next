@@ -2,100 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 interface ImportPatientData {
-  // Excel başlıklarına uygun şekilde düzenlendi - flexible field mapping
-  'sıra'?: number;
-  'dosya no'?: string;
-  'ad'?: string;
-  'Ad'?: string;
-  'ADI'?: string;
-  'İsim'?: string;
-  'isim'?: string;
-  'first_name'?: string;
-  'firstName'?: string;
-  'cins'?: string;
-  'Cins'?: string;
-  'CINS'?: string;
-  'Cinsiyet'?: string;
-  'cinsiyet'?: string;
-  'Sex'?: string;
-  'sex'?: string;
-  'gender'?: string;
-  'yaş-ay'?: number;
-  'doğum şekli'?: string;
-  'doğum kilo'?: number;
-  'doğum hf'?: number;
-  'as süresi'?: number;
-  'hastane yatış'?: string;
-  'yatış zamanı ay'?: number;
-  'yatış nedeni'?: string;
-  'hastalanma sıklığı/yıl'?: number;
-  'otit sıklığı/yıl'?: number;
-  'sinüzit sıklığı/yıl'?: number;
-  'oral ab'?: string;
-  'asye sıklığı/yıl'?: number;
-  'abse'?: string;
-  'büyüme'?: string;
-  'pamukçuk'?: string;
-  'ıv ab'?: string;
-  'sepsis'?: string;
-  'uçuk/yıl'?: number;
-  'aşı komp'?: string;
-  'bcg akıntı'?: string;
-  'bcg lap'?: string;
-  'cilt prob'?: string;
-  'göbek düşme-gün'?: number;
-  'süt dişi dökülmesi'?: string;
-  'yara iyileşmesi'?: string;
-  'havale'?: string;
-  'kalp hast'?: string;
-  'ishal'?: string;
-  'ybü'?: string;
-  'yüzde farklılık'?: string;
-  'kanama'?: string;
-  'ağız yarası'?: string;
-  'öğrenme güçlüğü'?: string;
-  'yürüme'?: string;
-  'akrabalık'?: string;
-  'derecesi'?: string;
-  'erken ex'?: string;
-  'aile piy'?: string;
-  'aile tbc'?: string;
-  'aile kalp'?: string;
-  'aile romatizma'?: string;
-  'aile alerji'?: string;
-  'aile kanser'?: string;
-  'immunoya başvuru şik'?: string;
-  'şik baş yaşı-ay'?: number;
-  'ana tanı'?: string;
-  'gis patolojileri'?: string;
-  'eşlik eden güs patolojileri'?: string;
-  'eşlik eden santral patolojiler'?: string;
-  'eşlik eden endokrin patolojileri'?: string;
-  'eşlik eden tanılar-kr akc hastalığı'?: string;
-  "9'lu sınıflama"?: string;
-  "4'lü sınıflama"?: string;
-  '4/>4 otit'?: string;
-  '2/>2 sinüzit'?: string;
-  '2/>2 asye'?: string;
-  'jefrey puanı'?: number;
-  'ek klinik bulgu puanı'?: number;
-  'ıgg düşüklüğü'?: string;
-  'ıga düşüklüğü'?: string;
-  'ıgm düşüklüğü'?: string;
-  'ıge yüksekliği'?: string;
-  'enfeksiyonun ağır seyretmesi'?: string;
-  'tam kan tablosunda değişiklik'?: string;
-  'timus yokluğu'?: string;
-  'ıy tanı yaşı- ay'?: number;
-  'tanıdaki gecikme-ay'?: number;
-  'tedavi başlanngıç yaşı-ay'?: number;
-  'tedavi süresi-ay'?: number;
-  'tedavi kesme yaşı-ay'?: number;
-  'takip süresi-ay'?: number;
-  'ek klinik bulgu'?: string;
-  'jefrey modele göre olanlar'?: string;
-  'kr hastalık'?: string;
-  'tanı'?: string;
+  // Dynamic interface to handle any column names from CSV
+  [key: string]: any;
 }
 
 // Evet/Hayır/Var/Yok string'lerini boolean'a çevir
@@ -141,9 +49,30 @@ export async function POST(request: NextRequest) {
       const patientData = patients[i] as ImportPatientData;
       
       try {
-        // Flexible field mapping
-        const firstName = patientData['ad'] || patientData['Ad'] || patientData['ADI'] || patientData['İsim'] || patientData['isim'] || patientData['first_name'] || patientData['firstName'];
-        const gender = patientData['cins'] || patientData['Cins'] || patientData['CINS'] || patientData['Cinsiyet'] || patientData['cinsiyet'] || patientData['Sex'] || patientData['sex'] || patientData['gender'];
+        // Flexible field mapping - support all possible column names
+        const firstName = patientData['ad'] || patientData['Ad'] || patientData['ADI'] || patientData['İsim'] || patientData['isim'] || 
+                         patientData['first_name'] || patientData['firstName'] || patientData['hasta_adi'] || patientData['hasta_ad'] ||
+                         patientData['name'] || patientData['Name'] || patientData['adi'] || patientData['Adi'];
+        
+        const gender = patientData['cins'] || patientData['Cins'] || patientData['CINS'] || patientData['Cinsiyet'] || patientData['cinsiyet'] || 
+                      patientData['Sex'] || patientData['sex'] || patientData['gender'] || patientData['Gender'] || patientData['cinsiyet_bilgisi'] ||
+                      patientData['CINSIYET'] || patientData['Erkek/Kadin'] || patientData['E/K'];
+        
+        const diagnosis = patientData['tanı'] || patientData['Tanı'] || patientData['TANI'] || patientData['ana tanı'] || patientData['tani_durumu'] ||
+                         patientData['diagnosis'] || patientData['Diagnosis'] || patientData['hastalık'] || patientData['hastaluk'];
+        
+        // Log the first few patients to debug
+        if (i < 3) {
+          console.log(`Patient ${i + 1} keys:`, Object.keys(patientData));
+          console.log(`Patient ${i + 1} mapped:`, { 
+            firstName, 
+            gender, 
+            diagnosis,
+            birthWeight: patientData['doğum kilo'],
+            gestAge: patientData['doğum hf'],
+            cordFall: patientData['göbek düşme-gün']
+          });
+        }
 
         // Validate required fields
         if (!firstName || !gender) {
@@ -170,8 +99,8 @@ export async function POST(request: NextRequest) {
               gestationalAge: patientData['doğum hf'] ? Number(patientData['doğum hf']) : null,
               cordFallDay: patientData['göbek düşme-gün'] ? Number(patientData['göbek düşme-gün']) : null,
               parentalConsanguinity: parseBoolean(patientData['akrabalık']),
-              hasImmuneDeficiency: parseBoolean(patientData['tanı']),
-              diagnosisType: patientData['ana tanı'] || null,
+              hasImmuneDeficiency: diagnosis ? parseBoolean(diagnosis) : true, // CSV'deki tüm hastalar tanılı
+              diagnosisType: diagnosis || patientData['ana tanı'] || 'İmmün Yetmezlik',
               diagnosisDate: null, // Tarih formatında veri yok
               finalRiskLevel: patientData["4'lü sınıflama"] || null,
             }
