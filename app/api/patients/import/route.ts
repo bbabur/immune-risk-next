@@ -59,7 +59,8 @@ export async function POST(request: NextRequest) {
                       patientData['CINSIYET'] || patientData['Erkek/Kadin'] || patientData['E/K'];
         
         const diagnosis = patientData['tanı'] || patientData['Tanı'] || patientData['TANI'] || patientData['ana tanı'] || patientData['tani_durumu'] ||
-                         patientData['diagnosis'] || patientData['Diagnosis'] || patientData['hastalık'] || patientData['hastaluk'];
+                         patientData['diagnosis'] || patientData['Diagnosis'] || patientData['hastalık'] || patientData['hastaluk'] ||
+                         patientData['immune_deficiency'] || patientData['piy'] || patientData['PIY'] || patientData['hasta_durumu'];
         
         // Calculate birth date from age in months - flexible age mapping
         const ageInMonths = patientData['yaş-ay'] || patientData['yaş'] || patientData['yas'] || 
@@ -74,6 +75,7 @@ export async function POST(request: NextRequest) {
             firstName, 
             gender, 
             diagnosis,
+            diagnosisParsed: diagnosis ? parseBoolean(diagnosis) : false,
             ageInMonths,
             birthWeight: patientData['doğum kilo'] || patientData['dogum_kilo'] || 'NOT_FOUND',
             gestAge: patientData['doğum hf'] || patientData['dogum_hf'] || 'NOT_FOUND',
@@ -106,8 +108,8 @@ export async function POST(request: NextRequest) {
               cordFallDay: (patientData['göbek düşme-gün'] || patientData['gobek_dusme'] || patientData['cord_fall'] || patientData['göbek_düşme']) ? 
                           Number(patientData['göbek düşme-gün'] || patientData['gobek_dusme'] || patientData['cord_fall'] || patientData['göbek_düşme']) : null,
               parentalConsanguinity: parseBoolean(patientData['akrabalık']),
-              hasImmuneDeficiency: diagnosis ? parseBoolean(diagnosis) : true, // CSV'deki tüm hastalar tanılı
-              diagnosisType: diagnosis || patientData['ana tanı'] || 'İmmün Yetmezlik',
+              hasImmuneDeficiency: diagnosis ? parseBoolean(diagnosis) : false, // Only if explicitly diagnosed
+              diagnosisType: diagnosis && parseBoolean(diagnosis) ? (diagnosis || 'İmmün Yetmezlik') : null,
               diagnosisDate: null, // Tarih formatında veri yok
               finalRiskLevel: patientData["4'lü sınıflama"] || null,
             }
