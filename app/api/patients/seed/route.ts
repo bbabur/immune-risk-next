@@ -134,7 +134,7 @@ export async function POST() {
               data: {
                 patientId: patient.id,
                 familyIeiHistory: parseBoolean(patientData.rawData?.['AİLEDE PİY']),
-                ieiRelationship: patientData.rawData?.['DERECESİ'],
+                ieiRelationship: patientData.rawData?.['DERECESİ'] ? String(patientData.rawData['DERECESİ']) : null,
                 ieiType: conditions.join(', ') || null,
                 familyEarlyDeath: parseBoolean(patientData.rawData?.['ERKEN EX']),
                 earlyDeathAge: null,
