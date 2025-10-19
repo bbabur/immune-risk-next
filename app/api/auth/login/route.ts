@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import * as bcrypt from 'bcryptjs';
+import { sanitizeString, checkRateLimit } from '@/lib/validation';
 
 export async function POST(request: NextRequest) {
   try {
     const { username, password } = await request.json();
 
+    // Input validation
     if (!username || !password) {
       return NextResponse.json(
         { error: 'Kullanıcı adı ve şifre gerekli' },
@@ -13,12 +15,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Find user by username or email
+    // Sanitize inputs
+    const sanitizedUsername = sanitizeString(username.trim());
+    
+    // Rate limiting - max 5 attempts per minute per IP
+    const clientIp = request.headers.get('x-forwarded-for') || 'unknown';
+    if (!checkRateLimit(`login:${clientIp}`, 5, 60000)) {
+      return NextResponse.json(
+        { error: 'Çok fazla deneme. Lütfen 1 dakika bekleyin.' },
+        { status: 429 }
+      );
+    }
+
+    // Find user by username or email (Prisma uses parameterized queries - SQL injection safe)
     const user = await prisma.user.findFirst({
       where: {
         OR: [
-          { username: username },
-          { email: username }
+          { username: sanitizedUsername },
+          { email: sanitizedUsername }
         ]
       }
     });
