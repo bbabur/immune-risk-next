@@ -40,6 +40,7 @@ import {
   DeleteSweep as DeleteSweepIcon,
   Download as DownloadIcon,
   TableView as TableViewIcon,
+  Visibility as VisibilityIcon,
 } from '@mui/icons-material';
 
 interface TrainingPatient {
@@ -72,6 +73,8 @@ export default function TrainingDataPage() {
   const [deleting, setDeleting] = useState<number | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingPatient, setEditingPatient] = useState<TrainingPatient | null>(null);
+  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+  const [detailPatient, setDetailPatient] = useState<TrainingPatient | null>(null);
 
   useEffect(() => {
     loadTrainingData();
@@ -172,6 +175,11 @@ export default function TrainingDataPage() {
   const handleEdit = (patient: TrainingPatient) => {
     setEditingPatient(patient);
     setEditDialogOpen(true);
+  };
+
+  const handleViewDetail = (patient: TrainingPatient) => {
+    setDetailPatient(patient);
+    setDetailDialogOpen(true);
   };
 
   const handleUpdatePatient = async () => {
@@ -448,7 +456,16 @@ export default function TrainingDataPage() {
                     </TableCell>
                     <TableCell>{patient.finalRiskLevel || '-'}</TableCell>
                     <TableCell>
-                      <Box sx={{ display: 'flex', gap: 0.5 }}>
+                      <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                        <Button
+                          size="small"
+                          color="info"
+                          variant="outlined"
+                          startIcon={<VisibilityIcon />}
+                          onClick={() => handleViewDetail(patient)}
+                        >
+                          Detay
+                        </Button>
                         <Button
                           size="small"
                           color="primary"
@@ -488,6 +505,274 @@ export default function TrainingDataPage() {
           Tüm veriler anonimleştirilmiştir ve hasta kodları (P001, P002, vb.) ile tanımlanır.
         </Typography>
       </Alert>
+
+      {/* Detail Dialog - Tüm Kolonları Göster */}
+      <Dialog open={detailDialogOpen} onClose={() => setDetailDialogOpen(false)} maxWidth="lg" fullWidth>
+        <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', display: 'flex', alignItems: 'center', gap: 1 }}>
+          <VisibilityIcon />
+          Eğitim Datası Detayları - {detailPatient?.patientCode}
+        </DialogTitle>
+        <DialogContent sx={{ mt: 2 }}>
+          {detailPatient && (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+              {/* Temel Bilgiler */}
+              <Paper sx={{ p: 2, bgcolor: 'grey.50' }}>
+                <Typography variant="h6" fontWeight="bold" gutterBottom color="primary">
+                  📋 Temel Bilgiler
+                </Typography>
+                <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2 }}>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">Dosya No</Typography>
+                    <Typography variant="body1" fontWeight="bold">{detailPatient.patientCode}</Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">Yaş</Typography>
+                    <Typography variant="body1">{detailPatient.ageMonths} ay</Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">Cinsiyet</Typography>
+                    <Typography variant="body1">{detailPatient.gender}</Typography>
+                  </Box>
+                </Box>
+              </Paper>
+
+              {/* Doğum Bilgileri */}
+              <Paper sx={{ p: 2, bgcolor: 'grey.50' }}>
+                <Typography variant="h6" fontWeight="bold" gutterBottom color="primary">
+                  👶 Doğum Bilgileri
+                </Typography>
+                <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2 }}>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">Doğum Kilosu</Typography>
+                    <Typography variant="body1">{detailPatient.birthWeight ? `${detailPatient.birthWeight} g` : '-'}</Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">Gestasyon</Typography>
+                    <Typography variant="body1">{detailPatient.gestationalAge ? `${detailPatient.gestationalAge} hafta` : '-'}</Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">Doğum Şekli</Typography>
+                    <Typography variant="body1">{detailPatient.birthType || '-'}</Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">Anne Sütü Süresi</Typography>
+                    <Typography variant="body1">{detailPatient.breastfeedingMonths ? `${detailPatient.breastfeedingMonths} ay` : '-'}</Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">Göbek Düşme</Typography>
+                    <Typography variant="body1">{detailPatient.cordFallDay ? `${detailPatient.cordFallDay}. gün` : '-'}</Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">Akrabalık</Typography>
+                    <Chip 
+                      label={detailPatient.parentalConsanguinity ? 'VAR' : 'YOK'} 
+                      size="small" 
+                      color={detailPatient.parentalConsanguinity ? 'warning' : 'default'}
+                    />
+                  </Box>
+                </Box>
+              </Paper>
+
+              {/* Klinik Özellikler */}
+              <Paper sx={{ p: 2, bgcolor: 'grey.50' }}>
+                <Typography variant="h6" fontWeight="bold" gutterBottom color="primary">
+                  🏥 Klinik Özellikler
+                </Typography>
+                {detailPatient.clinicalFeatures ? (
+                  <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2 }}>
+                    {Object.entries(detailPatient.clinicalFeatures as Record<string, any>).map(([key, value]) => (
+                      <Box key={key}>
+                        <Typography variant="caption" color="text.secondary">
+                          {key === 'growthFailure' ? 'Büyüme Geriliği' :
+                           key === 'chronicSkinIssue' ? 'Cilt Problemi' :
+                           key === 'chronicDiarrhea' ? 'Kronik İshal' :
+                           key === 'bcgLymphadenopathy' ? 'BCG Lenfadenopati' :
+                           key === 'persistentThrush' ? 'Pamukçuk' :
+                           key === 'deepAbscesses' ? 'Derin Abseler' :
+                           key === 'chd' ? 'Konjenital Kalp Hastalığı' :
+                           key === 'familyHistoryPiy' ? 'Aile Öyküsü PİY' :
+                           key === 'familyHistoryTbc' ? 'Aile Öyküsü TBC' :
+                           key === 'familyHistoryHeart' ? 'Aile Öyküsü Kalp' :
+                           key === 'familyHistoryAllergy' ? 'Aile Öyküsü Alerji' :
+                           key === 'ieiRelationship' ? 'İEİ Akrabalık' :
+                           key === 'ieiDeathCount' ? 'İEİ Ölüm Sayısı' :
+                           key}
+                        </Typography>
+                        <Typography variant="body1">
+                          {typeof value === 'boolean' ? (value ? '✅ Evet' : '❌ Hayır') : 
+                           value === null || value === undefined ? '-' : 
+                           String(value)}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Box>
+                ) : (
+                  <Typography variant="body2" color="text.secondary">Veri yok</Typography>
+                )}
+              </Paper>
+
+              {/* Enfeksiyonlar */}
+              <Paper sx={{ p: 2, bgcolor: 'grey.50' }}>
+                <Typography variant="h6" fontWeight="bold" gutterBottom color="primary">
+                  🦠 Enfeksiyonlar
+                </Typography>
+                {detailPatient.infections ? (
+                  <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2 }}>
+                    {Object.entries(detailPatient.infections as Record<string, any>).map(([key, value]) => (
+                      <Box key={key}>
+                        <Typography variant="caption" color="text.secondary">
+                          {key === 'hasInfections' ? 'Enfeksiyon Var' :
+                           key === 'recurrentInfections' ? 'Tekrarlayan Enfeksiyon' :
+                           key === 'severeBacterial' ? 'Ağır Bakteriyel' :
+                           key === 'opportunisticInfections' ? 'Fırsatçı Enfeksiyon' :
+                           key === 'respiratoryInfections' ? 'Solunum Yolu' :
+                           key === 'respiratoryCount' ? 'Solunum Sayısı' :
+                           key === 'upperRespiratory' ? 'Üst Solunum' :
+                           key === 'lowerRespiratory' ? 'Alt Solunum' :
+                           key === 'otitisCount' ? 'Otit Sayısı' :
+                           key === 'sinusitis' ? 'Sinüzit' :
+                           key === 'pneumoniaCount' ? 'Pnömoni Sayısı' :
+                           key === 'giInfections' ? 'GI Enfeksiyon' :
+                           key === 'skinInfections' ? 'Cilt Enfeksiyonu' :
+                           key === 'sepsis' ? 'Sepsis' :
+                           key === 'meningitis' ? 'Menenjit' :
+                           key === 'osteomyelitis' ? 'Osteomiyelit' :
+                           key === 'fungalInfections' ? 'Mantar Enfeksiyonu' :
+                           key === 'parasiteInfections' ? 'Parazit Enfeksiyonu' :
+                           key}
+                        </Typography>
+                        <Typography variant="body1">
+                          {typeof value === 'boolean' ? (value ? '✅ Evet' : '❌ Hayır') : 
+                           value === null || value === undefined ? '-' : 
+                           String(value)}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Box>
+                ) : (
+                  <Typography variant="body2" color="text.secondary">Veri yok</Typography>
+                )}
+              </Paper>
+
+              {/* Hastane Yatışları */}
+              <Paper sx={{ p: 2, bgcolor: 'grey.50' }}>
+                <Typography variant="h6" fontWeight="bold" gutterBottom color="primary">
+                  🏨 Hastane Yatışları
+                </Typography>
+                {detailPatient.hospitalizations ? (
+                  <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2 }}>
+                    {Object.entries(detailPatient.hospitalizations as Record<string, any>).map(([key, value]) => (
+                      <Box key={key}>
+                        <Typography variant="caption" color="text.secondary">
+                          {key === 'hasHospitalization' ? 'Hastane Yatışı' :
+                           key === 'hospitalizationCount' ? 'Yatış Sayısı' :
+                           key === 'icuAdmission' ? 'YBÜ Yatışı' :
+                           key === 'totalDays' ? 'Toplam Gün' :
+                           key}
+                        </Typography>
+                        <Typography variant="body1">
+                          {typeof value === 'boolean' ? (value ? '✅ Evet' : '❌ Hayır') : 
+                           value === null || value === undefined ? '-' : 
+                           String(value)}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Box>
+                ) : (
+                  <Typography variant="body2" color="text.secondary">Veri yok</Typography>
+                )}
+              </Paper>
+
+              {/* Aile Öyküsü */}
+              <Paper sx={{ p: 2, bgcolor: 'grey.50' }}>
+                <Typography variant="h6" fontWeight="bold" gutterBottom color="primary">
+                  👨‍👩‍👧‍👦 Aile Öyküsü
+                </Typography>
+                {detailPatient.familyHistory ? (
+                  <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2 }}>
+                    {Object.entries(detailPatient.familyHistory as Record<string, any>).map(([key, value]) => (
+                      <Box key={key}>
+                        <Typography variant="caption" color="text.secondary">
+                          {key === 'piy' ? 'PİY' :
+                           key === 'tbc' ? 'TBC' :
+                           key === 'heart' ? 'Kalp Hastalığı' :
+                           key === 'allergy' ? 'Alerji' :
+                           key === 'ieiRelationship' ? 'İEİ Akrabalığı' :
+                           key === 'ieiDeathCount' ? 'İEİ Ölüm Sayısı' :
+                           key}
+                        </Typography>
+                        <Typography variant="body1">
+                          {typeof value === 'boolean' ? (value ? '✅ Var' : '❌ Yok') : 
+                           value === null || value === undefined ? '-' : 
+                           String(value)}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Box>
+                ) : (
+                  <Typography variant="body2" color="text.secondary">Veri yok</Typography>
+                )}
+              </Paper>
+
+              {/* Tanı ve Risk */}
+              <Paper sx={{ p: 2, bgcolor: 'grey.50' }}>
+                <Typography variant="h6" fontWeight="bold" gutterBottom color="primary">
+                  🎯 Tanı ve Risk Değerlendirmesi
+                </Typography>
+                <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2 }}>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">İmmün Yetmezlik</Typography>
+                    <Chip 
+                      label={detailPatient.hasImmuneDeficiency ? 'VAR' : 'YOK'} 
+                      size="small" 
+                      color={detailPatient.hasImmuneDeficiency ? 'error' : 'success'}
+                    />
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">Tanı Tipi</Typography>
+                    <Typography variant="body1">{detailPatient.diagnosisType || '-'}</Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">Risk Seviyesi</Typography>
+                    <Chip 
+                      label={detailPatient.finalRiskLevel || '-'} 
+                      size="small" 
+                      color={detailPatient.finalRiskLevel === '3' ? 'error' : detailPatient.finalRiskLevel === '2' ? 'warning' : 'default'}
+                    />
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">Kural Tabanlı Puan</Typography>
+                    <Typography variant="body1" fontWeight="bold">{detailPatient.ruleBasedScore || '-'}</Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">Kaynak Dosya</Typography>
+                    <Typography variant="body2">{detailPatient.sourceFile || 'ANA TABLO.xlsx'}</Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">Kayıt ID</Typography>
+                    <Typography variant="body2">#{detailPatient.id}</Typography>
+                  </Box>
+                </Box>
+              </Paper>
+
+              {/* Notlar */}
+              {detailPatient.notes && (
+                <Paper sx={{ p: 2, bgcolor: 'info.lighter' }}>
+                  <Typography variant="h6" fontWeight="bold" gutterBottom color="info.main">
+                    📝 Notlar
+                  </Typography>
+                  <Typography variant="body2">{detailPatient.notes}</Typography>
+                </Paper>
+              )}
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDetailDialogOpen(false)} variant="contained">
+            Kapat
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Edit Dialog */}
       <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)} maxWidth="md" fullWidth>
