@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Container,
@@ -36,6 +36,17 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [expired, setExpired] = useState(false);
+
+  // Check for expired session on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('expired') === 'true') {
+        setExpired(true);
+      }
+    }
+  }, []);
 
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -50,15 +61,29 @@ export default function LoginPage() {
     try {
       // Simulated login - replace with actual API call
       if (formData.email === 'admin@example.com' && formData.password === 'admin123') {
-        // Save user data to localStorage
+        // Create token with expiration
         const userData = {
-          id: 1,
+          id: '1',
+          username: 'admin',
           email: formData.email,
-          name: 'Dr. Admin Kullanıcı',
           role: 'admin'
         };
+        
+        // Create JWT-like token
+        const header = btoa(JSON.stringify({ alg: 'none', typ: 'JWT' }));
+        const payload = btoa(JSON.stringify({
+          ...userData,
+          exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60), // 24 hours
+          iat: Math.floor(Date.now() / 1000)
+        }));
+        const token = `${header}.${payload}.signature`;
+        
+        // Save to localStorage
         localStorage.setItem('user', JSON.stringify(userData));
-        localStorage.setItem('token', 'dummy-jwt-token');
+        localStorage.setItem('token', token);
+        
+        // Save to cookie for middleware
+        document.cookie = `token=${token}; path=/; max-age=${24 * 60 * 60}; samesite=strict`;
         
         // Redirect to dashboard
         router.push('/');
@@ -96,6 +121,12 @@ export default function LoginPage() {
               İmmün Risk AI sistemine hoş geldiniz
             </Typography>
           </Box>
+
+          {expired && (
+            <Alert severity="warning" sx={{ mb: 3 }} onClose={() => setExpired(false)}>
+              Oturumunuz sona erdi. Lütfen tekrar giriş yapın.
+            </Alert>
+          )}
 
           {error && (
             <Alert severity="error" sx={{ mb: 3 }}>

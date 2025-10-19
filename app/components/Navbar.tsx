@@ -114,7 +114,15 @@ export default function Navbar() {
 
   const handleLogout = () => {
     handleMenuClose();
-    // Logout işlemi burada olacak
+    
+    // Clear localStorage
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    
+    // Clear cookie
+    document.cookie = 'token=; path=/; max-age=0';
+    
+    // Redirect to login
     router.push('/login');
   };
 
