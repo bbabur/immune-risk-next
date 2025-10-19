@@ -28,9 +28,11 @@ model Patient {
   ethnicity String?
 
   // Doğum bilgileri
-  birthWeight     Float? @map("birth_weight")
-  gestationalAge  Int?   @map("gestational_age")
-  cordFallDay     Int?   @map("cord_fall_day")
+  birthWeight         Float?  @map("birth_weight")
+  gestationalAge      Int?    @map("gestational_age")
+  cordFallDay         Int?    @map("cord_fall_day")
+  birthType           String? @map("birth_type")              // Normal doğum, Sezaryen, vb.
+  breastfeedingMonths Int?    @map("breastfeeding_months")    // Anne sütü süresi (ay cinsinden)
 
   // Aile bilgileri
   parentalConsanguinity Boolean @default(false) @map("parental_consanguinity")
@@ -249,4 +251,34 @@ model Notification {
   data      Json?
   
   @@map("notifications")
+}
+
+model AntiHbsReference {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  // Yaş grubu bilgileri
+  ageGroupName    String  @map("age_group_name")        // Örn: "0-12 ay"
+  minAgeMonths    Int     @map("min_age_months")        // Minimum yaş (ay cinsinden)
+  maxAgeMonths    Int?    @map("max_age_months")        // Maximum yaş (ay cinsinden, null = sınırsız)
+  
+  // Beklenen değer aralığı
+  expectedMinValue Float?  @map("expected_min_value")   // Tipik minimum değer (mIU/mL)
+  expectedMaxValue Float?  @map("expected_max_value")   // Tipik maksimum değer (mIU/mL)
+  typicalRange     String  @map("typical_range")        // Metin açıklama örn: "≥10 - 100+ mIU/mL"
+  
+  // Seroproteksiyon bilgisi
+  seroprotectionThreshold Float   @default(10) @map("seroprotection_threshold")  // Koruyucu eşik (genelde 10 mIU/mL)
+  seroprotectionRate      String? @map("seroprotection_rate")  // Örn: "%90-99"
+  
+  // Açıklama ve referans
+  description String  @db.Text                           // Kısa açıklama
+  sourceReference String? @map("source_reference") @db.Text  // Kaynak bilgisi
+  
+  // Özel durum işaretleri
+  isBoosterResponse Boolean @default(false) @map("is_booster_response")  // Booster sonrası mı?
+  
+  @@map("anti_hbs_references")
+  @@index([minAgeMonths, maxAgeMonths])
 }

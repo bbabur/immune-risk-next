@@ -93,15 +93,16 @@ export async function POST(request: NextRequest) {
       try {
         // Use findColumnValue for flexible field mapping
         const firstName = findColumnValue(patientData, [
-          'ad', 'Ad', 'ADI', 'adi', 'Adi', 'İsim', 'isim', 
+          'İSİM', 'isim', 'İsim', 'ISIM', 'ad', 'Ad', 'ADI', 'adi', 'Adi',
           'first_name', 'firstName', 'hasta_adi', 'hasta_ad',
           'name', 'Name', 'HASTA ADI', 'Hasta Adı'
         ]);
         
         let gender = findColumnValue(patientData, [
-          'cins', 'Cins', 'CINS', 'Cinsiyet', 'cinsiyet', 
+          'CİNSİYET', 'CINSIYET', 'Cinsiyet', 'cinsiyet',
+          'cins', 'Cins', 'CINS', 
           'Sex', 'sex', 'gender', 'Gender', 'cinsiyet_bilgisi',
-          'CINSIYET', 'Erkek/Kadin', 'E/K', 'CİNSİYET'
+          'Erkek/Kadin', 'E/K'
         ]);
         
         // Convert numeric gender codes to text
@@ -119,8 +120,9 @@ export async function POST(request: NextRequest) {
         
         // Calculate birth date from age in months - flexible age mapping
         const ageInMonths = findColumnValue(patientData, [
-          'yaş-ay', 'yaş', 'yas', 'yaş_ay', 'yas_ay', 
-          'age', 'age_months', 'YAŞ', 'YAS', 'YAŞ-AY'
+          'YAŞ', 'YAS', 'Yaş', 'yas', 'yaş',
+          'yaş-ay', 'yaş_ay', 'yas_ay', 
+          'age', 'age_months', 'YAŞ-AY'
         ]);
         const birthDate = calculateBirthDate(ageInMonths);
 
@@ -154,27 +156,35 @@ export async function POST(request: NextRequest) {
           continue;
         }
 
+        // Get file number for reference
+        const fileNumber = findColumnValue(patientData, ['DOSYA NO', 'dosya no', 'file_number', 'DOSYA', 'dosya']);
+        
         // Create patient with transaction
         await prisma.$transaction(async (tx) => {
           const patient = await tx.patient.create({
             data: {
               firstName: firstName || '',
-              lastName: '', // Excel'de soyad ayrı kolonu yok
+              lastName: fileNumber ? `(Dosya: ${fileNumber})` : '', // Store file number in lastName field
               birthDate: birthDate || new Date().toISOString(),
               gender: gender || '',
               height: null, // Excel'de boy bilgisi yok
               weight: null, // Excel'de kilo bilgisi yok  
               ethnicity: null,
               birthWeight: (() => {
-                const val = findColumnValue(patientData, ['doğum kilo', 'dogum_kilo', 'birth_weight', 'doğum_kilo', 'DOĞUM KİLO']);
+                const val = findColumnValue(patientData, ['DOĞUM KİLOSU', 'DOĞUM KİLO', 'doğum kilo', 'dogum_kilo', 'birth_weight', 'doğum_kilo']);
                 return val ? Number(val) : null;
               })(),
               gestationalAge: (() => {
-                const val = findColumnValue(patientData, ['doğum hf', 'dogum_hf', 'gestational_age', 'doğum_hf', 'DOĞUM HF']);
+                const val = findColumnValue(patientData, ['DOĞUM HAFTASI', 'DOĞUM HF', 'doğum hf', 'dogum_hf', 'gestational_age', 'doğum_hf']);
                 return val ? Number(val) : null;
               })(),
               cordFallDay: (() => {
                 const val = findColumnValue(patientData, ['göbek düşme-gün', 'gobek_dusme', 'cord_fall', 'göbek_düşme', 'GÖBEK DÜŞME']);
+                return val ? Number(val) : null;
+              })(),
+              birthType: findColumnValue(patientData, ['DOĞUM ŞEKLİ', 'doğum şekli', 'birth_type', 'DOĞUM', 'dogum sekli']),
+              breastfeedingMonths: (() => {
+                const val = findColumnValue(patientData, ['ANNE SÜTÜ SÜRESİ', 'anne sütü', 'breastfeeding', 'ANNE SÜTÜ', 'anne sutu suresi']);
                 return val ? Number(val) : null;
               })(),
               parentalConsanguinity: parseBoolean(findColumnValue(patientData, ['akrabalık', 'akrabalik', 'consanguinity', 'AKRABALIK'])),
@@ -219,18 +229,18 @@ export async function POST(request: NextRequest) {
           }
 
           // Add hospitalization data if exists
-          const hasHospitalization = parseBoolean(findColumnValue(patientData, ['hastane yatış', 'hastane', 'hospitalization', 'HASTANE YATIŞ']));
+          const hasHospitalization = parseBoolean(findColumnValue(patientData, ['HASTANEDE YATTI MI', 'hastane yatış', 'hastane', 'hospitalization', 'HASTANE YATIŞ']));
           
           if (hasHospitalization) {
             await tx.hospitalization.create({
               data: {
                 patientId: patient.id,
                 admissionDate: new Date().toISOString(),
-                reason: findColumnValue(patientData, ['yatış nedeni', 'yatis nedeni', 'reason', 'YATIŞ NEDENİ']) || 'Bilinmiyor',
+                reason: findColumnValue(patientData, ['YATIŞ NEDENI', 'yatış nedeni', 'yatis nedeni', 'reason', 'YATIŞ NEDENİ']) || 'Bilinmiyor',
                 diagnosis: findColumnValue(patientData, ['ana tanı', 'ana tani', 'ANA TANI']) || null,
                 icuAdmission: parseBoolean(findColumnValue(patientData, ['ybü', 'ybu', 'icu', 'YBÜ'])),
                 icuDays: (() => {
-                  const val = findColumnValue(patientData, ['yatış zamanı ay', 'yatis zamani', 'icu_days', 'YATIŞ ZAMANI']);
+                  const val = findColumnValue(patientData, ['YATIŞ ZAMANI', 'yatış zamanı ay', 'yatis zamani', 'icu_days', 'YATIŞ ZAMANI']);
                   return val ? Number(val) * 30 : null;
                 })(),
                 ivAntibioticRequirement: parseBoolean(findColumnValue(patientData, ['ıv ab', 'iv ab', 'iv', 'IV AB'])),
