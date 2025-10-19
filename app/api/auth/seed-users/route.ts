@@ -5,8 +5,8 @@ import * as bcrypt from 'bcryptjs';
 export async function POST() {
   try {
     // Hash passwords
-    const adminPassword = await bcrypt.hash('admin123', 10);
-    const userPassword = await bcrypt.hash('YapayZeka3468*', 10);
+    const adminPassword = await bcrypt.hash('Admin123456', 10);
+    const userPassword = await bcrypt.hash('Mehmet123456', 10);
 
     // Delete existing users
     await prisma.user.deleteMany({});

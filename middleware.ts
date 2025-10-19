@@ -3,6 +3,7 @@ import type { NextRequest } from 'next/server';
 
 // Protected routes that require authentication
 const protectedRoutes = [
+  '/', // Dashboard
   '/patients',
   '/training-data',
   '/profile',
@@ -10,6 +11,7 @@ const protectedRoutes = [
   '/model-info',
   '/anti-hbs',
   '/search',
+  '/users',
 ];
 
 // Protected API routes
@@ -43,8 +45,8 @@ export function middleware(request: NextRequest) {
   const isProtectedApi = protectedApiRoutes.some(route => pathname.startsWith(route));
   
   if (!isProtectedPage && !isProtectedApi) {
-    // Allow home page and other non-protected routes
-    if (pathname === '/' || pathname.startsWith('/_next') || pathname.startsWith('/static')) {
+    // Allow _next and static files
+    if (pathname.startsWith('/_next') || pathname.startsWith('/static')) {
       return NextResponse.next();
     }
   }

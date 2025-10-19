@@ -78,8 +78,14 @@ export default function LoginPage() {
         localStorage.setItem('user', JSON.stringify(data.user));
         localStorage.setItem('token', data.token);
         
-        // Save to cookie for middleware
-        document.cookie = `token=${data.token}; path=/; max-age=${24 * 60 * 60}; samesite=strict`;
+        // Save to cookie for middleware (SameSite=Lax for better compatibility)
+        const cookieValue = `token=${data.token}; path=/; max-age=${24 * 60 * 60}; samesite=lax${window.location.protocol === 'https:' ? '; secure' : ''}`;
+        document.cookie = cookieValue;
+        
+        console.log('Token saved to cookie:', data.token);
+        
+        // Small delay to ensure cookie is set
+        await new Promise(resolve => setTimeout(resolve, 100));
         
         // Redirect to dashboard
         router.push('/');

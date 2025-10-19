@@ -18,6 +18,17 @@ import {
   TableHead,
   TableRow,
   CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  FormControlLabel,
+  Checkbox,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
 } from '@mui/material';
 import {
   Storage as StorageIcon,
@@ -27,6 +38,8 @@ import {
   Delete as DeleteIcon,
   Edit as EditIcon,
   DeleteSweep as DeleteSweepIcon,
+  Download as DownloadIcon,
+  TableView as TableViewIcon,
 } from '@mui/icons-material';
 
 interface TrainingPatient {
@@ -57,6 +70,8 @@ export default function TrainingDataPage() {
   const [seeding, setSeeding] = useState(false);
   const [seedResult, setSeedResult] = useState<any>(null);
   const [deleting, setDeleting] = useState<number | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingPatient, setEditingPatient] = useState<TrainingPatient | null>(null);
 
   useEffect(() => {
     loadTrainingData();
@@ -78,6 +93,12 @@ export default function TrainingDataPage() {
   };
 
   const handleSeed = async () => {
+    // Önce mevcut veriyi kontrol et
+    if (trainingData.length > 0) {
+      alert(`Veritabanında zaten ${trainingData.length} kayıt var. Silmek için "Tümünü Sil" butonunu kullanın.`);
+      return;
+    }
+
     if (!confirm('200 eğitim verisi yüklenecek. Devam edilsin mi?')) return;
 
     try {
@@ -146,6 +167,71 @@ export default function TrainingDataPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleEdit = (patient: TrainingPatient) => {
+    setEditingPatient(patient);
+    setEditDialogOpen(true);
+  };
+
+  const handleUpdatePatient = async () => {
+    if (!editingPatient) return;
+
+    try {
+      const response = await fetch(`/api/training-data/${editingPatient.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editingPatient)
+      });
+
+      if (response.ok) {
+        await loadTrainingData();
+        setEditDialogOpen(false);
+        setEditingPatient(null);
+        alert('Kayıt güncellendi');
+      }
+    } catch (error) {
+      alert('Güncelleme başarısız');
+    }
+  };
+
+  const handleExportCSV = () => {
+    // CSV headers
+    const headers = [
+      'Dosya No', 'Yaş (Ay)', 'Cinsiyet', 'Doğum Kilosu', 'Gestasyon', 
+      'Doğum Şekli', 'Anne Sütü (Ay)', 'Göbek Düşme', 'Akrabalık',
+      'Tanı', 'Risk Seviyesi', 'Puan'
+    ];
+
+    // Convert data to CSV format
+    const csvContent = [
+      headers.join(','),
+      ...trainingData.map(p => [
+        p.patientCode,
+        p.ageMonths,
+        p.gender,
+        p.birthWeight || '',
+        p.gestationalAge || '',
+        p.birthType || '',
+        p.breastfeedingMonths || '',
+        p.cordFallDay || '',
+        p.parentalConsanguinity ? 'Evet' : 'Hayır',
+        p.diagnosisType || '',
+        p.finalRiskLevel || '',
+        p.ruleBasedScore || ''
+      ].join(','))
+    ].join('\n');
+
+    // Create download link
+    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `training-data-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   if (loading) {
@@ -253,6 +339,15 @@ export default function TrainingDataPage() {
               📊 Eğitim Veri Seti ({trainingData.length} kayıt)
             </Typography>
             <Box sx={{ display: 'flex', gap: 1 }}>
+              <Button
+                variant="outlined"
+                size="small"
+                sx={{ bgcolor: 'white', color: 'success.main', borderColor: 'white' }}
+                startIcon={<DownloadIcon />}
+                onClick={handleExportCSV}
+              >
+                CSV İndir
+              </Button>
               {trainingData.length < 200 && (
                 <Button
                   variant="outlined"

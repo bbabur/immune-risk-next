@@ -25,6 +25,17 @@ function calculateAgeInMonths(birthDate: string): number {
 
 export async function POST() {
   try {
+    // Önce mevcut veri var mı kontrol et
+    const existingCount = await prisma.trainingPatient.count();
+    
+    if (existingCount > 0) {
+      return NextResponse.json({
+        success: false,
+        message: `Veritabanında zaten ${existingCount} kayıt var. Silmek için DELETE /api/training-data kullanın.`,
+        currentCount: existingCount
+      }, { status: 400 });
+    }
+
     console.log(`🌱 Training Data Seed başlıyor: ${seedData.length} kayıt`);
     
     let successCount = 0;
