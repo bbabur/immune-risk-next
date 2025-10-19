@@ -15,8 +15,25 @@ export async function GET(request: Request) {
       });
       return NextResponse.json({ count });
     } else {
-      // Tüm hastaları getir/say
-      const patients = await prisma.patient.findMany();
+      // Tüm hastaları getir/say - daha fazla veri ile
+      const patients = await prisma.patient.findMany({
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          birthDate: true,
+          gender: true,
+          hasImmuneDeficiency: true,
+          diagnosisType: true,
+          birthWeight: true,
+          gestationalAge: true,
+          parentalConsanguinity: true,
+          finalRiskLevel: true,
+        },
+        orderBy: {
+          id: 'desc'
+        }
+      });
       return NextResponse.json(patients);
     }
   } catch (error) {

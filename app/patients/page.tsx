@@ -30,6 +30,9 @@ interface Patient {
   finalRiskLevel?: string;
   hasImmuneDeficiency?: boolean;
   diagnosisType?: string;
+  birthWeight?: number;
+  gestationalAge?: number;
+  parentalConsanguinity?: boolean;
 }
 
 export default function PatientsPage() {
@@ -61,6 +64,21 @@ export default function PatientsPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // KVKK - İsim maskeleme
+  const maskName = (firstName?: string, lastName?: string) => {
+    const first = firstName || '';
+    const last = lastName || '';
+    
+    if (!first && !last) return 'Anonim Hasta';
+    
+    const maskString = (str: string) => {
+      if (str.length <= 1) return str;
+      return str.charAt(0) + '***';
+    };
+    
+    return `${maskString(first)} ${maskString(last)}`.trim();
   };
 
   const calculateAge = (birthDate: string) => {
@@ -228,53 +246,55 @@ export default function PatientsPage() {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell><strong>ID</strong></TableCell>
-                    <TableCell><strong>Ad Soyad</strong></TableCell>
+                    <TableCell><strong>Hasta No</strong></TableCell>
+                    <TableCell><strong>Kimlik</strong></TableCell>
                     <TableCell><strong>Yaş</strong></TableCell>
                     <TableCell><strong>Cinsiyet</strong></TableCell>
-                    <TableCell><strong>Risk Seviyesi</strong></TableCell>
                     <TableCell><strong>Tanı</strong></TableCell>
+                    <TableCell><strong>Doğum Kilosu</strong></TableCell>
+                    <TableCell><strong>Gestasyon</strong></TableCell>
+                    <TableCell><strong>Akrabalık</strong></TableCell>
                     <TableCell><strong>İşlemler</strong></TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {patients.map((patient) => (
                     <TableRow key={patient.id} hover>
-                      <TableCell>{patient.id}</TableCell>
                       <TableCell>
-                        {`${patient.firstName || ''} ${patient.lastName || ''}`.trim() || (
-                          <Typography color="text.secondary" fontStyle="italic">
-                            İsimsiz Hasta
-                          </Typography>
-                        )}
+                        <Chip label={`#${patient.id}`} size="small" color="primary" variant="outlined" />
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="body2" fontWeight="medium">
+                          {maskName(patient.firstName, patient.lastName)}
+                        </Typography>
                       </TableCell>
                       <TableCell>{calculateAge(patient.birthDate)} yaş</TableCell>
                       <TableCell>{getGenderDisplay(patient.gender)}</TableCell>
-                      <TableCell>{getRiskLevelChip(patient.finalRiskLevel)}</TableCell>
                       <TableCell>{getDiagnosisChip(patient.hasImmuneDeficiency, patient.diagnosisType)}</TableCell>
                       <TableCell>
-                        <Box display="flex" gap={1}>
-                          <Button
-                            component={Link}
-                            href={`/patients/${patient.id}`}
-                            variant="contained"
-                            color="primary"
-                            size="small"
-                            startIcon={<Visibility />}
-                          >
-                            Detay
-                          </Button>
-                          <Button
-                            component={Link}
-                            href={`/patients/${patient.id}/assess`}
-                            variant="contained"
-                            color="warning"
-                            size="small"
-                            startIcon={<Assessment />}
-                          >
-                            Değerlendir
-                          </Button>
-                        </Box>
+                        {patient.birthWeight ? `${patient.birthWeight}g` : '-'}
+                      </TableCell>
+                      <TableCell>
+                        {patient.gestationalAge ? `${patient.gestationalAge} hafta` : '-'}
+                      </TableCell>
+                      <TableCell>
+                        {patient.parentalConsanguinity ? (
+                          <Chip label="Var" size="small" color="warning" />
+                        ) : (
+                          <Chip label="Yok" size="small" color="default" />
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          component={Link}
+                          href={`/patients/${patient.id}`}
+                          variant="contained"
+                          color="primary"
+                          size="small"
+                          startIcon={<Visibility />}
+                        >
+                          Detay
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
