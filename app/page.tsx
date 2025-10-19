@@ -152,9 +152,22 @@ export default function HomePage() {
     setUser(JSON.parse(userData));
     setLoading(false);
     
+    // Initialize database if needed (first time)
+    initializeDatabase();
+    
     // API'den istatistikleri çek
     fetchStats();
   }, [router]);
+
+  const initializeDatabase = async () => {
+    try {
+      const response = await fetch('/api/init', { method: 'POST' });
+      const data = await response.json();
+      console.log('Database initialization:', data);
+    } catch (error) {
+      console.error('Init failed:', error);
+    }
+  };
 
   const fetchStats = async () => {
     try {
