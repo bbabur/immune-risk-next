@@ -275,6 +275,17 @@ function ClinicalFeaturesTable({ clinicalFeatures }: { clinicalFeatures: Clinica
   );
 }
 
+// KVKK uyumlu isim maskeleme
+function maskName(firstName: string, lastName: string): string {
+  if (!firstName) return '***';
+  const nameParts = firstName.split(' ');
+  const maskedParts = nameParts.map(part => {
+    if (part.length <= 2) return part;
+    return part[0] + '*'.repeat(part.length - 1);
+  });
+  return maskedParts.join(' ');
+}
+
 export default function PatientDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -1112,8 +1123,9 @@ export default function PatientDetailPage() {
           Geri
         </Button>
         <Typography variant="h4" fontWeight="bold">
-          {patient.firstName} {patient.lastName}
+          {maskName(patient.firstName, patient.lastName)}
         </Typography>
+        <Chip label={patient.lastName} size="small" color="primary" />
       </Box>
 
       {/* Tab Navigation */}
