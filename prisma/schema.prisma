@@ -282,3 +282,46 @@ model AntiHbsReference {
   @@map("anti_hbs_references")
   @@index([minAgeMonths, maxAgeMonths])
 }
+
+// Model Eğitim Datası - AI/ML için kullanılacak
+model TrainingPatient {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  // Anonimleştirilmiş kimlik
+  patientCode String  @unique @map("patient_code")  // Örn: "P001", "P002"
+  
+  // Demografik - Anonimleştirilmiş
+  ageMonths Int     @map("age_months")
+  gender    String
+  
+  // Doğum bilgileri
+  birthWeight         Float?  @map("birth_weight")
+  gestationalAge      Int?    @map("gestational_age")
+  birthType           String? @map("birth_type")
+  breastfeedingMonths Int?    @map("breastfeeding_months")
+  cordFallDay         Int?    @map("cord_fall_day")
+  
+  // Aile
+  parentalConsanguinity Boolean @default(false) @map("parental_consanguinity")
+  
+  // Klinik veriler (JSON olarak saklanabilir)
+  clinicalFeatures Json?    @map("clinical_features")
+  infections       Json?
+  hospitalizations Json?
+  familyHistory    Json?    @map("family_history")
+  
+  // Tanı ve sonuç
+  hasImmuneDeficiency Boolean @map("has_immune_deficiency")
+  diagnosisType       String? @map("diagnosis_type")
+  ruleBasedScore      Int?    @map("rule_based_score")
+  finalRiskLevel      String? @map("final_risk_level")
+  
+  // Metadata
+  sourceFile String? @map("source_file")  // Hangi Excel'den geldi
+  notes      String? @db.Text
+  
+  @@map("training_patients")
+  @@index([hasImmuneDeficiency])
+  @@index([ageMonths])
+}

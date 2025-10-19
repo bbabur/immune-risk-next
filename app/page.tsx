@@ -24,7 +24,9 @@ import {
   List,
   Settings,
   Info,
-  PieChart
+  PieChart,
+  Storage as StorageIcon,
+  Psychology as PsychologyIcon
 } from '@mui/icons-material';
 import Link from 'next/link';
 import { useNotification } from '@/components/NotificationProvider';
@@ -33,6 +35,7 @@ interface Stats {
   patientCount: number;
   diagnosedCount: number;
   modelExists: boolean;
+  trainingDataCount: number;
 }
 
 // Sponsor Reklam Bileşeni
@@ -132,7 +135,8 @@ export default function HomePage() {
   const [stats, setStats] = useState<Stats>({
     patientCount: 0,
     diagnosedCount: 0,
-    modelExists: true
+    modelExists: true,
+    trainingDataCount: 0
   });
 
   useEffect(() => {
@@ -155,9 +159,10 @@ export default function HomePage() {
   const fetchStats = async () => {
     try {
       // Gerçek API çağrıları
-      const [patientsRes, diagnosedRes] = await Promise.all([
+      const [patientsRes, diagnosedRes, trainingRes] = await Promise.all([
         fetch('/api/patients'),
-        fetch('/api/patients?diagnosed=true')
+        fetch('/api/patients?diagnosed=true'),
+        fetch('/api/training-data')
       ]);
       
       if (patientsRes.ok) {
@@ -171,10 +176,14 @@ export default function HomePage() {
           diagnosedCount = diagnosedData.count || 0;
         }
         
+        const trainingData = trainingRes.ok ? await trainingRes.json() : [];
+        const trainingCount = Array.isArray(trainingData) ? trainingData.length : 0;
+        
         setStats({
           patientCount: totalPatients,
           diagnosedCount: diagnosedCount,
-          modelExists: true
+          modelExists: true,
+          trainingDataCount: trainingCount
         });
       } else {
         // Fallback to hardcoded data if API fails
@@ -182,7 +191,8 @@ export default function HomePage() {
         setStats({
           patientCount: 0,
           diagnosedCount: 0,
-          modelExists: true
+          modelExists: true,
+          trainingDataCount: 0
         });
       }
     } catch (error) {
@@ -191,7 +201,8 @@ export default function HomePage() {
       setStats({
         patientCount: 0,
         diagnosedCount: 0,
-        modelExists: true
+        modelExists: true,
+        trainingDataCount: 0
       });
     }
   };
@@ -255,81 +266,100 @@ export default function HomePage() {
           </Card>
 
           {/* İstatistik kartları */}
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3, mb: 4 }}>
-            <Box sx={{ flex: 1 }}>
-              <Card sx={{ textAlign: 'center', boxShadow: 3, height: '100%' }}>
-                <CardContent>
-                  <People sx={{ fontSize: 60, color: 'primary.main', mb: 2 }} />
-                  <Typography variant="h3" component="h3">
-                    {stats.patientCount}
-                  </Typography>
-                  <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-                    Toplam Hasta
-                  </Typography>
-                  <Button 
-                    variant="contained" 
-                    startIcon={<List />}
-                    component={Link}
-                    href="/patients"
-                    fullWidth
-                  >
-                    Hasta Listesi
-                  </Button>
-                </CardContent>
-              </Card>
-            </Box>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', lg: '1fr 1fr 1fr 1fr' }, gap: 3, mb: 4 }}>
+            <Card sx={{ textAlign: 'center', boxShadow: 3 }}>
+              <CardContent>
+                <People sx={{ fontSize: 50, color: 'primary.main', mb: 1 }} />
+                <Typography variant="h4" component="h3">
+                  {stats.patientCount}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                  Gerçek Hasta
+                </Typography>
+                <Button 
+                  variant="contained" 
+                  size="small"
+                  startIcon={<List />}
+                  component={Link}
+                  href="/patients"
+                  fullWidth
+                >
+                  Listele
+                </Button>
+              </CardContent>
+            </Card>
 
-            <Box sx={{ flex: 1 }}>
-              <Card sx={{ textAlign: 'center', boxShadow: 3, height: '100%' }}>
-                <CardContent>
-                  <Vaccines sx={{ fontSize: 60, color: 'success.main', mb: 2 }} />
-                  <Typography variant="h3" component="h3">
-                    {stats.diagnosedCount}
-                  </Typography>
-                  <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-                    Tanı Konulmuş Hasta
-                  </Typography>
-                  <Button 
-                    variant="contained" 
-                    color="success"
-                    startIcon={<PersonAdd />}
-                    component={Link}
-                    href="/register"
-                    fullWidth
-                  >
-                    Yeni Hasta Ekle
-                  </Button>
-                </CardContent>
-              </Card>
-            </Box>
+            <Card sx={{ textAlign: 'center', boxShadow: 3 }}>
+              <CardContent>
+                <StorageIcon sx={{ fontSize: 50, color: 'secondary.main', mb: 1 }} />
+                <Typography variant="h4" component="h3">
+                  {stats.trainingDataCount}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                  Model Eğitim Datası
+                </Typography>
+                <Button 
+                  variant="contained" 
+                  size="small"
+                  color="secondary"
+                  startIcon={<PsychologyIcon />}
+                  component={Link}
+                  href="/training-data"
+                  fullWidth
+                >
+                  Görüntüle
+                </Button>
+              </CardContent>
+            </Card>
 
-            <Box sx={{ flex: 1 }}>
-              <Card sx={{ textAlign: 'center', boxShadow: 3, height: '100%' }}>
-                <CardContent>
-                  <Psychology sx={{ fontSize: 60, color: 'info.main', mb: 2 }} />
-                  <Typography variant="h5" component="h3" sx={{ mb: 2 }}>
-                    Model Durumu
-                  </Typography>
-                  <Box sx={{ mb: 2 }}>
-                    {stats.modelExists ? (
-                      <Chip label="Aktif" color="success" />
-                    ) : (
-                      <Chip label="Eğitilmemiş" color="warning" />
-                    )}
-                  </Box>
-                  <Button 
-                    variant="contained" 
-                    color="info"
-                    startIcon={<Settings />}
-                    component={Link}
-                    href="/model-info"
-                    fullWidth
-                  >
-                    Model Detayları
-                  </Button>
-                </CardContent>
-              </Card>
-            </Box>
+            <Card sx={{ textAlign: 'center', boxShadow: 3 }}>
+              <CardContent>
+                <Vaccines sx={{ fontSize: 50, color: 'success.main', mb: 1 }} />
+                <Typography variant="h4" component="h3">
+                  {stats.diagnosedCount}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                  Tanı Konulmuş
+                </Typography>
+                <Button 
+                  variant="contained" 
+                  size="small"
+                  color="success"
+                  startIcon={<PersonAdd />}
+                  component={Link}
+                  href="/patients/register"
+                  fullWidth
+                >
+                  Yeni Ekle
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card sx={{ textAlign: 'center', boxShadow: 3 }}>
+              <CardContent>
+                <Psychology sx={{ fontSize: 50, color: 'info.main', mb: 1 }} />
+                <Typography variant="h6" sx={{ mb: 1 }}>
+                  Model
+                </Typography>
+                <Chip 
+                  label={stats.modelExists ? "Aktif" : "Eğitilmemiş"} 
+                  color={stats.modelExists ? "success" : "warning"}
+                  size="small"
+                  sx={{ mb: 2 }}
+                />
+                <Button 
+                  variant="contained" 
+                  size="small"
+                  color="info"
+                  startIcon={<Settings />}
+                  component={Link}
+                  href="/model-info"
+                  fullWidth
+                >
+                  Detaylar
+                </Button>
+              </CardContent>
+            </Card>
           </Box>
 
           {/* Alt bilgi kartları */}
