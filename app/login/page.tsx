@@ -232,7 +232,7 @@ export default function LoginPage() {
               Email: admin@example.com
             </Typography>
             <Typography variant="caption" color="text.secondary" display="block">
-              Şifre: admin123
+              Şifre: Admin123456
             </Typography>
           </Box>
         </CardContent>

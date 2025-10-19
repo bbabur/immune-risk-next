@@ -3,7 +3,6 @@ import type { NextRequest } from 'next/server';
 
 // Protected routes that require authentication
 const protectedRoutes = [
-  '/', // Dashboard
   '/patients',
   '/training-data',
   '/profile',
@@ -13,6 +12,9 @@ const protectedRoutes = [
   '/search',
   '/users',
 ];
+
+// Routes that need exact match
+const exactProtectedRoutes = ['/'];
 
 // Protected API routes
 const protectedApiRoutes = [
@@ -41,7 +43,8 @@ export function middleware(request: NextRequest) {
   }
   
   // Check if it's a protected route (page or API)
-  const isProtectedPage = protectedRoutes.some(route => pathname.startsWith(route));
+  const isProtectedPage = protectedRoutes.some(route => pathname.startsWith(route)) ||
+                          exactProtectedRoutes.includes(pathname);
   const isProtectedApi = protectedApiRoutes.some(route => pathname.startsWith(route));
   
   if (!isProtectedPage && !isProtectedApi) {
