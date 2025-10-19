@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import * as XLSX from 'xlsx';
 import {
   Container,
   Typography,
@@ -55,26 +56,55 @@ export default function ImportPage() {
     setError(null);
 
     try {
-      // CSV olarak oku
-      const text = await file.text();
-      const lines = text.split('\n');
-      const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
-      
-      const patients = [];
-      for (let i = 1; i < lines.length; i++) {
-        if (lines[i].trim()) {
-          const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
-          const patient: any = {};
-          
-          headers.forEach((header, index) => {
-            if (values[index] !== undefined) {
-              patient[header] = values[index];
-            }
-          });
-          
-          patients.push(patient);
+      let patients: any[] = [];
+
+      // Excel veya CSV dosyasını oku
+      if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+        // Excel dosyası
+        const arrayBuffer = await file.arrayBuffer();
+        const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        
+        // Excel'i JSON'a çevir
+        patients = XLSX.utils.sheet_to_json(worksheet, { 
+          raw: false,
+          defval: ''
+        });
+        
+        console.log('Excel parsed:', {
+          sheetName,
+          totalRows: patients.length,
+          columns: patients.length > 0 ? Object.keys(patients[0]) : [],
+          firstRow: patients[0]
+        });
+      } else {
+        // CSV dosyası
+        const text = await file.text();
+        const lines = text.split('\n');
+        const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+        
+        for (let i = 1; i < lines.length; i++) {
+          if (lines[i].trim()) {
+            const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
+            const patient: any = {};
+            
+            headers.forEach((header, index) => {
+              if (values[index] !== undefined) {
+                patient[header] = values[index];
+              }
+            });
+            
+            patients.push(patient);
+          }
         }
       }
+
+      if (patients.length === 0) {
+        throw new Error('Dosyada veri bulunamadı');
+      }
+
+      console.log(`${patients.length} hasta verisi işlenecek`);
 
       // API'ye gönder
       const response = await fetch('/api/patients/import', {
@@ -94,6 +124,7 @@ export default function ImportPage() {
       setResult(data.results);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Bilinmeyen hata');
+      console.error('Import error:', err);
     } finally {
       setLoading(false);
     }
@@ -123,7 +154,7 @@ export default function ImportPage() {
               Önemli Bilgiler
             </Typography>
             <Typography variant="body2" sx={{ mb: 1 }}>
-              • Excel dosyanızı CSV formatında kaydedin
+              • Excel (.xlsx, .xls) veya CSV dosyası yükleyebilirsiniz
             </Typography>
             <Typography variant="body2" sx={{ mb: 1 }}>
               • İlk satır başlık bilgilerini içermelidir
@@ -154,7 +185,7 @@ export default function ImportPage() {
               fullWidth
               sx={{ mb: 2, py: 2 }}
             >
-              CSV Dosyası Seç
+              Excel/CSV Dosyası Seç
             </Button>
           </label>
 

@@ -43,7 +43,7 @@ const teamMembers = [
     color: 'error'
   },
   {
-    name: 'Hasan Emanet',
+    name: 'Hasan Amanet',
     role: 'Yapay Zeka Mühendisi',
     icon: <Psychology sx={{ fontSize: 60, color: 'success.main' }} />,
     description: 'Makine öğrenmesi modelleri, risk değerlendirme algoritmaları ve veri analizi',

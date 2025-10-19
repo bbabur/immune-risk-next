@@ -6,6 +6,32 @@ interface ImportPatientData {
   [key: string]: any;
 }
 
+// Helper function to find column value by multiple possible names
+function findColumnValue(data: ImportPatientData, possibleNames: string[]): any {
+  for (const name of possibleNames) {
+    // Try exact match first
+    if (data[name] !== undefined && data[name] !== null && data[name] !== '') {
+      return data[name];
+    }
+    
+    // Try case-insensitive match
+    const lowerName = name.toLowerCase();
+    for (const key of Object.keys(data)) {
+      if (key.toLowerCase() === lowerName && data[key] !== undefined && data[key] !== null && data[key] !== '') {
+        return data[key];
+      }
+    }
+    
+    // Try partial match (contains)
+    for (const key of Object.keys(data)) {
+      if (key.toLowerCase().includes(lowerName) && data[key] !== undefined && data[key] !== null && data[key] !== '') {
+        return data[key];
+      }
+    }
+  }
+  return undefined;
+}
+
 // Evet/Hayır/Var/Yok string'lerini boolean'a çevir
 function parseBoolean(value: string | undefined): boolean {
   if (!value) return false;
@@ -14,12 +40,24 @@ function parseBoolean(value: string | undefined): boolean {
 }
 
 // Yaş ay değerinden doğum tarihini hesapla
-function calculateBirthDate(ageInMonths: number | undefined): string | null {
+function calculateBirthDate(ageInMonths: any): string | null {
   if (!ageInMonths) return null;
-  const now = new Date();
-  const birthDate = new Date(now);
-  birthDate.setMonth(birthDate.getMonth() - ageInMonths);
-  return birthDate.toISOString();
+  
+  // Convert to number and validate
+  const ageNum = Number(ageInMonths);
+  if (isNaN(ageNum) || ageNum < 0 || ageNum > 1200) { // Max 100 years
+    return null;
+  }
+  
+  try {
+    const now = new Date();
+    const birthDate = new Date(now);
+    birthDate.setMonth(birthDate.getMonth() - ageNum);
+    return birthDate.toISOString();
+  } catch (error) {
+    console.error('Error calculating birth date:', error);
+    return null;
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -36,7 +74,11 @@ export async function POST(request: NextRequest) {
 
     // Debug: Log first patient's keys to see actual column headers
     if (patients.length > 0) {
+      console.log('\n========== IMPORT DEBUG ==========');
+      console.log('Total patients:', patients.length);
       console.log('Available columns:', Object.keys(patients[0]));
+      console.log('First patient data:', patients[0]);
+      console.log('==================================\n');
     }
 
     const results = {
@@ -49,44 +91,66 @@ export async function POST(request: NextRequest) {
       const patientData = patients[i] as ImportPatientData;
       
       try {
-        // Flexible field mapping - support all possible column names
-        const firstName = patientData['ad'] || patientData['Ad'] || patientData['ADI'] || patientData['İsim'] || patientData['isim'] || 
-                         patientData['first_name'] || patientData['firstName'] || patientData['hasta_adi'] || patientData['hasta_ad'] ||
-                         patientData['name'] || patientData['Name'] || patientData['adi'] || patientData['Adi'];
+        // Use findColumnValue for flexible field mapping
+        const firstName = findColumnValue(patientData, [
+          'ad', 'Ad', 'ADI', 'adi', 'Adi', 'İsim', 'isim', 
+          'first_name', 'firstName', 'hasta_adi', 'hasta_ad',
+          'name', 'Name', 'HASTA ADI', 'Hasta Adı'
+        ]);
         
-        const gender = patientData['cins'] || patientData['Cins'] || patientData['CINS'] || patientData['Cinsiyet'] || patientData['cinsiyet'] || 
-                      patientData['Sex'] || patientData['sex'] || patientData['gender'] || patientData['Gender'] || patientData['cinsiyet_bilgisi'] ||
-                      patientData['CINSIYET'] || patientData['Erkek/Kadin'] || patientData['E/K'];
+        let gender = findColumnValue(patientData, [
+          'cins', 'Cins', 'CINS', 'Cinsiyet', 'cinsiyet', 
+          'Sex', 'sex', 'gender', 'Gender', 'cinsiyet_bilgisi',
+          'CINSIYET', 'Erkek/Kadin', 'E/K', 'CİNSİYET'
+        ]);
         
-        const diagnosis = patientData['tanı'] || patientData['Tanı'] || patientData['TANI'] || patientData['ana tanı'] || patientData['tani_durumu'] ||
-                         patientData['diagnosis'] || patientData['Diagnosis'] || patientData['hastalık'] || patientData['hastaluk'] ||
-                         patientData['immune_deficiency'] || patientData['piy'] || patientData['PIY'] || patientData['hasta_durumu'];
+        // Convert numeric gender codes to text
+        if (gender === '0' || gender === 0) {
+          gender = 'Erkek';
+        } else if (gender === '1' || gender === 1) {
+          gender = 'Kadın';
+        }
+        
+        const diagnosis = findColumnValue(patientData, [
+          'tanı', 'Tanı', 'TANI', 'ana tanı', 'tani_durumu',
+          'diagnosis', 'Diagnosis', 'hastalık', 'hastaluk',
+          'immune_deficiency', 'piy', 'PIY', 'hasta_durumu'
+        ]);
         
         // Calculate birth date from age in months - flexible age mapping
-        const ageInMonths = patientData['yaş-ay'] || patientData['yaş'] || patientData['yas'] || 
-                           patientData['yaş_ay'] || patientData['yas_ay'] || patientData['age'] || 
-                           patientData['age_months'] || patientData['YAŞ'] || patientData['YAS'];
+        const ageInMonths = findColumnValue(patientData, [
+          'yaş-ay', 'yaş', 'yas', 'yaş_ay', 'yas_ay', 
+          'age', 'age_months', 'YAŞ', 'YAS', 'YAŞ-AY'
+        ]);
         const birthDate = calculateBirthDate(ageInMonths);
 
         // Log the first few patients to debug
-        if (i < 3) {
-          console.log(`Patient ${i + 1} keys:`, Object.keys(patientData));
-          console.log(`Patient ${i + 1} mapped:`, { 
+        if (i < 5) {
+          console.log(`\n=== Patient ${i + 1} Debug ===`);
+          console.log('Raw age values:', {
+            'yaş-ay': patientData['yaş-ay'],
+            'yaş': patientData['yaş'], 
+            'yas': patientData['yas'],
+            'age': patientData['age']
+          });
+          console.log('Mapped values:', { 
             firstName, 
             gender, 
-            diagnosis,
-            diagnosisParsed: diagnosis ? parseBoolean(diagnosis) : false,
             ageInMonths,
-            birthWeight: patientData['doğum kilo'] || patientData['dogum_kilo'] || 'NOT_FOUND',
-            gestAge: patientData['doğum hf'] || patientData['dogum_hf'] || 'NOT_FOUND',
-            cordFall: patientData['göbek düşme-gün'] || patientData['gobek_dusme'] || 'NOT_FOUND'
+            ageInMonthsType: typeof ageInMonths,
+            birthDate,
+            validBirthDate: birthDate !== null
           });
+          if (i === 0) {
+            console.log('All available keys:', Object.keys(patientData));
+          }
         }
 
         // Validate required fields
         if (!firstName || !gender) {
           results.failed++;
-          results.errors.push(`Satır ${i + 1}: Zorunlu alanlar eksik (ad: '${firstName}', cins: '${gender}')`);
+          const availableCols = Object.keys(patientData).slice(0, 10).join(', ');
+          results.errors.push(`Satır ${i + 1}: Zorunlu alanlar eksik (ad: '${firstName}', cins: '${gender}') - Kolonlar: ${availableCols}...`);
           continue;
         }
 
@@ -101,17 +165,23 @@ export async function POST(request: NextRequest) {
               height: null, // Excel'de boy bilgisi yok
               weight: null, // Excel'de kilo bilgisi yok  
               ethnicity: null,
-              birthWeight: (patientData['doğum kilo'] || patientData['dogum_kilo'] || patientData['birth_weight'] || patientData['doğum_kilo']) ? 
-                          Number(patientData['doğum kilo'] || patientData['dogum_kilo'] || patientData['birth_weight'] || patientData['doğum_kilo']) : null,
-              gestationalAge: (patientData['doğum hf'] || patientData['dogum_hf'] || patientData['gestational_age'] || patientData['doğum_hf']) ? 
-                             Number(patientData['doğum hf'] || patientData['dogum_hf'] || patientData['gestational_age'] || patientData['doğum_hf']) : null,
-              cordFallDay: (patientData['göbek düşme-gün'] || patientData['gobek_dusme'] || patientData['cord_fall'] || patientData['göbek_düşme']) ? 
-                          Number(patientData['göbek düşme-gün'] || patientData['gobek_dusme'] || patientData['cord_fall'] || patientData['göbek_düşme']) : null,
-              parentalConsanguinity: parseBoolean(patientData['akrabalık']),
+              birthWeight: (() => {
+                const val = findColumnValue(patientData, ['doğum kilo', 'dogum_kilo', 'birth_weight', 'doğum_kilo', 'DOĞUM KİLO']);
+                return val ? Number(val) : null;
+              })(),
+              gestationalAge: (() => {
+                const val = findColumnValue(patientData, ['doğum hf', 'dogum_hf', 'gestational_age', 'doğum_hf', 'DOĞUM HF']);
+                return val ? Number(val) : null;
+              })(),
+              cordFallDay: (() => {
+                const val = findColumnValue(patientData, ['göbek düşme-gün', 'gobek_dusme', 'cord_fall', 'göbek_düşme', 'GÖBEK DÜŞME']);
+                return val ? Number(val) : null;
+              })(),
+              parentalConsanguinity: parseBoolean(findColumnValue(patientData, ['akrabalık', 'akrabalik', 'consanguinity', 'AKRABALIK'])),
               hasImmuneDeficiency: true, // All patients in this CSV are diagnosed with immune deficiency
               diagnosisType: 'İmmün Yetmezlik',
               diagnosisDate: null, // Tarih formatında veri yok
-              finalRiskLevel: patientData["4'lü sınıflama"] || null,
+              finalRiskLevel: findColumnValue(patientData, ["4'lü sınıflama", '4lu siniflandirma', 'risk_level', 'final_risk', 'SINIFLANDIRMA']),
             }
           });
 
@@ -119,72 +189,83 @@ export async function POST(request: NextRequest) {
           await tx.clinicalFeature.create({
             data: {
               patientId: patient.id,
-              growthFailure: parseBoolean(patientData['büyüme']),
-              chronicSkinIssue: parseBoolean(patientData['cilt prob']),
-              chronicDiarrhea: parseBoolean(patientData['ishal']),
-              bcgLymphadenopathy: parseBoolean(patientData['bcg lap']),
-              persistentThrush: parseBoolean(patientData['pamukçuk']),
-              deepAbscesses: parseBoolean(patientData['abse']),
-              chd: parseBoolean(patientData['kalp hast']),
+              growthFailure: parseBoolean(findColumnValue(patientData, ['büyüme', 'buyume', 'growth', 'BÜYÜME'])),
+              chronicSkinIssue: parseBoolean(findColumnValue(patientData, ['cilt prob', 'cilt', 'skin', 'CİLT PROB'])),
+              chronicDiarrhea: parseBoolean(findColumnValue(patientData, ['ishal', 'diarrhea', 'İSHAL'])),
+              bcgLymphadenopathy: parseBoolean(findColumnValue(patientData, ['bcg lap', 'bcg', 'BCG LAP'])),
+              persistentThrush: parseBoolean(findColumnValue(patientData, ['pamukçuk', 'pamukcuk', 'thrush', 'PAMUKÇUK'])),
+              deepAbscesses: parseBoolean(findColumnValue(patientData, ['abse', 'abscess', 'ABSE'])),
+              chd: parseBoolean(findColumnValue(patientData, ['kalp hast', 'kalp', 'heart', 'KALP HAST'])),
             }
           });
 
           // Add infections data
-          if (patientData['otit sıklığı/yıl'] || patientData['sinüzit sıklığı/yıl'] || patientData['asye sıklığı/yıl']) {
+          const hasInfections = findColumnValue(patientData, ['otit sıklığı/yıl', 'otit', 'OTİT']) || 
+                                findColumnValue(patientData, ['sinüzit sıklığı/yıl', 'sinuzit', 'SİNÜZİT']) || 
+                                findColumnValue(patientData, ['asye sıklığı/yıl', 'asye', 'ASYE']);
+          
+          if (hasInfections) {
             await tx.infection.create({
               data: {
                 patientId: patient.id,
                 type: 'Çoklu enfeksiyon',
                 severity: 'Orta',
-                treatment: patientData['oral ab'] || null,
-                antibioticUsed: patientData['oral ab'] || null,
+                treatment: findColumnValue(patientData, ['oral ab', 'oral', 'ORAL AB']) || null,
+                antibioticUsed: findColumnValue(patientData, ['oral ab', 'oral', 'ORAL AB']) || null,
                 antibioticFailure: false,
-                hospitalizationRequired: parseBoolean(patientData['hastane yatış']),
+                hospitalizationRequired: parseBoolean(findColumnValue(patientData, ['hastane yatış', 'hastane', 'hospitalization', 'HASTANE YATIŞ'])),
               }
             });
           }
 
           // Add hospitalization data if exists
-          if (parseBoolean(patientData['hastane yatış'])) {
+          const hasHospitalization = parseBoolean(findColumnValue(patientData, ['hastane yatış', 'hastane', 'hospitalization', 'HASTANE YATIŞ']));
+          
+          if (hasHospitalization) {
             await tx.hospitalization.create({
               data: {
                 patientId: patient.id,
                 admissionDate: new Date().toISOString(),
-                reason: patientData['yatış nedeni'] || 'Bilinmiyor',
-                diagnosis: patientData['ana tanı'] || null,
-                icuAdmission: parseBoolean(patientData['ybü']),
-                icuDays: patientData['yatış zamanı ay'] ? Number(patientData['yatış zamanı ay']) * 30 : null,
-                ivAntibioticRequirement: parseBoolean(patientData['ıv ab']),
-                antibioticsUsed: patientData['oral ab'] || null,
+                reason: findColumnValue(patientData, ['yatış nedeni', 'yatis nedeni', 'reason', 'YATIŞ NEDENİ']) || 'Bilinmiyor',
+                diagnosis: findColumnValue(patientData, ['ana tanı', 'ana tani', 'ANA TANI']) || null,
+                icuAdmission: parseBoolean(findColumnValue(patientData, ['ybü', 'ybu', 'icu', 'YBÜ'])),
+                icuDays: (() => {
+                  const val = findColumnValue(patientData, ['yatış zamanı ay', 'yatis zamani', 'icu_days', 'YATIŞ ZAMANI']);
+                  return val ? Number(val) * 30 : null;
+                })(),
+                ivAntibioticRequirement: parseBoolean(findColumnValue(patientData, ['ıv ab', 'iv ab', 'iv', 'IV AB'])),
+                antibioticsUsed: findColumnValue(patientData, ['oral ab', 'oral', 'ORAL AB']) || null,
                 notes: null,
               }
             });
           }
 
           // Add family history
-          const hasAnyFamilyHistory = parseBoolean(patientData['aile piy']) || 
-                                     parseBoolean(patientData['aile tbc']) || 
-                                     parseBoolean(patientData['aile kalp']) ||
-                                     parseBoolean(patientData['aile romatizma']) ||
-                                     parseBoolean(patientData['aile alerji']) ||
-                                     parseBoolean(patientData['aile kanser']);
+          const ailePiy = parseBoolean(findColumnValue(patientData, ['aile piy', 'aile', 'AİLE PIY']));
+          const aileTbc = parseBoolean(findColumnValue(patientData, ['aile tbc', 'AİLE TBC']));
+          const aileKalp = parseBoolean(findColumnValue(patientData, ['aile kalp', 'AİLE KALP']));
+          const aileRomatizma = parseBoolean(findColumnValue(patientData, ['aile romatizma', 'AİLE ROMATIZMA']));
+          const aileAlerji = parseBoolean(findColumnValue(patientData, ['aile alerji', 'AİLE ALERJİ']));
+          const aileKanser = parseBoolean(findColumnValue(patientData, ['aile kanser', 'AİLE KANSER']));
+          
+          const hasAnyFamilyHistory = ailePiy || aileTbc || aileKalp || aileRomatizma || aileAlerji || aileKanser;
 
           if (hasAnyFamilyHistory) {
             const conditions = [];
-            if (parseBoolean(patientData['aile piy'])) conditions.push('PIY');
-            if (parseBoolean(patientData['aile tbc'])) conditions.push('Tüberküloz');
-            if (parseBoolean(patientData['aile kalp'])) conditions.push('Kalp Hastalığı');
-            if (parseBoolean(patientData['aile romatizma'])) conditions.push('Romatizma');
-            if (parseBoolean(patientData['aile alerji'])) conditions.push('Alerji');
-            if (parseBoolean(patientData['aile kanser'])) conditions.push('Kanser');
+            if (ailePiy) conditions.push('PIY');
+            if (aileTbc) conditions.push('Tüberküloz');
+            if (aileKalp) conditions.push('Kalp Hastalığı');
+            if (aileRomatizma) conditions.push('Romatizma');
+            if (aileAlerji) conditions.push('Alerji');
+            if (aileKanser) conditions.push('Kanser');
 
             await tx.familyHistory.create({
               data: {
                 patientId: patient.id,
-                familyIeiHistory: parseBoolean(patientData['aile piy']),
-                ieiRelationship: patientData['derecesi'] || null,
+                familyIeiHistory: ailePiy,
+                ieiRelationship: findColumnValue(patientData, ['derecesi', 'derece', 'relationship', 'DERECESİ']) || null,
                 ieiType: conditions.join(', ') || null,
-                familyEarlyDeath: parseBoolean(patientData['erken ex']),
+                familyEarlyDeath: parseBoolean(findColumnValue(patientData, ['erken ex', 'erken', 'early_death', 'ERKEN EX'])),
                 earlyDeathAge: null,
                 earlyDeathCause: null,
                 earlyDeathRelationship: null,
@@ -197,8 +278,12 @@ export async function POST(request: NextRequest) {
         results.success++;
       } catch (error) {
         results.failed++;
-        results.errors.push(`Satır ${i + 1}: ${error instanceof Error ? error.message : 'Bilinmeyen hata'}`);
-        console.error(`Error importing patient row ${i + 1}:`, error);
+        const errorMessage = error instanceof Error ? error.message : 'Bilinmeyen hata';
+        results.errors.push(`Satır ${i + 1}: ${errorMessage}`);
+        console.error(`Error importing patient row ${i + 1}:`, {
+          error: errorMessage,
+          availableKeys: Object.keys(patientData)
+        });
       }
     }
 
