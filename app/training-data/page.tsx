@@ -448,15 +448,25 @@ export default function TrainingDataPage() {
                     </TableCell>
                     <TableCell>{patient.finalRiskLevel || '-'}</TableCell>
                     <TableCell>
-                      <Button
-                        size="small"
-                        color="error"
-                        startIcon={deleting === patient.id ? <CircularProgress size={12} /> : <DeleteIcon />}
-                        onClick={() => handleDelete(patient.id)}
-                        disabled={deleting === patient.id}
-                      >
-                        Sil
-                      </Button>
+                      <Box sx={{ display: 'flex', gap: 0.5 }}>
+                        <Button
+                          size="small"
+                          color="primary"
+                          startIcon={<EditIcon />}
+                          onClick={() => handleEdit(patient)}
+                        >
+                          Düzenle
+                        </Button>
+                        <Button
+                          size="small"
+                          color="error"
+                          startIcon={deleting === patient.id ? <CircularProgress size={12} /> : <DeleteIcon />}
+                          onClick={() => handleDelete(patient.id)}
+                          disabled={deleting === patient.id}
+                        >
+                          Sil
+                        </Button>
+                      </Box>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -478,6 +488,112 @@ export default function TrainingDataPage() {
           Tüm veriler anonimleştirilmiştir ve hasta kodları (P001, P002, vb.) ile tanımlanır.
         </Typography>
       </Alert>
+
+      {/* Edit Dialog */}
+      <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)} maxWidth="md" fullWidth>
+        <DialogTitle>Eğitim Datasını Düzenle</DialogTitle>
+        <DialogContent>
+          {editingPatient && (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
+              <TextField
+                label="Dosya No"
+                value={editingPatient.patientCode}
+                onChange={(e) => setEditingPatient({ ...editingPatient, patientCode: e.target.value })}
+                fullWidth
+              />
+              <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 2 }}>
+                <TextField
+                  label="Yaş (Ay)"
+                  type="number"
+                  value={editingPatient.ageMonths}
+                  onChange={(e) => setEditingPatient({ ...editingPatient, ageMonths: parseInt(e.target.value) })}
+                />
+                <FormControl fullWidth>
+                  <InputLabel>Cinsiyet</InputLabel>
+                  <Select
+                    value={editingPatient.gender}
+                    label="Cinsiyet"
+                    onChange={(e) => setEditingPatient({ ...editingPatient, gender: e.target.value })}
+                  >
+                    <MenuItem value="Erkek">Erkek</MenuItem>
+                    <MenuItem value="Kadın">Kadın</MenuItem>
+                    <MenuItem value="Bilinmiyor">Bilinmiyor</MenuItem>
+                  </Select>
+                </FormControl>
+              </Box>
+              <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 2 }}>
+                <TextField
+                  label="Doğum Kilosu (gram)"
+                  type="number"
+                  value={editingPatient.birthWeight || ''}
+                  onChange={(e) => setEditingPatient({ ...editingPatient, birthWeight: e.target.value ? parseFloat(e.target.value) : null })}
+                />
+                <TextField
+                  label="Gestasyon (hafta)"
+                  type="number"
+                  value={editingPatient.gestationalAge || ''}
+                  onChange={(e) => setEditingPatient({ ...editingPatient, gestationalAge: e.target.value ? parseInt(e.target.value) : null })}
+                />
+              </Box>
+              <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 2 }}>
+                <TextField
+                  label="Doğum Şekli"
+                  value={editingPatient.birthType || ''}
+                  onChange={(e) => setEditingPatient({ ...editingPatient, birthType: e.target.value })}
+                />
+                <TextField
+                  label="Anne Sütü (ay)"
+                  type="number"
+                  value={editingPatient.breastfeedingMonths || ''}
+                  onChange={(e) => setEditingPatient({ ...editingPatient, breastfeedingMonths: e.target.value ? parseInt(e.target.value) : null })}
+                />
+              </Box>
+              <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 2 }}>
+                <TextField
+                  label="Göbek Düşme (gün)"
+                  type="number"
+                  value={editingPatient.cordFallDay || ''}
+                  onChange={(e) => setEditingPatient({ ...editingPatient, cordFallDay: e.target.value ? parseInt(e.target.value) : null })}
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={editingPatient.parentalConsanguinity}
+                      onChange={(e) => setEditingPatient({ ...editingPatient, parentalConsanguinity: e.target.checked })}
+                    />
+                  }
+                  label="Akrabalık Var"
+                />
+              </Box>
+              <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 2 }}>
+                <TextField
+                  label="Tanı"
+                  value={editingPatient.diagnosisType || ''}
+                  onChange={(e) => setEditingPatient({ ...editingPatient, diagnosisType: e.target.value })}
+                />
+                <TextField
+                  label="Risk Seviyesi"
+                  value={editingPatient.finalRiskLevel || ''}
+                  onChange={(e) => setEditingPatient({ ...editingPatient, finalRiskLevel: e.target.value })}
+                />
+              </Box>
+              <TextField
+                label="Puan"
+                type="number"
+                value={editingPatient.ruleBasedScore || ''}
+                onChange={(e) => setEditingPatient({ ...editingPatient, ruleBasedScore: e.target.value ? parseInt(e.target.value) : null })}
+                fullWidth
+              />
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditDialogOpen(false)}>İptal</Button>
+          <Button onClick={handleUpdatePatient} variant="contained">
+            Kaydet
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 }
