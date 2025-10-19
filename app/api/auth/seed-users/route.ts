@@ -11,7 +11,7 @@ export async function POST() {
     // Delete existing users
     await prisma.user.deleteMany({});
 
-    // Create users
+    // Create users - both as admin
     const users = await prisma.user.createMany({
       data: [
         {
@@ -25,7 +25,7 @@ export async function POST() {
           username: 'mehmetbabur',
           email: 'mehmetbabur@example.com',
           password: userPassword,
-          role: 'user',
+          role: 'admin',
           isActive: true,
         }
       ]
