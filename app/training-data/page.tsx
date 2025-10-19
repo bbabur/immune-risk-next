@@ -75,6 +75,7 @@ export default function TrainingDataPage() {
   const [editingPatient, setEditingPatient] = useState<TrainingPatient | null>(null);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [detailPatient, setDetailPatient] = useState<TrainingPatient | null>(null);
+  const [detailEditMode, setDetailEditMode] = useState(false);
 
   useEffect(() => {
     loadTrainingData();
@@ -179,7 +180,39 @@ export default function TrainingDataPage() {
 
   const handleViewDetail = (patient: TrainingPatient) => {
     setDetailPatient(patient);
+    setDetailEditMode(false);
     setDetailDialogOpen(true);
+  };
+
+  const handleSaveDetailChanges = async () => {
+    if (!detailPatient) return;
+
+    try {
+      const response = await fetch(`/api/training-data/${detailPatient.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(detailPatient)
+      });
+
+      if (response.ok) {
+        await loadTrainingData();
+        setDetailEditMode(false);
+        alert('Kayıt güncellendi');
+      } else {
+        alert('Güncelleme başarısız');
+      }
+    } catch (error) {
+      alert('Güncelleme başarısız');
+    }
+  };
+
+  const handleCancelDetailEdit = () => {
+    setDetailEditMode(false);
+    // Reload original data
+    const original = trainingData.find(p => p.id === detailPatient?.id);
+    if (original) {
+      setDetailPatient(original);
+    }
   };
 
   const handleUpdatePatient = async () => {
@@ -507,10 +540,26 @@ export default function TrainingDataPage() {
       </Alert>
 
       {/* Detail Dialog - Tüm Kolonları Göster */}
-      <Dialog open={detailDialogOpen} onClose={() => setDetailDialogOpen(false)} maxWidth="lg" fullWidth>
-        <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', display: 'flex', alignItems: 'center', gap: 1 }}>
-          <VisibilityIcon />
-          Eğitim Datası Detayları - {detailPatient?.patientCode}
+      <Dialog open={detailDialogOpen} onClose={() => { setDetailDialogOpen(false); setDetailEditMode(false); }} maxWidth="lg" fullWidth>
+        <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            {detailEditMode ? <EditIcon /> : <VisibilityIcon />}
+            <Typography variant="h6">
+              {detailEditMode ? 'Düzenleniyor' : 'Detaylar'} - {detailPatient?.patientCode}
+            </Typography>
+          </Box>
+          {!detailEditMode && (
+            <Button
+              variant="contained"
+              color="warning"
+              size="small"
+              startIcon={<EditIcon />}
+              onClick={() => setDetailEditMode(true)}
+              sx={{ bgcolor: 'white', color: 'warning.main', '&:hover': { bgcolor: 'grey.100' } }}
+            >
+              Düzenle
+            </Button>
+          )}
         </DialogTitle>
         <DialogContent sx={{ mt: 2 }}>
           {detailPatient && (
@@ -521,18 +570,52 @@ export default function TrainingDataPage() {
                   📋 Temel Bilgiler
                 </Typography>
                 <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2 }}>
-                  <Box>
-                    <Typography variant="caption" color="text.secondary">Dosya No</Typography>
-                    <Typography variant="body1" fontWeight="bold">{detailPatient.patientCode}</Typography>
-                  </Box>
-                  <Box>
-                    <Typography variant="caption" color="text.secondary">Yaş</Typography>
-                    <Typography variant="body1">{detailPatient.ageMonths} ay</Typography>
-                  </Box>
-                  <Box>
-                    <Typography variant="caption" color="text.secondary">Cinsiyet</Typography>
-                    <Typography variant="body1">{detailPatient.gender}</Typography>
-                  </Box>
+                  {detailEditMode ? (
+                    <>
+                      <TextField
+                        label="Dosya No"
+                        value={detailPatient.patientCode}
+                        onChange={(e) => setDetailPatient({ ...detailPatient, patientCode: e.target.value })}
+                        size="small"
+                        fullWidth
+                      />
+                      <TextField
+                        label="Yaş (Ay)"
+                        type="number"
+                        value={detailPatient.ageMonths}
+                        onChange={(e) => setDetailPatient({ ...detailPatient, ageMonths: parseInt(e.target.value) })}
+                        size="small"
+                        fullWidth
+                      />
+                      <FormControl fullWidth size="small">
+                        <InputLabel>Cinsiyet</InputLabel>
+                        <Select
+                          value={detailPatient.gender}
+                          label="Cinsiyet"
+                          onChange={(e) => setDetailPatient({ ...detailPatient, gender: e.target.value })}
+                        >
+                          <MenuItem value="Erkek">Erkek</MenuItem>
+                          <MenuItem value="Kadın">Kadın</MenuItem>
+                          <MenuItem value="Bilinmiyor">Bilinmiyor</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </>
+                  ) : (
+                    <>
+                      <Box>
+                        <Typography variant="caption" color="text.secondary">Dosya No</Typography>
+                        <Typography variant="body1" fontWeight="bold">{detailPatient.patientCode}</Typography>
+                      </Box>
+                      <Box>
+                        <Typography variant="caption" color="text.secondary">Yaş</Typography>
+                        <Typography variant="body1">{detailPatient.ageMonths} ay</Typography>
+                      </Box>
+                      <Box>
+                        <Typography variant="caption" color="text.secondary">Cinsiyet</Typography>
+                        <Typography variant="body1">{detailPatient.gender}</Typography>
+                      </Box>
+                    </>
+                  )}
                 </Box>
               </Paper>
 
@@ -542,34 +625,89 @@ export default function TrainingDataPage() {
                   👶 Doğum Bilgileri
                 </Typography>
                 <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2 }}>
-                  <Box>
-                    <Typography variant="caption" color="text.secondary">Doğum Kilosu</Typography>
-                    <Typography variant="body1">{detailPatient.birthWeight ? `${detailPatient.birthWeight} g` : '-'}</Typography>
-                  </Box>
-                  <Box>
-                    <Typography variant="caption" color="text.secondary">Gestasyon</Typography>
-                    <Typography variant="body1">{detailPatient.gestationalAge ? `${detailPatient.gestationalAge} hafta` : '-'}</Typography>
-                  </Box>
-                  <Box>
-                    <Typography variant="caption" color="text.secondary">Doğum Şekli</Typography>
-                    <Typography variant="body1">{detailPatient.birthType || '-'}</Typography>
-                  </Box>
-                  <Box>
-                    <Typography variant="caption" color="text.secondary">Anne Sütü Süresi</Typography>
-                    <Typography variant="body1">{detailPatient.breastfeedingMonths ? `${detailPatient.breastfeedingMonths} ay` : '-'}</Typography>
-                  </Box>
-                  <Box>
-                    <Typography variant="caption" color="text.secondary">Göbek Düşme</Typography>
-                    <Typography variant="body1">{detailPatient.cordFallDay ? `${detailPatient.cordFallDay}. gün` : '-'}</Typography>
-                  </Box>
-                  <Box>
-                    <Typography variant="caption" color="text.secondary">Akrabalık</Typography>
-                    <Chip 
-                      label={detailPatient.parentalConsanguinity ? 'VAR' : 'YOK'} 
-                      size="small" 
-                      color={detailPatient.parentalConsanguinity ? 'warning' : 'default'}
-                    />
-                  </Box>
+                  {detailEditMode ? (
+                    <>
+                      <TextField
+                        label="Doğum Kilosu (gram)"
+                        type="number"
+                        value={detailPatient.birthWeight || ''}
+                        onChange={(e) => setDetailPatient({ ...detailPatient, birthWeight: e.target.value ? parseFloat(e.target.value) : null })}
+                        size="small"
+                        fullWidth
+                      />
+                      <TextField
+                        label="Gestasyon (hafta)"
+                        type="number"
+                        value={detailPatient.gestationalAge || ''}
+                        onChange={(e) => setDetailPatient({ ...detailPatient, gestationalAge: e.target.value ? parseInt(e.target.value) : null })}
+                        size="small"
+                        fullWidth
+                      />
+                      <TextField
+                        label="Doğum Şekli"
+                        value={detailPatient.birthType || ''}
+                        onChange={(e) => setDetailPatient({ ...detailPatient, birthType: e.target.value })}
+                        size="small"
+                        fullWidth
+                      />
+                      <TextField
+                        label="Anne Sütü (ay)"
+                        type="number"
+                        value={detailPatient.breastfeedingMonths || ''}
+                        onChange={(e) => setDetailPatient({ ...detailPatient, breastfeedingMonths: e.target.value ? parseInt(e.target.value) : null })}
+                        size="small"
+                        fullWidth
+                      />
+                      <TextField
+                        label="Göbek Düşme (gün)"
+                        type="number"
+                        value={detailPatient.cordFallDay || ''}
+                        onChange={(e) => setDetailPatient({ ...detailPatient, cordFallDay: e.target.value ? parseInt(e.target.value) : null })}
+                        size="small"
+                        fullWidth
+                      />
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={detailPatient.parentalConsanguinity}
+                            onChange={(e) => setDetailPatient({ ...detailPatient, parentalConsanguinity: e.target.checked })}
+                          />
+                        }
+                        label="Akrabalık Var"
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <Box>
+                        <Typography variant="caption" color="text.secondary">Doğum Kilosu</Typography>
+                        <Typography variant="body1">{detailPatient.birthWeight ? `${detailPatient.birthWeight} g` : '-'}</Typography>
+                      </Box>
+                      <Box>
+                        <Typography variant="caption" color="text.secondary">Gestasyon</Typography>
+                        <Typography variant="body1">{detailPatient.gestationalAge ? `${detailPatient.gestationalAge} hafta` : '-'}</Typography>
+                      </Box>
+                      <Box>
+                        <Typography variant="caption" color="text.secondary">Doğum Şekli</Typography>
+                        <Typography variant="body1">{detailPatient.birthType || '-'}</Typography>
+                      </Box>
+                      <Box>
+                        <Typography variant="caption" color="text.secondary">Anne Sütü Süresi</Typography>
+                        <Typography variant="body1">{detailPatient.breastfeedingMonths ? `${detailPatient.breastfeedingMonths} ay` : '-'}</Typography>
+                      </Box>
+                      <Box>
+                        <Typography variant="caption" color="text.secondary">Göbek Düşme</Typography>
+                        <Typography variant="body1">{detailPatient.cordFallDay ? `${detailPatient.cordFallDay}. gün` : '-'}</Typography>
+                      </Box>
+                      <Box>
+                        <Typography variant="caption" color="text.secondary">Akrabalık</Typography>
+                        <Chip 
+                          label={detailPatient.parentalConsanguinity ? 'VAR' : 'YOK'} 
+                          size="small" 
+                          color={detailPatient.parentalConsanguinity ? 'warning' : 'default'}
+                        />
+                      </Box>
+                    </>
+                  )}
                 </Box>
               </Paper>
 
@@ -720,38 +858,88 @@ export default function TrainingDataPage() {
                   🎯 Tanı ve Risk Değerlendirmesi
                 </Typography>
                 <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2 }}>
-                  <Box>
-                    <Typography variant="caption" color="text.secondary">İmmün Yetmezlik</Typography>
-                    <Chip 
-                      label={detailPatient.hasImmuneDeficiency ? 'VAR' : 'YOK'} 
-                      size="small" 
-                      color={detailPatient.hasImmuneDeficiency ? 'error' : 'success'}
-                    />
-                  </Box>
-                  <Box>
-                    <Typography variant="caption" color="text.secondary">Tanı Tipi</Typography>
-                    <Typography variant="body1">{detailPatient.diagnosisType || '-'}</Typography>
-                  </Box>
-                  <Box>
-                    <Typography variant="caption" color="text.secondary">Risk Seviyesi</Typography>
-                    <Chip 
-                      label={detailPatient.finalRiskLevel || '-'} 
-                      size="small" 
-                      color={detailPatient.finalRiskLevel === '3' ? 'error' : detailPatient.finalRiskLevel === '2' ? 'warning' : 'default'}
-                    />
-                  </Box>
-                  <Box>
-                    <Typography variant="caption" color="text.secondary">Kural Tabanlı Puan</Typography>
-                    <Typography variant="body1" fontWeight="bold">{detailPatient.ruleBasedScore || '-'}</Typography>
-                  </Box>
-                  <Box>
-                    <Typography variant="caption" color="text.secondary">Kaynak Dosya</Typography>
-                    <Typography variant="body2">{detailPatient.sourceFile || 'ANA TABLO.xlsx'}</Typography>
-                  </Box>
-                  <Box>
-                    <Typography variant="caption" color="text.secondary">Kayıt ID</Typography>
-                    <Typography variant="body2">#{detailPatient.id}</Typography>
-                  </Box>
+                  {detailEditMode ? (
+                    <>
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={detailPatient.hasImmuneDeficiency}
+                            onChange={(e) => setDetailPatient({ ...detailPatient, hasImmuneDeficiency: e.target.checked })}
+                          />
+                        }
+                        label="İmmün Yetmezlik Var"
+                      />
+                      <TextField
+                        label="Tanı Tipi"
+                        value={detailPatient.diagnosisType || ''}
+                        onChange={(e) => setDetailPatient({ ...detailPatient, diagnosisType: e.target.value })}
+                        size="small"
+                        fullWidth
+                      />
+                      <TextField
+                        label="Risk Seviyesi"
+                        value={detailPatient.finalRiskLevel || ''}
+                        onChange={(e) => setDetailPatient({ ...detailPatient, finalRiskLevel: e.target.value })}
+                        size="small"
+                        fullWidth
+                      />
+                      <TextField
+                        label="Kural Tabanlı Puan"
+                        type="number"
+                        value={detailPatient.ruleBasedScore || ''}
+                        onChange={(e) => setDetailPatient({ ...detailPatient, ruleBasedScore: e.target.value ? parseInt(e.target.value) : null })}
+                        size="small"
+                        fullWidth
+                      />
+                      <TextField
+                        label="Kaynak Dosya"
+                        value={detailPatient.sourceFile || ''}
+                        onChange={(e) => setDetailPatient({ ...detailPatient, sourceFile: e.target.value })}
+                        size="small"
+                        fullWidth
+                      />
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Typography variant="caption" color="text.secondary">
+                          Kayıt ID: #{detailPatient.id}
+                        </Typography>
+                      </Box>
+                    </>
+                  ) : (
+                    <>
+                      <Box>
+                        <Typography variant="caption" color="text.secondary">İmmün Yetmezlik</Typography>
+                        <Chip 
+                          label={detailPatient.hasImmuneDeficiency ? 'VAR' : 'YOK'} 
+                          size="small" 
+                          color={detailPatient.hasImmuneDeficiency ? 'error' : 'success'}
+                        />
+                      </Box>
+                      <Box>
+                        <Typography variant="caption" color="text.secondary">Tanı Tipi</Typography>
+                        <Typography variant="body1">{detailPatient.diagnosisType || '-'}</Typography>
+                      </Box>
+                      <Box>
+                        <Typography variant="caption" color="text.secondary">Risk Seviyesi</Typography>
+                        <Chip 
+                          label={detailPatient.finalRiskLevel || '-'} 
+                          size="small" 
+                          color={detailPatient.finalRiskLevel === '3' ? 'error' : detailPatient.finalRiskLevel === '2' ? 'warning' : 'default'}
+                        />
+                      </Box>
+                      <Box>
+                        <Typography variant="caption" color="text.secondary">Kural Tabanlı Puan</Typography>
+                        <Typography variant="body1" fontWeight="bold">{detailPatient.ruleBasedScore || '-'}</Typography>
+                      </Box>
+                      <Box>
+                        <Typography variant="caption" color="text.secondary">Kaynak Dosya</Typography>
+                        <Typography variant="body2">{detailPatient.sourceFile || 'ANA TABLO.xlsx'}</Typography>
+                      </Box>
+                      <Box>
+                        <Typography variant="caption" color="text.secondary">Kayıt ID</Typography>
+                        <Typography variant="body2">#{detailPatient.id}</Typography>
+                      </Box>
+                    </>
+                  )}
                 </Box>
               </Paper>
 
@@ -768,9 +956,20 @@ export default function TrainingDataPage() {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDetailDialogOpen(false)} variant="contained">
-            Kapat
-          </Button>
+          {detailEditMode ? (
+            <>
+              <Button onClick={handleCancelDetailEdit} color="inherit">
+                İptal
+              </Button>
+              <Button onClick={handleSaveDetailChanges} variant="contained" color="success">
+                Kaydet
+              </Button>
+            </>
+          ) : (
+            <Button onClick={() => setDetailDialogOpen(false)} variant="contained">
+              Kapat
+            </Button>
+          )}
         </DialogActions>
       </Dialog>
 
