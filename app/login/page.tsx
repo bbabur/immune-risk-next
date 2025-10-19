@@ -59,39 +59,36 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      // Simulated login - replace with actual API call
-      if (formData.email === 'admin@example.com' && formData.password === 'admin123') {
-        // Create token with expiration
-        const userData = {
-          id: '1',
-          username: 'admin',
-          email: formData.email,
-          role: 'admin'
-        };
-        
-        // Create JWT-like token
-        const header = btoa(JSON.stringify({ alg: 'none', typ: 'JWT' }));
-        const payload = btoa(JSON.stringify({
-          ...userData,
-          exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60), // 24 hours
-          iat: Math.floor(Date.now() / 1000)
-        }));
-        const token = `${header}.${payload}.signature`;
-        
+      // API call to login
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: formData.email,
+          password: formData.password
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
         // Save to localStorage
-        localStorage.setItem('user', JSON.stringify(userData));
-        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('token', data.token);
         
         // Save to cookie for middleware
-        document.cookie = `token=${token}; path=/; max-age=${24 * 60 * 60}; samesite=strict`;
+        document.cookie = `token=${data.token}; path=/; max-age=${24 * 60 * 60}; samesite=strict`;
         
         // Redirect to dashboard
         router.push('/');
       } else {
-        setError('Geçersiz email veya şifre');
+        setError(data.error || 'Geçersiz kullanıcı adı veya şifre');
       }
     } catch (error) {
       setError('Giriş yapılırken bir hata oluştu');
+      console.error('Login error:', error);
     } finally {
       setLoading(false);
     }
@@ -137,8 +134,8 @@ export default function LoginPage() {
           <Box component="form" onSubmit={handleSubmit}>
             <TextField
               fullWidth
-              label="Email"
-              type="email"
+              label="Email veya Kullanıcı Adı"
+              type="text"
               value={formData.email}
               onChange={(e) => handleChange('email', e.target.value)}
               required
