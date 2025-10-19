@@ -31,6 +31,16 @@ interface TrainingPatient {
   patientCode: string;
   ageMonths: number;
   gender: string;
+  birthWeight: number | null;
+  gestationalAge: number | null;
+  birthType: string | null;
+  breastfeedingMonths: number | null;
+  cordFallDay: number | null;
+  parentalConsanguinity: boolean;
+  clinicalFeatures: any;
+  infections: any;
+  hospitalizations: any;
+  familyHistory: any;
   hasImmuneDeficiency: boolean;
   diagnosisType: string | null;
   ruleBasedScore: number | null;
@@ -208,46 +218,83 @@ export default function TrainingDataPage() {
             )}
           </Box>
           <TableContainer sx={{ maxHeight: 600 }}>
-            <Table stickyHeader>
+            <Table stickyHeader size="small">
               <TableHead>
                 <TableRow>
                   <TableCell><strong>Kod</strong></TableCell>
-                  <TableCell><strong>Yaş (Ay)</strong></TableCell>
-                  <TableCell><strong>Cinsiyet</strong></TableCell>
+                  <TableCell><strong>Yaş</strong></TableCell>
+                  <TableCell><strong>Cins.</strong></TableCell>
+                  <TableCell><strong>Doğum Kilo</strong></TableCell>
+                  <TableCell><strong>Gest.</strong></TableCell>
+                  <TableCell><strong>Doğum Şekli</strong></TableCell>
+                  <TableCell><strong>Anne Sütü</strong></TableCell>
+                  <TableCell><strong>Göbek Düşme</strong></TableCell>
+                  <TableCell><strong>Akrabalık</strong></TableCell>
+                  <TableCell><strong>Büyüme Ger.</strong></TableCell>
+                  <TableCell><strong>Cilt Prob.</strong></TableCell>
+                  <TableCell><strong>İshal</strong></TableCell>
+                  <TableCell><strong>BCG Lap</strong></TableCell>
+                  <TableCell><strong>Pamukçuk</strong></TableCell>
+                  <TableCell><strong>Abse</strong></TableCell>
+                  <TableCell><strong>Kalp</strong></TableCell>
+                  <TableCell><strong>Enfeksiyon</strong></TableCell>
+                  <TableCell><strong>Hastane</strong></TableCell>
+                  <TableCell><strong>Aile Öyküsü</strong></TableCell>
                   <TableCell><strong>Tanı</strong></TableCell>
-                  <TableCell><strong>Risk Puanı</strong></TableCell>
-                  <TableCell><strong>Risk Seviyesi</strong></TableCell>
+                  <TableCell><strong>Risk</strong></TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {trainingData.slice(0, 100).map((patient) => (
+                {trainingData.map((patient) => (
                   <TableRow key={patient.id} hover>
                     <TableCell>
                       <Chip label={patient.patientCode} size="small" color="secondary" variant="outlined" />
                     </TableCell>
-                    <TableCell>{patient.ageMonths} ay</TableCell>
-                    <TableCell>{patient.gender}</TableCell>
+                    <TableCell>{patient.ageMonths}ay</TableCell>
+                    <TableCell>{patient.gender === 'Erkek' ? 'E' : patient.gender === 'Kadın' ? 'K' : '-'}</TableCell>
+                    <TableCell>{patient.birthWeight ? `${patient.birthWeight}g` : '-'}</TableCell>
+                    <TableCell>{patient.gestationalAge ? `${patient.gestationalAge}hf` : '-'}</TableCell>
+                    <TableCell>{patient.birthType || '-'}</TableCell>
+                    <TableCell>{patient.breastfeedingMonths ? `${patient.breastfeedingMonths}ay` : '-'}</TableCell>
+                    <TableCell>{patient.cordFallDay ? `${patient.cordFallDay}gün` : '-'}</TableCell>
+                    <TableCell>
+                      {patient.parentalConsanguinity ? (
+                        <Chip label="✓" size="small" color="warning" />
+                      ) : (
+                        <span>-</span>
+                      )}
+                    </TableCell>
+                    <TableCell>{patient.clinicalFeatures?.growthFailure ? '✓' : '-'}</TableCell>
+                    <TableCell>{patient.clinicalFeatures?.chronicSkinIssue ? '✓' : '-'}</TableCell>
+                    <TableCell>{patient.clinicalFeatures?.chronicDiarrhea ? '✓' : '-'}</TableCell>
+                    <TableCell>{patient.clinicalFeatures?.bcgLymphadenopathy ? '✓' : '-'}</TableCell>
+                    <TableCell>{patient.clinicalFeatures?.persistentThrush ? '✓' : '-'}</TableCell>
+                    <TableCell>{patient.clinicalFeatures?.deepAbscesses ? '✓' : '-'}</TableCell>
+                    <TableCell>{patient.clinicalFeatures?.chd ? '✓' : '-'}</TableCell>
+                    <TableCell>{patient.infections?.hasInfections ? '✓' : '-'}</TableCell>
+                    <TableCell>{patient.hospitalizations?.hasHospitalization ? '✓' : '-'}</TableCell>
+                    <TableCell>
+                      {patient.familyHistory?.piy || patient.familyHistory?.tbc || 
+                       patient.familyHistory?.heart || patient.familyHistory?.allergy ? '✓' : '-'}
+                    </TableCell>
                     <TableCell>
                       <Chip 
-                        label={patient.hasImmuneDeficiency ? 'İmmün Yetmezlik' : 'Normal'} 
+                        label={patient.hasImmuneDeficiency ? 'İY' : 'Normal'} 
                         size="small" 
                         color={patient.hasImmuneDeficiency ? 'error' : 'success'}
                       />
                     </TableCell>
-                    <TableCell>{patient.ruleBasedScore || '-'}</TableCell>
                     <TableCell>{patient.finalRiskLevel || '-'}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
           </TableContainer>
-          {trainingData.length > 100 && (
-            <Box sx={{ p: 2, textAlign: 'center', bgcolor: 'grey.100' }}>
-              <Typography variant="body2" color="text.secondary">
-                İlk 100 kayıt gösteriliyor. Toplam: {trainingData.length}
-              </Typography>
-            </Box>
-          )}
+          <Box sx={{ p: 2, textAlign: 'center', bgcolor: 'grey.100' }}>
+            <Typography variant="body2" color="text.secondary">
+              Toplam {trainingData.length} kayıt gösteriliyor
+            </Typography>
+          </Box>
         </Paper>
       )}
 
