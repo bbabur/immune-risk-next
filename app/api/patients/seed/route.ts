@@ -39,7 +39,7 @@ export async function POST() {
               gender: patientData.gender || 'Bilinmiyor',
               birthWeight: parseNumber(patientData.birthWeight),
               gestationalAge: parseNumber(patientData.gestationalAge),
-              birthType: patientData.birthType,
+              birthType: patientData.birthType ? String(patientData.birthType) : null,
               breastfeedingMonths: parseNumber(patientData.breastfeedingMonths),
               hasImmuneDeficiency: true,
               diagnosisType: 'İmmün Yetmezlik',
@@ -49,7 +49,7 @@ export async function POST() {
               cordFallDay: parseNumber(patientData.rawData?.['GÖBEK DÜŞME ZAMANI']),
               parentalConsanguinity: parseBoolean(patientData.rawData?.['AKRABALIK']),
               ruleBasedScore: parseNumber(patientData.rawData?.['JEFREY PUANI']),
-              finalRiskLevel: patientData.rawData?.['TANI İÇİN YOL GÖSTERİCİ  BULGU (JEFREY MODEL\'E GÖRE)'],
+              finalRiskLevel: patientData.rawData?.['TANI İÇİN YOL GÖSTERİCİ  BULGU (JEFREY MODEL\'E GÖRE)'] ? String(patientData.rawData['TANI İÇİN YOL GÖSTERİCİ  BULGU (JEFREY MODEL\'E GÖRE)']) : null,
             }
           });
 
