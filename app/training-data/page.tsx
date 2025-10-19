@@ -24,6 +24,9 @@ import {
   CloudUpload as CloudUploadIcon,
   CheckCircle as CheckCircleIcon,
   Psychology as PsychologyIcon,
+  Delete as DeleteIcon,
+  Edit as EditIcon,
+  DeleteSweep as DeleteSweepIcon,
 } from '@mui/icons-material';
 
 interface TrainingPatient {
@@ -53,6 +56,7 @@ export default function TrainingDataPage() {
   const [loading, setLoading] = useState(true);
   const [seeding, setSeeding] = useState(false);
   const [seedResult, setSeedResult] = useState<any>(null);
+  const [deleting, setDeleting] = useState<number | null>(null);
 
   useEffect(() => {
     loadTrainingData();
@@ -97,6 +101,50 @@ export default function TrainingDataPage() {
       });
     } finally {
       setSeeding(false);
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm('Bu kaydı silmek istediğinizden emin misiniz?')) return;
+
+    try {
+      setDeleting(id);
+      const response = await fetch(`/api/training-data/${id}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        await loadTrainingData();
+      } else {
+        alert('Silme işlemi başarısız');
+      }
+    } catch (error) {
+      alert('Hata oluştu');
+    } finally {
+      setDeleting(null);
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    if (!confirm(`TÜM ${trainingData.length} KAYIT SİLİNECEK! Emin misiniz?`)) return;
+    if (!confirm('Bu işlem geri alınamaz. Devam edilsin mi?')) return;
+
+    try {
+      setLoading(true);
+      const response = await fetch('/api/training-data', {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        await loadTrainingData();
+        alert('Tüm kayıtlar silindi');
+      } else {
+        alert('Silme işlemi başarısız');
+      }
+    } catch (error) {
+      alert('Hata oluştu');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -204,24 +252,37 @@ export default function TrainingDataPage() {
             <Typography variant="h6" fontWeight="bold">
               📊 Eğitim Veri Seti ({trainingData.length} kayıt)
             </Typography>
-            {trainingData.length < 200 && (
-              <Button
-                variant="outlined"
-                size="small"
-                sx={{ bgcolor: 'white', color: 'secondary.main' }}
-                startIcon={<CloudUploadIcon />}
-                onClick={handleSeed}
-                disabled={seeding}
-              >
-                Veri Yükle
-              </Button>
-            )}
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              {trainingData.length < 200 && (
+                <Button
+                  variant="outlined"
+                  size="small"
+                  sx={{ bgcolor: 'white', color: 'secondary.main' }}
+                  startIcon={<CloudUploadIcon />}
+                  onClick={handleSeed}
+                  disabled={seeding}
+                >
+                  Veri Yükle
+                </Button>
+              )}
+              {trainingData.length > 0 && (
+                <Button
+                  variant="outlined"
+                  size="small"
+                  sx={{ bgcolor: 'white', color: 'error.main', borderColor: 'white', '&:hover': { borderColor: 'error.light' } }}
+                  startIcon={<DeleteSweepIcon />}
+                  onClick={handleDeleteAll}
+                >
+                  Tümünü Sil
+                </Button>
+              )}
+            </Box>
           </Box>
           <TableContainer sx={{ maxHeight: 600 }}>
             <Table stickyHeader size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell><strong>Kod</strong></TableCell>
+                  <TableCell sx={{ bgcolor: 'primary.light' }}><strong>Dosya No</strong></TableCell>
                   <TableCell><strong>Yaş</strong></TableCell>
                   <TableCell><strong>Cins.</strong></TableCell>
                   <TableCell><strong>Doğum Kilo</strong></TableCell>
@@ -242,13 +303,19 @@ export default function TrainingDataPage() {
                   <TableCell><strong>Aile Öyküsü</strong></TableCell>
                   <TableCell><strong>Tanı</strong></TableCell>
                   <TableCell><strong>Risk</strong></TableCell>
+                  <TableCell><strong>İşlem</strong></TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {trainingData.map((patient) => (
                   <TableRow key={patient.id} hover>
-                    <TableCell>
-                      <Chip label={patient.patientCode} size="small" color="secondary" variant="outlined" />
+                    <TableCell sx={{ bgcolor: 'primary.light', fontWeight: 'bold' }}>
+                      <Chip 
+                        label={patient.patientCode} 
+                        size="small" 
+                        color="primary"
+                        sx={{ fontWeight: 'bold' }}
+                      />
                     </TableCell>
                     <TableCell>{patient.ageMonths}ay</TableCell>
                     <TableCell>{patient.gender === 'Erkek' ? 'E' : patient.gender === 'Kadın' ? 'K' : '-'}</TableCell>
@@ -285,6 +352,17 @@ export default function TrainingDataPage() {
                       />
                     </TableCell>
                     <TableCell>{patient.finalRiskLevel || '-'}</TableCell>
+                    <TableCell>
+                      <Button
+                        size="small"
+                        color="error"
+                        startIcon={deleting === patient.id ? <CircularProgress size={12} /> : <DeleteIcon />}
+                        onClick={() => handleDelete(patient.id)}
+                        disabled={deleting === patient.id}
+                      >
+                        Sil
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

@@ -71,9 +71,12 @@ export async function POST() {
           earlyDeath: parseBoolean(patientData.rawData?.['ERKEN EX']),
         };
 
+        // Dosya numarasını al
+        const fileNo = patientData.rawData?.['DOSYA NO'] || (i + 1);
+        
         await prisma.trainingPatient.create({
           data: {
-            patientCode: `P${String(i + 1).padStart(3, '0')}`,
+            patientCode: `${fileNo}`,
             ageMonths: calculateAgeInMonths(patientData.birthDate),
             gender: patientData.gender || 'Bilinmiyor',
             birthWeight: parseNumber(patientData.birthWeight),
