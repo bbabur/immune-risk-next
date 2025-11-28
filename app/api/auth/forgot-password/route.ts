@@ -3,6 +3,9 @@ import { Client } from 'pg';
 import { sanitizeString, validateEmail, checkRateLimit } from '@/lib/validation';
 import { sendPasswordResetEmail } from '@/lib/email';
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   console.log('Forgot password API called');
   

@@ -280,44 +280,14 @@ export default function ProfilePage() {
           <Typography variant="h6" gutterBottom>
             İstatistikler
           </Typography>
-          <Grid container spacing={3}>
-            <Grid item xs={6} md={3}>
-              <Card sx={{ p: 2, textAlign: 'center', bgcolor: 'primary.50' }}>
-                <Typography variant="h4" color="primary">
+          <Grid container spacing={3} justifyContent="center">
+            <Grid item xs={12} md={6}>
+              <Card sx={{ p: 3, textAlign: 'center', bgcolor: 'primary.50' }}>
+                <Typography variant="h3" color="primary" fontWeight="bold">
                   24
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Toplam Hasta
-                </Typography>
-              </Card>
-            </Grid>
-            <Grid item xs={6} md={3}>
-              <Card sx={{ p: 2, textAlign: 'center', bgcolor: 'success.50' }}>
-                <Typography variant="h4" color="success.main">
-                  18
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Aktif Takip
-                </Typography>
-              </Card>
-            </Grid>
-            <Grid item xs={6} md={3}>
-              <Card sx={{ p: 2, textAlign: 'center', bgcolor: 'warning.50' }}>
-                <Typography variant="h4" color="warning.main">
-                  6
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Risk Altında
-                </Typography>
-              </Card>
-            </Grid>
-            <Grid item xs={6} md={3}>
-              <Card sx={{ p: 2, textAlign: 'center', bgcolor: 'info.50' }}>
-                <Typography variant="h4" color="info.main">
-                  89%
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Başarı Oranı
+                <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
+                  Toplam Eklediği Hasta Sayısı
                 </Typography>
               </Card>
             </Grid>

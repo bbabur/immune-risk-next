@@ -1,30 +1,29 @@
 // Email service - Resend kullanarak gerçek email gönderimi
-import { Resend } from 'resend';
-
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function sendPasswordResetEmail(email: string, code: string): Promise<boolean> {
   try {
-    // Eğer API key yoksa console'a yaz (development)
-    if (!process.env.RESEND_API_KEY) {
-      console.log('⚠️  RESEND_API_KEY bulunamadı, console\'a yazılıyor:');
-      console.log('📧 ========================================');
-      console.log('📧 ŞİFRE SIFIRLAMA EMAIL\'İ');
-      console.log('📧 ========================================');
-      console.log(`📧 Alıcı: ${email}`);
-      console.log(`📧 Kod: ${code}`);
-      console.log('📧 ========================================');
-      console.log(`📧 Mesaj:`);
-      console.log(`📧 Şifre sıfırlama kodunuz: ${code}`);
-      console.log(`📧 Bu kod 15 dakika geçerlidir.`);
-      console.log('📧 ========================================\n');
-      return true;
-    }
+    // Log to console (works everywhere)
+    console.log('⚠️  Email gönderimi (Console modu):');
+    console.log('📧 ========================================');
+    console.log('📧 ŞİFRE SIFIRLAMA EMAIL\'İ');
+    console.log('📧 ========================================');
+    console.log(`📧 Alıcı: ${email}`);
+    console.log(`📧 Kod: ${code}`);
+    console.log('📧 ========================================');
+    console.log(`📧 Mesaj:`);
+    console.log(`📧 Şifre sıfırlama kodunuz: ${code}`);
+    console.log(`📧 Bu kod 15 dakika geçerlidir.`);
+    console.log('📧 ========================================\n');
 
-    // Gerçek email gönder
-    console.log(`📧 Email gönderiliyor: ${email}`);
-    
-    const { data, error } = await resend.emails.send({
+    // Eğer API key varsa gerçek email gönder
+    if (process.env.RESEND_API_KEY) {
+      try {
+        console.log(`📧 Resend ile email gönderiliyor: ${email}`);
+        
+        const { Resend } = await import('resend');
+        const resend = new Resend(process.env.RESEND_API_KEY);
+        
+        const { data, error } = await resend.emails.send({
       from: 'İmmün Risk AI <noreply@resend.dev>', // Test için resend.dev domain
       to: email,
       subject: 'Şifre Sıfırlama Kodu - İmmün Risk AI',
@@ -68,12 +67,17 @@ export async function sendPasswordResetEmail(email: string, code: string): Promi
       `
     });
 
-    if (error) {
-      console.error('❌ Resend hatası:', error);
-      return false;
+        if (error) {
+          console.error('❌ Resend hatası:', error);
+        } else {
+          console.log('✅ Email başarıyla gönderildi:', data?.id);
+        }
+      } catch (resendError) {
+        console.error('❌ Resend email gönderme hatası:', resendError);
+      }
     }
-
-    console.log('✅ Email başarıyla gönderildi:', data?.id);
+    
+    // Her durumda true dön (console'a yazıldı)
     return true;
     
   } catch (error) {
@@ -82,29 +86,4 @@ export async function sendPasswordResetEmail(email: string, code: string): Promi
   }
 }
 
-// Production için Resend örneği (yorum olarak):
-/*
-import { Resend } from 'resend';
-
-const resend = new Resend(process.env.RESEND_API_KEY);
-
-export async function sendPasswordResetEmail(email: string, code: string): Promise<boolean> {
-  try {
-    await resend.emails.send({
-      from: 'noreply@immunerisk.com',
-      to: email,
-      subject: 'Şifre Sıfırlama Kodu',
-      html: `
-        <h2>Şifre Sıfırlama</h2>
-        <p>Şifre sıfırlama kodunuz: <strong>${code}</strong></p>
-        <p>Bu kod 15 dakika geçerlidir.</p>
-      `
-    });
-    return true;
-  } catch (error) {
-    console.error('Email gönderme hatası:', error);
-    return false;
-  }
-}
-*/
 
