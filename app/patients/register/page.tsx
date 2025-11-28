@@ -22,14 +22,14 @@ import {
 } from '@mui/material';
 
 interface PatientData {
-  firstName: string;
-  lastName: string;
-  age: number | '';
+  fileNumber: string;
+  ageYears: number | '';
+  ageMonths: number | '';
   gender: string;
   height: number | '';
   weight: number | '';
   ethnicity: string;
-  parentalConsanguinity: boolean;
+  parentalConsanguinity: string;
   birthWeight: number | '';
   gestationalAge: number | '';
   cordFallDay: number | '';
@@ -42,14 +42,14 @@ export default function PatientRegisterPage() {
   const [success, setSuccess] = useState<string | null>(null);
   
   const [formData, setFormData] = useState<PatientData>({
-    firstName: '',
-    lastName: '',
-    age: '',
+    fileNumber: '',
+    ageYears: '',
+    ageMonths: '',
     gender: '',
     height: '',
     weight: '',
     ethnicity: '',
-    parentalConsanguinity: false,
+    parentalConsanguinity: '0',
     birthWeight: '',
     gestationalAge: '',
     cordFallDay: ''
@@ -58,13 +58,7 @@ export default function PatientRegisterPage() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
     
-    if (type === 'checkbox') {
-      const checked = (e.target as HTMLInputElement).checked;
-      setFormData(prev => ({
-        ...prev,
-        [name]: checked
-      }));
-    } else if (type === 'number') {
+    if (type === 'number') {
       setFormData(prev => ({
         ...prev,
         [name]: value === '' ? '' : parseFloat(value)
@@ -92,7 +86,7 @@ export default function PatientRegisterPage() {
     setSuccess(null);
 
     try {
-      const response = await fetch('/api/patients', {
+      const response = await fetch('/api/patients/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -100,20 +94,21 @@ export default function PatientRegisterPage() {
         body: JSON.stringify(formData),
       });
 
+      const result = await response.json();
+
       if (!response.ok) {
-        throw new Error('Hasta kaydedilemedi');
+        throw new Error(result.error || 'Hasta kaydedilemedi');
       }
 
-      const result = await response.json();
-      setSuccess('Hasta başarıyla kaydedildi!');
+      setSuccess('Hasta başarıyla kaydedildi! Klinik değerlendirme sayfasına yönlendiriliyorsunuz...');
       
-      // 2 saniye sonra hasta detay sayfasına yönlendir
+      // 2 saniye sonra klinik değerlendirme sayfasına yönlendir
       setTimeout(() => {
-        router.push(`/patients/${result.id}`);
+        router.push(`/patients/${result.id}/clinical-assessment`);
       }, 2000);
 
     } catch (error) {
-      setError('Hasta kaydedilirken hata oluştu');
+      setError(error instanceof Error ? error.message : 'Hasta kaydedilirken hata oluştu');
       console.error('Error:', error);
     } finally {
       setLoading(false);
@@ -138,36 +133,38 @@ export default function PatientRegisterPage() {
             <Divider sx={{ mb: 3 }} />
             
             <Stack spacing={3}>
-              {/* Ad Soyad */}
-              <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
-                <TextField
-                  fullWidth
-                  label="Ad"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  required
-                />
-                <TextField
-                  fullWidth
-                  label="Soyad"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  required
-                />
-              </Stack>
+              {/* Dosya Numarası */}
+              <TextField
+                fullWidth
+                label="Dosya Numarası"
+                name="fileNumber"
+                value={formData.fileNumber}
+                onChange={handleChange}
+                required
+                helperText="Hastanın benzersiz dosya numarası"
+              />
 
-              {/* Yaş, Cinsiyet, Etnik Köken */}
+              {/* Yaş (Yıl ve Ay), Cinsiyet */}
               <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
                 <TextField
                   fullWidth
                   label="Yaş (Yıl)"
-                  name="age"
+                  name="ageYears"
                   type="number"
-                  value={formData.age}
+                  value={formData.ageYears}
                   onChange={handleChange}
                   inputProps={{ min: 0, max: 18 }}
+                  required
+                />
+
+                <TextField
+                  fullWidth
+                  label="Yaş (Ay)"
+                  name="ageMonths"
+                  type="number"
+                  value={formData.ageMonths}
+                  onChange={handleChange}
+                  inputProps={{ min: 0, max: 11 }}
                   required
                 />
 
@@ -183,21 +180,22 @@ export default function PatientRegisterPage() {
                     <MenuItem value="female">Kız</MenuItem>
                   </Select>
                 </FormControl>
-
-                <TextField
-                  fullWidth
-                  label="Etnik Köken"
-                  name="ethnicity"
-                  value={formData.ethnicity}
-                  onChange={handleChange}
-                />
               </Stack>
 
-              {/* Boy, Kilo, Akrabalık */}
+              {/* Etnik Köken (opsiyonel) */}
+              <TextField
+                fullWidth
+                label="Etnik Köken (Opsiyonel)"
+                name="ethnicity"
+                value={formData.ethnicity}
+                onChange={handleChange}
+              />
+
+              {/* Boy, Kilo (opsiyonel) */}
               <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
                 <TextField
                   fullWidth
-                  label="Boy (cm)"
+                  label="Boy (cm) - Opsiyonel"
                   name="height"
                   type="number"
                   value={formData.height}
@@ -207,27 +205,29 @@ export default function PatientRegisterPage() {
 
                 <TextField
                   fullWidth
-                  label="Kilo (kg)"
+                  label="Kilo (kg) - Opsiyonel"
                   name="weight"
                   type="number"
                   value={formData.weight}
                   onChange={handleChange}
                   inputProps={{ step: 0.1 }}
                 />
-
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: 200 }}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        name="parentalConsanguinity"
-                        checked={formData.parentalConsanguinity}
-                        onChange={handleChange}
-                      />
-                    }
-                    label="Ebeveyn Akrabalığı"
-                  />
-                </Box>
               </Stack>
+
+              {/* Ebeveyn Akrabalığı */}
+              <FormControl fullWidth required>
+                <InputLabel>Ebeveyn Akrabalığı</InputLabel>
+                <Select
+                  name="parentalConsanguinity"
+                  value={formData.parentalConsanguinity}
+                  onChange={handleSelectChange}
+                  label="Ebeveyn Akrabalığı"
+                >
+                  <MenuItem value="0">Akrabalık Yok</MenuItem>
+                  <MenuItem value="1">Akrabalık Var</MenuItem>
+                  <MenuItem value="2">Akrabalık Yok, Aynı Köyden</MenuItem>
+                </Select>
+              </FormControl>
 
               {/* Doğum Bilgileri */}
               <Typography variant="h6" sx={{ mt: 2 }}>

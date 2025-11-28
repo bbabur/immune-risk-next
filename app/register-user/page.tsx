@@ -41,8 +41,9 @@ export default function RegisterUserPage() {
     lastName: '',
     email: '',
     phone: '',
-    department: '',
-    role: 'doctor',
+    city: '',
+    profession: 'doctor',
+    specialization: '',
     password: '',
     confirmPassword: ''
   });
@@ -100,7 +101,7 @@ export default function RegisterUserPage() {
           username,
           email: formData.email,
           password: formData.password,
-          role: formData.role === 'admin' ? 'admin' : 'user'
+          role: formData.profession === 'admin' ? 'admin' : 'user'
         })
       });
 
@@ -248,9 +249,35 @@ export default function RegisterUserPage() {
 
             <TextField
               fullWidth
-              label="Departman"
-              value={formData.department}
-              onChange={(e) => handleChange('department', e.target.value)}
+              label="Yaşadığı Şehir"
+              value={formData.city}
+              onChange={(e) => handleChange('city', e.target.value)}
+              sx={{ mb: 3 }}
+              placeholder="ör: Konya, İstanbul, Ankara"
+            />
+
+            <FormControl fullWidth sx={{ mb: 3 }}>
+              <InputLabel>Meslek</InputLabel>
+              <Select
+                value={formData.profession}
+                label="Meslek"
+                onChange={(e) => handleChange('profession', e.target.value)}
+              >
+                <MenuItem value="doctor">Doktor</MenuItem>
+                <MenuItem value="engineer">Mühendis</MenuItem>
+                <MenuItem value="nurse">Hemşire</MenuItem>
+                <MenuItem value="researcher">Araştırmacı</MenuItem>
+                <MenuItem value="technician">Teknisyen</MenuItem>
+                <MenuItem value="admin">Yönetici</MenuItem>
+                <MenuItem value="other">Diğer</MenuItem>
+              </Select>
+            </FormControl>
+
+            <TextField
+              fullWidth
+              label="Uzmanlık Alanı"
+              value={formData.specialization}
+              onChange={(e) => handleChange('specialization', e.target.value)}
               sx={{ mb: 3 }}
               InputProps={{
                 startAdornment: (
@@ -259,21 +286,8 @@ export default function RegisterUserPage() {
                   </InputAdornment>
                 ),
               }}
-              placeholder="ör: İmmünoloji, Çocuk Sağlığı"
+              placeholder="ör: Çocuk İmmünolojisi, Yazılım Geliştirme"
             />
-
-            <FormControl fullWidth sx={{ mb: 3 }}>
-              <InputLabel>Rol</InputLabel>
-              <Select
-                value={formData.role}
-                label="Rol"
-                onChange={(e) => handleChange('role', e.target.value)}
-              >
-                <MenuItem value="doctor">Doktor</MenuItem>
-                <MenuItem value="nurse">Hemşire</MenuItem>
-                <MenuItem value="admin">Yönetici</MenuItem>
-              </Select>
-            </FormControl>
 
             <TextField
               fullWidth

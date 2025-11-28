@@ -43,30 +43,18 @@ function SponsorAd({ position }: { position: 'left' | 'right' }) {
   const ads = {
     left: [
       {
-        title: "MedTech Solutions",
-        description: "İmmünoloji laboratuvar çözümleri",
-        image: "https://via.placeholder.com/200x150/4CAF50/white?text=MedTech",
-        link: "#"
-      },
-      {
-        title: "BioLab Systems",
-        description: "Gelişmiş tanı sistemleri",
-        image: "https://via.placeholder.com/200x150/2196F3/white?text=BioLab",
-        link: "#"
+        title: "Dem İlaç",
+        description: "Çalışma Sponsoru",
+        image: "/dem-ilac-logo.png",
+        link: "https://demilac.com.tr/"
       }
     ],
     right: [
       {
-        title: "ImmunoCare",
-        description: "Hasta takip ve yönetim sistemi",
-        image: "https://via.placeholder.com/200x150/FF9800/white?text=ImmunoCare",
-        link: "#"
-      },
-      {
-        title: "HealthTech Pro",
-        description: "Medikal yazılım çözümleri",
-        image: "https://via.placeholder.com/200x150/9C27B0/white?text=HealthTech",
-        link: "#"
+        title: "Dem İlaç",
+        description: "Çalışma Sponsoru",
+        image: "/dem-ilac-logo.png",
+        link: "https://demilac.com.tr/"
       }
     ]
   };
@@ -92,31 +80,26 @@ function SponsorAd({ position }: { position: 'left' | 'right' }) {
           >
             <Box
               sx={{
-                height: 100,
-                backgroundImage: `url(${ad.image})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                position: 'relative'
+                height: 120,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                p: 2,
+                bgcolor: 'white'
               }}
             >
-              <Box
-                sx={{
-                  position: 'absolute',
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  background: 'linear-gradient(transparent, rgba(0,0,0,0.7))',
-                  color: 'white',
-                  p: 1
+              <img
+                src={ad.image}
+                alt={ad.title}
+                style={{
+                  maxWidth: '100%',
+                  maxHeight: '100%',
+                  objectFit: 'contain'
                 }}
-              >
-                <Typography variant="caption" fontWeight="bold">
-                  {ad.title}
-                </Typography>
-              </Box>
+              />
             </Box>
-            <CardContent sx={{ p: 1.5 }}>
-              <Typography variant="caption" color="text.secondary">
+            <CardContent sx={{ p: 1.5, textAlign: 'center' }}>
+              <Typography variant="caption" color="text.secondary" display="block">
                 {ad.description}
               </Typography>
             </CardContent>
@@ -249,10 +232,10 @@ export default function HomePage() {
                 <Shield sx={{ fontSize: 40, color: 'primary.main', mr: 2 }} />
                 <Box>
                   <Typography variant="h4" component="h1" color="primary">
-                    Çocuk İmmün Yetmezlik Risk Değerlendirme Sistemi
+                    Çocuklarda Primer İmmün Yetmezlik Ön Tanısında Yapay Zekanın Kullanımı
                   </Typography>
                   <Typography variant="h6" sx={{ color: 'text.secondary', fontWeight: 'bold', mt: 1 }}>
-                    Konya Necmettin Erbakan Üniversitesi
+                    Konya Necmettin Erbakan Üniversitesi Tıp Fakültesi
                   </Typography>
                 </Box>
               </Box>
@@ -267,12 +250,10 @@ export default function HomePage() {
                 border: '1px solid #e0e0e0'
               }}>
                 <Typography variant="body2" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
-                  🏥 Necmettin Erbakan Üniversitesi Çocuk İmmün Yetmezlik Araştırma Projesi
+                  🏥 Çocuklarda Primer İmmün Yetmezlik Ön Tanısında Yapay Zekanın Kullanımı Araştırma Projesi
                 </Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                  Bu dashboard, Konya Necmettin Erbakan Üniversitesi kapsamında yürütülen immün yetmezlik 
-                  araştırması için geliştirilmiştir. Hasta verileri, risk değerlendirmeleri ve klinik takipler 
-                  bu sistem üzerinden gerçekleştirilmektedir.
+                  Konya Necmettin Erbakan Üniversitesi Tıp Fakültesi kapsamında yürütülen Çocuklarda Primer İmmün Yetmezlik Ön Tanısında Yapay Zekanın Kullanımı için geliştirilmiştir. Hasta verileri, risk değerlendirmeleri ve klinik takipler bu sistem üzerinden gerçekleştirilmektedir.
                 </Typography>
               </Box>
             </CardContent>
@@ -375,110 +356,34 @@ export default function HomePage() {
             </Card>
           </Box>
 
-          {/* Alt bilgi kartları */}
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3 }}>
-            <Box sx={{ flex: 1 }}>
-              <Card sx={{ boxShadow: 3, height: '100%' }}>
-                <Box sx={{ bgcolor: 'primary.main', color: 'white', p: 2 }}>
-                  <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Info sx={{ mr: 1 }} />
-                    Sistem Hakkında
+          {/* Sistem Hakkında - Ortalanmış */}
+          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
+            <Card sx={{ boxShadow: 3, maxWidth: 800 }}>
+              <Box sx={{ bgcolor: 'primary.main', color: 'white', p: 2, textAlign: 'center' }}>
+                <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Info sx={{ mr: 1 }} />
+                  Sistem Hakkında
+                </Typography>
+              </Box>
+              <CardContent>
+                <Typography variant="body1" sx={{ mb: 2, textAlign: 'center' }}>
+                  Bu risk değerlendirme sistemi iki temel bileşenden oluşur:
+                </Typography>
+                <Box component="ol" sx={{ pl: 2 }}>
+                  <Typography component="li" sx={{ mb: 2 }}>
+                    <strong>Kural Tabanlı Risk Değerlendirme:</strong> 
+                    Uluslararası kılavuzlara ve uzman görüşlerine dayalı olarak geliştirilen JMF kriterleri ve Eldeniz çalışması baz alınarak klinik skorlama sistemi yapılmıştır.
+                  </Typography>
+                  <Typography component="li" sx={{ mb: 2 }}>
+                    <strong>Yapay Zeka Modeli:</strong> 
+                    Tanı konulmuş ve sağlıklı hasta verileri ile oluşturulan ve sürekli kendini geliştiren tahmin modeli.
                   </Typography>
                 </Box>
-                <CardContent>
-                  <Typography variant="body1" sx={{ mb: 2 }}>
-                    Bu risk değerlendirme sistemi iki temel bileşenden oluşur:
-                  </Typography>
-                  <Box component="ol" sx={{ pl: 2 }}>
-                    <Typography component="li" sx={{ mb: 1 }}>
-                      <strong>Kural Tabanlı Risk Değerlendirme:</strong> 
-                      Uluslararası kılavuzlara ve uzman görüşlerine dayalı olarak geliştirilen 
-                      klinik skorlama sistemi.
-                    </Typography>
-                    <Typography component="li" sx={{ mb: 2 }}>
-                      <strong>Makine Öğrenmesi Modeli:</strong> 
-                      Sistemdeki tanı konulmuş hastalara dayanarak oluşturulan ve sürekli 
-                      kendini geliştiren tahmin modeli.
-                    </Typography>
-                  </Box>
-                  <Typography variant="body1">
-                    Her iki yöntem birleştirilerek, daha doğru ve güvenilir risk tahminleri elde edilir.
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Box>
-
-            <Box sx={{ flex: 1 }}>
-              <Card sx={{ boxShadow: 3, height: '100%' }}>
-                <Box sx={{ bgcolor: 'primary.main', color: 'white', p: 2 }}>
-                  <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center' }}>
-                    <PieChart sx={{ mr: 1 }} />
-                    Risk Kategorileri
-                  </Typography>
-                </Box>
-                <CardContent>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <Box 
-                      sx={{ 
-                        width: 60, 
-                        height: 30, 
-                        bgcolor: 'success.light', 
-                        mr: 2,
-                        borderRadius: 1
-                      }} 
-                    />
-                    <Typography variant="body1">
-                      <strong>Düşük Risk</strong> - Rutin takip önerilir
-                    </Typography>
-                  </Box>
-                  
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <Box 
-                      sx={{ 
-                        width: 60, 
-                        height: 30, 
-                        bgcolor: 'warning.light', 
-                        mr: 2,
-                        borderRadius: 1
-                      }} 
-                    />
-                    <Typography variant="body1">
-                      <strong>Orta Risk</strong> - Takip ve ek testler önerilir
-                    </Typography>
-                  </Box>
-                  
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <Box 
-                      sx={{ 
-                        width: 60, 
-                        height: 30, 
-                        bgcolor: 'error.light', 
-                        mr: 2,
-                        borderRadius: 1
-                      }} 
-                    />
-                    <Typography variant="body1">
-                      <strong>Yüksek Risk</strong> - Detaylı klinik değerlendirme gerekli
-                    </Typography>
-                  </Box>
-                  
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Box 
-                      sx={{ 
-                        width: 60, 
-                        height: 30, 
-                        bgcolor: 'error.dark', 
-                        mr: 2,
-                        borderRadius: 1
-                      }} 
-                    />
-                    <Typography variant="body1">
-                      <strong>Çok Yüksek Risk</strong> - Acil uzman değerlendirmesi gerekiyor
-                    </Typography>
-                  </Box>
-                </CardContent>
-              </Card>
-            </Box>
+                <Typography variant="body1" sx={{ textAlign: 'center' }}>
+                  Her iki yöntem birleştirilerek, daha doğru ve güvenilir risk tahminleri elde edilir.
+                </Typography>
+              </CardContent>
+            </Card>
           </Box>
 
           {/* Hakkımızda Butonu */}

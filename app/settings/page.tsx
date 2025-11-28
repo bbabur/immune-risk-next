@@ -43,15 +43,15 @@ interface SettingsData {
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState<SettingsData>({
-    emailNotifications: true,
-    pushNotifications: true,
+    emailNotifications: false,
+    pushNotifications: false,
     smsNotifications: false,
     darkMode: false,
     language: 'tr',
     autoSave: true,
-    dataRetention: 365,
+    dataRetention: 730, // 2 yıl
     twoFactorAuth: false,
-    sessionTimeout: 30
+    sessionTimeout: 30 // 30 dakika
   });
   
   const [loading, setLoading] = useState(false);
@@ -108,18 +108,18 @@ export default function SettingsPage() {
           )}
 
           <Stack spacing={4}>
-            {/* Bildirim Ayarları */}
-            <Box>
+            {/* Bildirim Ayarları - Şu an için devre dışı */}
+            <Box sx={{ opacity: 0.5, pointerEvents: 'none' }}>
               <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                 <Notifications />
-                Bildirim Ayarları
+                Bildirim Ayarları (Yakında)
               </Typography>
               <Stack spacing={2}>
                 <FormControlLabel
                   control={
                     <Switch
-                      checked={settings.emailNotifications}
-                      onChange={(e) => handleChange('emailNotifications', e.target.checked)}
+                      checked={false}
+                      disabled
                     />
                   }
                   label="Email Bildirimleri"
@@ -127,8 +127,8 @@ export default function SettingsPage() {
                 <FormControlLabel
                   control={
                     <Switch
-                      checked={settings.pushNotifications}
-                      onChange={(e) => handleChange('pushNotifications', e.target.checked)}
+                      checked={false}
+                      disabled
                     />
                   }
                   label="Push Bildirimleri"
@@ -136,13 +136,16 @@ export default function SettingsPage() {
                 <FormControlLabel
                   control={
                     <Switch
-                      checked={settings.smsNotifications}
-                      onChange={(e) => handleChange('smsNotifications', e.target.checked)}
+                      checked={false}
+                      disabled
                     />
                   }
                   label="SMS Bildirimleri"
                 />
               </Stack>
+              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+                Bildirim özellikleri gelecek güncellemelerde aktif edilecektir.
+              </Typography>
             </Box>
 
             <Divider />

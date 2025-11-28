@@ -25,38 +25,39 @@ import {
 } from '@mui/icons-material';
 import Link from 'next/link';
 
+const leadMember = {
+  name: 'Prof. Dr. İsmail Reisli',
+  role: 'Proje Danışmanı',
+  icon: <RecordVoiceOver sx={{ fontSize: 80, color: 'primary.main' }} />,
+  description: 'Çocuk İmmünolojisi ve Allerji Uzmanı, Proje Danışmanı',
+  skills: ['İmmünoloji', 'Pediatri', 'Klinik Araştırma', 'Primer İmmün Yetmezlik'],
+  color: 'primary'
+};
+
 const teamMembers = [
   {
     name: 'Burak Babur',
-    role: 'Yazılım Mühendisi',
-    icon: <Code sx={{ fontSize: 60, color: 'primary.main' }} />,
+    role: 'Yazılım Geliştirici',
+    icon: <Code sx={{ fontSize: 60, color: 'info.main' }} />,
     description: 'Sistem geliştirme, veritabanı tasarımı ve frontend-backend entegrasyonu',
-    skills: ['Next.js', 'React', 'TypeScript', 'Node.js', 'PostgreSQL', 'Prisma'],
-    color: 'primary'
-  },
-  {
-    name: 'Mehmet Babur',
-    role: 'Doktor',
-    icon: <Vaccines sx={{ fontSize: 60, color: 'error.main' }} />,
-    description: 'Klinik değerlendirme, hasta verileri analizi ve tıbbi danışmanlık',
-    skills: ['İmmünoloji', 'Pediatri', 'Klinik Araştırma', 'Hasta Takibi', 'Tanı'],
-    color: 'error'
+    skills: ['Next.js', 'React', 'TypeScript', 'Node.js', 'PostgreSQL'],
+    color: 'info'
   },
   {
     name: 'Hasan Amanet',
     role: 'Yapay Zeka Mühendisi',
     icon: <Psychology sx={{ fontSize: 60, color: 'success.main' }} />,
-    description: 'Makine öğrenmesi modelleri, risk değerlendirme algoritmaları ve veri analizi',
-    skills: ['Machine Learning', 'Deep Learning', 'Python', 'TensorFlow', 'Data Science'],
+    description: 'Makine öğrenmesi modelleri, risk değerlendirme algoritmaları',
+    skills: ['Machine Learning', 'Deep Learning', 'Python', 'TensorFlow'],
     color: 'success'
   },
   {
-    name: 'Prof. Dr. İsmail Reisli',
-    role: 'Danışman',
-    icon: <RecordVoiceOver sx={{ fontSize: 60, color: 'success.main' }} />,
+    name: 'Mehmet Babur',
+    role: 'Tıbbi Danışman',
+    icon: <Vaccines sx={{ fontSize: 60, color: 'error.main' }} />,
     description: 'Klinik değerlendirme, hasta verileri analizi ve tıbbi danışmanlık',
-    skills: ['İmmünoloji', 'Pediatri', 'Klinik Araştırma', 'Hasta Takibi', 'Tanı'],
-    color: 'success'
+    skills: ['İmmünoloji', 'Pediatri', 'Klinik Araştırma', 'Hasta Takibi'],
+    color: 'error'
   }
 ];
 
@@ -79,20 +80,61 @@ export default function AboutPage() {
             Hakkımızda
           </Typography>
           <Typography variant="h5" sx={{ mb: 2 }}>
-            Konya Necmettin Erbakan Üniversitesi
+            Konya Necmettin Erbakan Üniversitesi Tıp Fakültesi
           </Typography>
           <Typography variant="body1" sx={{ opacity: 0.9, maxWidth: 800, mx: 'auto' }}>
-            Çocuk İmmün Yetmezlik Risk Değerlendirme Sistemi, multidisipliner bir ekip tarafından 
+            Çocuk Primer İmmün Yetmezlik Risk Değerlendirme Sistemi, multidisipliner bir ekip tarafından 
             çocuk hastalarda primer immün yetmezlik riskini erken dönemde tespit etmek amacıyla geliştirilmiştir.
           </Typography>
         </Paper>
       </Box>
 
-      {/* Team Members */}
+      {/* Lead Member - Prof. Dr. İsmail Reisli */}
       <Typography variant="h4" component="h2" sx={{ mb: 4, textAlign: 'center', color: 'primary.main' }}>
         Geliştirici Ekibimiz
       </Typography>
 
+      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 6 }}>
+        <Card sx={{ 
+          maxWidth: 500,
+          boxShadow: 6,
+          transition: 'transform 0.3s ease-in-out',
+          '&:hover': {
+            transform: 'translateY(-10px)',
+            boxShadow: 10
+          }
+        }}>
+          <CardContent sx={{ p: 4, textAlign: 'center' }}>
+            <Avatar sx={{ 
+              width: 120, 
+              height: 120, 
+              mx: 'auto', 
+              mb: 3,
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+            }}>
+              {leadMember.icon}
+            </Avatar>
+            <Typography variant="h4" component="h3" sx={{ mb: 1, fontWeight: 'bold' }}>
+              {leadMember.name}
+            </Typography>
+            <Chip 
+              label={leadMember.role} 
+              color={leadMember.color as any}
+              sx={{ mb: 2, fontSize: '1rem', py: 2.5 }}
+            />
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+              {leadMember.description}
+            </Typography>
+            <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 1, justifyContent: 'center' }}>
+              {leadMember.skills.map((skill, idx) => (
+                <Chip key={idx} label={skill} size="small" variant="outlined" />
+              ))}
+            </Stack>
+          </CardContent>
+        </Card>
+      </Box>
+
+      {/* Team Members */}
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 3, mb: 4 }}>
         {teamMembers.map((member, index) => (
           <Card key={index} sx={{ 
@@ -154,9 +196,10 @@ export default function AboutPage() {
           </Typography>
           
           <Typography variant="body1" sx={{ mb: 2, lineHeight: 1.7 }}>
-            Bu sistem, Konya Necmettin Erbakan Üniversitesi kapsamında yürütülen immün yetmezlik 
-            araştırma projesi için geliştirilmiştir. Amacımız, çocuk hastalarda primer immün yetmezlik 
-            riskini erken dönemde tespit ederek, uygun tanı ve tedavi süreçlerine yönlendirmektir.
+            Bu sistem, Konya Necmettin Erbakan Üniversitesi Tıp Fakültesi kapsamında yürütülen 
+            Çocuklarda Primer İmmün Yetmezlik Ön Tanısında Yapay Zekanın Kullanımı araştırma projesi 
+            için geliştirilmiştir. Amacımız, çocuk hastalarda primer immün yetmezlik riskini erken 
+            dönemde tespit ederek, uygun tanı ve tedavi süreçlerine yönlendirmektir.
           </Typography>
           
           <Typography variant="body1" sx={{ mb: 3, lineHeight: 1.7 }}>
@@ -165,33 +208,21 @@ export default function AboutPage() {
             ve hasta takibini kolaylaştırmaktadır.
           </Typography>
 
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' }, gap: 3 }}>
-            <Box>
-              <Typography variant="h6" sx={{ mb: 2, color: 'primary.main' }}>
-                Teknolojiler
-              </Typography>
-              <Stack spacing={1}>
-                <Chip label="Next.js 15" size="small" />
-                <Chip label="React 19" size="small" />
-                <Chip label="TypeScript" size="small" />
-                <Chip label="PostgreSQL" size="small" />
-                <Chip label="Prisma ORM" size="small" />
-                <Chip label="Material-UI" size="small" />
-              </Stack>
-            </Box>
-            
-            <Box>
-              <Typography variant="h6" sx={{ mb: 2, color: 'primary.main' }}>
-                Özellikler
-              </Typography>
-              <Stack spacing={1}>
-                <Typography variant="body2">• Hasta kayıt ve takip sistemi</Typography>
-                <Typography variant="body2">• Risk değerlendirme algoritmaları</Typography>
-                <Typography variant="body2">• Aile öyküsü takibi</Typography>
-                <Typography variant="body2">• İstatistiksel raporlama</Typography>
-                <Typography variant="body2">• Güvenli veri yönetimi</Typography>
-              </Stack>
-            </Box>
+          <Box>
+            <Typography variant="h6" sx={{ mb: 2, color: 'primary.main' }}>
+              Kullanılan Teknolojiler
+            </Typography>
+            <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 1 }}>
+              <Chip label="Next.js 15" color="primary" />
+              <Chip label="React 19" color="primary" />
+              <Chip label="TypeScript" color="info" />
+              <Chip label="PostgreSQL" color="success" />
+              <Chip label="Material-UI (MUI)" color="secondary" />
+              <Chip label="Node.js" color="success" />
+              <Chip label="Python (ML)" color="warning" />
+              <Chip label="TensorFlow" color="warning" />
+              <Chip label="Resend (Email)" color="info" />
+            </Stack>
           </Box>
         </CardContent>
       </Card>
@@ -203,12 +234,12 @@ export default function AboutPage() {
             İletişim
           </Typography>
           
-          <Typography variant="body1" sx={{ mb: 2 }}>
-            Konya Necmettin Erbakan Üniversitesi
+          <Typography variant="body1" sx={{ mb: 2, fontWeight: 'bold' }}>
+            Konya Necmettin Erbakan Üniversitesi Tıp Fakültesi
           </Typography>
           
           <Typography variant="body2" color="text.secondary">
-            İmmün Yetmezlik Araştırma Projesi
+            Çocuklarda Primer İmmün Yetmezlik Ön Tanısında Yapay Zekanın Kullanımı Araştırma Projesi
           </Typography>
           
           <Box sx={{ mt: 3 }}>

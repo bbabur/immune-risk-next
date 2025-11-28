@@ -18,10 +18,12 @@ model Patient {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  // Dosya numarası (benzersiz)
+  fileNumber String @unique @map("file_number")
+
   // Demografik bilgiler
-  firstName String? @map("first_name")
-  lastName  String? @map("last_name")
-  birthDate String @map("birth_date")
+  ageYears  Int     @map("age_years")
+  ageMonths Int     @map("age_months")
   gender    String
   height    Float?
   weight    Float?
@@ -35,7 +37,7 @@ model Patient {
   breastfeedingMonths Int?    @map("breastfeeding_months")    // Anne sütü süresi (ay cinsinden)
 
   // Aile bilgileri
-  parentalConsanguinity Boolean @default(false) @map("parental_consanguinity")
+  parentalConsanguinity String @default("0") @map("parental_consanguinity") // 0: Yok, 1: Var, 2: Aynı köyden
 
   // Risk değerlendirme sonuçları
   ruleBasedScore   Int?    @map("rule_based_score")

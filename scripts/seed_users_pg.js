@@ -28,29 +28,34 @@ async function seedUsers() {
   try {
     await client.query('BEGIN');
 
-    console.log('🧹 Mevcut kullanıcılar siliniyor...');
-    await client.query('DELETE FROM users');
-
     console.log('🔐 Şifreler hashleniyor...');
     const adminPasswordHash = await bcrypt.hash('Admin123456', 10);
     const mehmetPasswordHash = await bcrypt.hash('Mehmet123456', 10);
 
-    console.log('👤 Kullanıcılar ekleniyor...');
+    console.log('👤 Kullanıcılar ekleniyor/güncelleniyor (UPSERT)...');
+    
+    // Admin user - UPSERT
     await client.query(
       `
       INSERT INTO users (username, email, password, role, is_active, created_at, updated_at)
-      VALUES 
-        ($1, $2, $3, 'admin', true, NOW(), NOW()),
-        ($4, $5, $6, 'admin', true, NOW(), NOW())
+      VALUES ($1, $2, $3, 'admin', true, NOW(), NOW())
+      ON CONFLICT (email) DO UPDATE SET
+        password = EXCLUDED.password,
+        updated_at = NOW()
       `,
-      [
-        'admin',
-        'admin@example.com',
-        adminPasswordHash,
-        'mehmetbabur',
-        'mehmetbabur@example.com',
-        mehmetPasswordHash,
-      ]
+      ['admin', 'admin@example.com', adminPasswordHash]
+    );
+
+    // Mehmet user - UPSERT
+    await client.query(
+      `
+      INSERT INTO users (username, email, password, role, is_active, created_at, updated_at)
+      VALUES ($1, $2, $3, 'admin', true, NOW(), NOW())
+      ON CONFLICT (email) DO UPDATE SET
+        password = EXCLUDED.password,
+        updated_at = NOW()
+      `,
+      ['mehmetbabur', 'mehmetbabur@example.com', mehmetPasswordHash]
     );
 
     await client.query('COMMIT');
