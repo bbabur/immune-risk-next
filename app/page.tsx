@@ -356,35 +356,33 @@ export default function HomePage() {
             </Card>
           </Box>
 
-          {/* Sistem Hakkında - Ortalanmış */}
-          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
-            <Card sx={{ boxShadow: 3, maxWidth: 800 }}>
-              <Box sx={{ bgcolor: 'primary.main', color: 'white', p: 2, textAlign: 'center' }}>
-                <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Info sx={{ mr: 1 }} />
-                  Sistem Hakkında
+          {/* Sistem Hakkında */}
+          <Card sx={{ boxShadow: 3, mb: 4 }}>
+            <Box sx={{ bgcolor: 'primary.main', color: 'white', p: 2 }}>
+              <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center' }}>
+                <Info sx={{ mr: 1 }} />
+                Sistem Hakkında
+              </Typography>
+            </Box>
+            <CardContent sx={{ p: 4 }}>
+              <Typography variant="body1" sx={{ mb: 3, lineHeight: 1.7 }}>
+                Bu risk değerlendirme sistemi iki temel bileşenden oluşur:
+              </Typography>
+              <Box component="ol" sx={{ pl: 2, mb: 3 }}>
+                <Typography component="li" sx={{ mb: 2, lineHeight: 1.7 }}>
+                  <strong>Kural Tabanlı Risk Değerlendirme:</strong> 
+                  Uluslararası kılavuzlara ve uzman görüşlerine dayalı olarak geliştirilen JMF kriterleri ve Eldeniz çalışması baz alınarak klinik skorlama sistemi yapılmıştır.
+                </Typography>
+                <Typography component="li" sx={{ mb: 2, lineHeight: 1.7 }}>
+                  <strong>Yapay Zeka Modeli:</strong> 
+                  Tanı konulmuş ve sağlıklı hasta verileri ile oluşturulan ve sürekli kendini geliştiren tahmin modeli.
                 </Typography>
               </Box>
-              <CardContent>
-                <Typography variant="body1" sx={{ mb: 2, textAlign: 'center' }}>
-                  Bu risk değerlendirme sistemi iki temel bileşenden oluşur:
-                </Typography>
-                <Box component="ol" sx={{ pl: 2 }}>
-                  <Typography component="li" sx={{ mb: 2 }}>
-                    <strong>Kural Tabanlı Risk Değerlendirme:</strong> 
-                    Uluslararası kılavuzlara ve uzman görüşlerine dayalı olarak geliştirilen JMF kriterleri ve Eldeniz çalışması baz alınarak klinik skorlama sistemi yapılmıştır.
-                  </Typography>
-                  <Typography component="li" sx={{ mb: 2 }}>
-                    <strong>Yapay Zeka Modeli:</strong> 
-                    Tanı konulmuş ve sağlıklı hasta verileri ile oluşturulan ve sürekli kendini geliştiren tahmin modeli.
-                  </Typography>
-                </Box>
-                <Typography variant="body1" sx={{ textAlign: 'center' }}>
-                  Her iki yöntem birleştirilerek, daha doğru ve güvenilir risk tahminleri elde edilir.
-                </Typography>
-              </CardContent>
-            </Card>
-          </Box>
+              <Typography variant="body1" sx={{ lineHeight: 1.7 }}>
+                Her iki yöntem birleştirilerek, daha doğru ve güvenilir risk tahminleri elde edilir.
+              </Typography>
+            </CardContent>
+          </Card>
 
           {/* Hakkımızda Butonu */}
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>

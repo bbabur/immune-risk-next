@@ -1,40 +1,42 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Client } from 'pg';
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
+  const client = new Client({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false
+    }
+  });
+
   try {
+    await client.connect();
     const { searchParams } = new URL(request.url);
     const diagnosed = searchParams.get('diagnosed');
     
     if (diagnosed === 'true') {
-      // Tanı konulmuş hastaları say (hasImmuneDeficiency true olanlar)
-      const count = await prisma.patient.count({
-        where: {
-          hasImmuneDeficiency: true
-        }
-      });
-      return NextResponse.json({ count });
+      // Tanı konulmuş hastaları say
+      const result = await client.query(
+        'SELECT COUNT(*) as count FROM patients WHERE has_immune_deficiency = true'
+      );
+      await client.end();
+      return NextResponse.json({ count: parseInt(result.rows[0].count) });
     } else {
-      // Tüm hastaları getir/say - daha fazla veri ile
-      const patients = await prisma.patient.findMany({
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          birthDate: true,
-          gender: true,
-          hasImmuneDeficiency: true,
-          diagnosisType: true,
-          birthWeight: true,
-          gestationalAge: true,
-          parentalConsanguinity: true,
-          finalRiskLevel: true,
-        },
-        orderBy: {
-          id: 'desc'
-        }
-      });
-      return NextResponse.json(patients);
+      // Tüm hastaları getir
+      const result = await client.query(`
+        SELECT 
+          id, file_number, age_years, age_months, gender,
+          has_immune_deficiency, diagnosis_type, 
+          birth_weight, gestational_age, parental_consanguinity,
+          final_risk_level, created_at
+        FROM patients
+        ORDER BY id DESC
+      `);
+      await client.end();
+      return NextResponse.json(result.rows);
     }
   } catch (error) {
     console.error('Hastalar alınamadı:', error);
@@ -43,6 +45,11 @@ export async function GET(request: Request) {
       stack: error instanceof Error ? error.stack : undefined,
       url: request.url
     });
+    try {
+      await client.end();
+    } catch (e) {
+      // ignore
+    }
     return NextResponse.json(
       { 
         error: 'Hastalar alınamadı',
@@ -53,61 +60,4 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: NextRequest) {
-  try {
-    const data = await request.json();
-    
-    // Yaş bilgisini doğum tarihine çevir
-    const currentYear = new Date().getFullYear();
-    const birthYear = currentYear - parseInt(data.age);
-    const birthDate = `${birthYear}-01-01`;
-
-    const patient = await prisma.patient.create({
-      data: {
-        firstName: data.firstName,
-        lastName: data.lastName,
-        birthDate: birthDate,
-        gender: data.gender,
-        height: parseFloat(data.height) || null,
-        weight: parseFloat(data.weight) || null,
-        ethnicity: data.ethnicity || null,
-        birthWeight: parseFloat(data.birthWeight) || null,
-        gestationalAge: parseInt(data.gestationalAge) || null,
-        cordFallDay: parseInt(data.cordFallDay) || null,
-        parentalConsanguinity: data.consanguinity === 'true',
-        hasImmuneDeficiency: null,
-        diagnosisType: 'CVID',
-        finalRiskLevel: 'unknown'
-      }
-    });
-
-    // Bildirim oluştur
-    await prisma.notification.create({
-      data: {
-        title: 'Yeni Hasta Kaydı',
-        message: `${data.firstName} ${data.lastName} adlı hasta sisteme kaydedildi`,
-        type: 'success',
-        category: 'hasta_kaydi',
-        patientId: patient.id,
-        data: {
-          patientId: patient.id,
-          action: 'patient_created'
-        }
-      }
-    });
-
-    return NextResponse.json({ 
-      message: 'Hasta başarıyla kaydedildi', 
-      patient: {
-        id: patient.id,
-        firstName: patient.firstName,
-        lastName: patient.lastName
-      }
-    });
-  } catch (error) {
-    console.error('Error creating patient:', error);
-    return NextResponse.json({ error: 'Hasta kaydedilemedi' }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
-  }
-} 
+// POST endpoint moved to /api/patients/create 
