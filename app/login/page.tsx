@@ -211,7 +211,7 @@ export default function LoginPage() {
             </Box>
 
             <Box sx={{ mt: 2, textAlign: 'center' }}>
-              <MuiLink href="#" underline="hover" variant="body2">
+              <MuiLink component={Link} href="/forgot-password" underline="hover" variant="body2">
                 Şifrenizi mi unuttunuz?
               </MuiLink>
             </Box>
@@ -219,9 +219,31 @@ export default function LoginPage() {
 
           {/* Sponsor logo */}
           <Box sx={{ mt: 4, px: 1, textAlign: 'center' }}>
-            <Typography variant="caption" color="text.secondary">
-              Bu çalışma Dem İlaç&apos;ın koşulsuz eğitim desteği ile hazırlanmıştır.
+            <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 1 }}>
+              Çalışma Sponsoru
             </Typography>
+            <Box
+              component="a"
+              href="https://demilac.com.tr/"
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{
+                display: 'inline-block',
+                cursor: 'pointer',
+                transition: 'opacity 0.2s',
+                '&:hover': {
+                  opacity: 0.8
+                }
+              }}
+            >
+              <Image
+                src="/dem-ilac-logo.png"
+                alt="Dem İlaç"
+                width={180}
+                height={60}
+                style={{ objectFit: 'contain' }}
+              />
+            </Box>
           </Box>
         </CardContent>
       </Card>
