@@ -85,25 +85,72 @@ export default function RegisterUserPage() {
     setError(null);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      console.log('Starting registration...');
       
-      // Simulate successful registration
-      const userData = {
-        id: Date.now(),
-        name: `${formData.firstName} ${formData.lastName}`,
-        email: formData.email,
-        role: formData.role,
-        department: formData.department,
-        phone: formData.phone
-      };
+      // Create username from email
+      const username = formData.email.split('@')[0];
       
-      localStorage.setItem('user', JSON.stringify(userData));
-      localStorage.setItem('token', 'dummy-jwt-token');
+      // Call register API
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username,
+          email: formData.email,
+          password: formData.password,
+          role: formData.role === 'admin' ? 'admin' : 'user'
+        })
+      });
+
+      const data = await response.json();
+      console.log('Register response:', data);
+
+      if (!response.ok) {
+        setError(data.error || 'Kayıt işlemi başarısız');
+        console.error('Register failed:', data);
+        return;
+      }
+
+      console.log('Registration successful, logging in...');
       
-      // Redirect to dashboard
-      router.push('/');
+      // User created successfully, now login
+      const loginResponse = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: formData.email,
+          password: formData.password
+        })
+      });
+
+      const loginData = await loginResponse.json();
+
+      if (loginResponse.ok && loginData.success) {
+        // Save to localStorage
+        localStorage.setItem('user', JSON.stringify(loginData.user));
+        localStorage.setItem('token', loginData.token);
+        
+        // Save to cookie for middleware
+        const cookieValue = `token=${loginData.token}; path=/; max-age=${24 * 60 * 60}; samesite=lax${window.location.protocol === 'https:' ? '; secure' : ''}`;
+        document.cookie = cookieValue;
+        
+        // Small delay to ensure cookie is set
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // Redirect to dashboard
+        router.push('/');
+      } else {
+        // Registration successful but auto-login failed
+        // Redirect to login page
+        alert('Kayıt başarılı! Şimdi giriş yapabilirsiniz.');
+        router.push('/login');
+      }
     } catch (error) {
+      console.error('Register error:', error);
       setError('Kayıt işlemi sırasında bir hata oluştu');
     } finally {
       setLoading(false);

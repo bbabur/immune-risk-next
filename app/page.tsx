@@ -74,7 +74,7 @@ function SponsorAd({ position }: { position: 'left' | 'right' }) {
   return (
     <Box sx={{ width: 200, position: 'sticky', top: 20 }}>
       <Typography variant="h6" sx={{ mb: 2, color: 'text.secondary', fontSize: '0.9rem' }}>
-        Sponsorlu İçerik
+      Çalışma Sponsoru
       </Typography>
       <Stack spacing={2}>
         {ads[position].map((ad, index) => (

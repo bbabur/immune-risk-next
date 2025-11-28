@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import {
   Container,
   Card,
@@ -11,14 +12,12 @@ import {
   Button,
   Box,
   Alert,
-  Avatar,
   Link as MuiLink,
   Divider,
   InputAdornment,
   IconButton
 } from '@mui/material';
 import {
-  Psychology,
   Email,
   Lock,
   Visibility,
@@ -106,20 +105,15 @@ export default function LoginPage() {
         <CardContent sx={{ p: 4 }}>
           {/* Header */}
           <Box sx={{ textAlign: 'center', mb: 4 }}>
-            <Avatar
-              sx={{
-                width: 64,
-                height: 64,
-                mx: 'auto',
-                mb: 2,
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-              }}
-            >
-              <Psychology fontSize="large" />
-            </Avatar>
-            <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
-              Giriş Yap
-            </Typography>
+            <Box sx={{ mb: 2, display: 'flex', justifyContent: 'center' }}>
+              <Image
+                src="/dem-ilac-logo.png"
+                alt="Dem İlaç logo"
+                width={280}
+                height={160}
+                style={{ objectFit: 'contain' }}
+              />
+            </Box>            
             <Typography variant="body2" color="text.secondary">
               İmmün Risk AI sistemine hoş geldiniz
             </Typography>
@@ -223,16 +217,10 @@ export default function LoginPage() {
             </Box>
           </Box>
 
-          {/* Demo credentials */}
-          <Box sx={{ mt: 4, p: 2, bgcolor: 'grey.50', borderRadius: 2 }}>
-            <Typography variant="caption" color="text.secondary" display="block">
-              Demo hesap:
-            </Typography>
-            <Typography variant="caption" color="text.secondary" display="block">
-              Email: admin@example.com
-            </Typography>
-            <Typography variant="caption" color="text.secondary" display="block">
-              Şifre: Admin123456
+          {/* Sponsor logo */}
+          <Box sx={{ mt: 4, px: 1, textAlign: 'center' }}>
+            <Typography variant="caption" color="text.secondary">
+              Bu çalışma Dem İlaç&apos;ın koşulsuz eğitim desteği ile hazırlanmıştır.
             </Typography>
           </Box>
         </CardContent>

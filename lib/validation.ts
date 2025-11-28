@@ -25,8 +25,8 @@ export function validateUsername(username: string): boolean {
 }
 
 export function validatePassword(password: string): boolean {
-  // At least 8 characters, one uppercase, one lowercase, one number
-  return password.length >= 8;
+  // At least 6 characters
+  return password.length >= 6;
 }
 
 export function sanitizeForSQL(input: any): string | number | boolean | null {

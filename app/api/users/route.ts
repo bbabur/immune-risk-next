@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
 
     if (!validatePassword(password)) {
       return NextResponse.json(
-        { error: 'Şifre en az 8 karakter olmalıdır' },
+        { error: 'Şifre en az 6 karakter olmalıdır' },
         { status: 400 }
       );
     }
