@@ -56,6 +56,10 @@ interface Patient {
   id: number;
   file_number?: string;
   fileNumber?: string;
+  firstName?: string;
+  lastName?: string;
+  birth_date?: string;
+  birthDate?: string;
   age_years?: number;
   ageYears?: number;
   age_months?: number;
@@ -328,10 +332,24 @@ export default function PatientDetailPage() {
     }
   }, [params.id]);
 
-  // Yaş gösterimi - API'den gelen age_years ve age_months kullan
+  // Yaş gösterimi - API'den gelen age_years ve age_months kullan, yoksa birthDate'den hesapla
   const formatAge = (patient: Patient) => {
-    const years = patient.age_years || patient.ageYears || 0;
-    const months = patient.age_months || patient.ageMonths || 0;
+    let years = patient.age_years || patient.ageYears;
+    let months = patient.age_months || patient.ageMonths;
+    
+    // Eğer yaş bilgisi yoksa ve birthDate varsa, hesapla
+    if ((years === null || years === undefined) && patient.birth_date) {
+      const birthDate = new Date(patient.birth_date);
+      const today = new Date();
+      const ageInMonths = (today.getFullYear() - birthDate.getFullYear()) * 12 + 
+                          (today.getMonth() - birthDate.getMonth());
+      years = Math.floor(ageInMonths / 12);
+      months = ageInMonths % 12;
+    }
+    
+    // Varsayılan değerler
+    years = years || 0;
+    months = months || 0;
     
     if (years === 0 && months === 0) return '0 ay';
     if (years === 0) return `${months} ay`;
