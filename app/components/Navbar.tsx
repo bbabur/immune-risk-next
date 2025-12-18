@@ -36,7 +36,8 @@ import {
   FiberManualRecord,
   PersonalInjury,
   Assignment,
-  Warning
+  Warning,
+  Storage
 } from '@mui/icons-material';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
@@ -63,7 +64,21 @@ export default function Navbar() {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
+  const [userRole, setUserRole] = useState<string>('');
   const router = useRouter();
+
+  // Kullanıcı rolünü al
+  useEffect(() => {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        setUserRole(user.role || '');
+      } catch (e) {
+        // ignore
+      }
+    }
+  }, []);
 
   // Bildirimleri getir
   const fetchNotifications = async () => {
