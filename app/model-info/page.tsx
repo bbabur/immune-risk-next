@@ -93,7 +93,7 @@ const dataTypes = [
 export default function ModelInfo() {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      {/* Header */}
+      {/* Header - Compact & Modern */}
       <Box sx={{ mb: 4 }}>
         <Button
           component={Link}
@@ -105,28 +105,46 @@ export default function ModelInfo() {
         </Button>
         
         <Paper sx={{ 
-          p: 4, 
-          textAlign: 'center', 
+          p: 3, 
           background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
           color: 'white',
-          borderRadius: 3
+          borderRadius: 3,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 3,
+          boxShadow: '0 8px 32px 0 rgba(102, 126, 234, 0.4)'
         }}>
-          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-            <Avatar sx={{ 
-              width: 80, 
-              height: 80, 
-              background: 'linear-gradient(135deg, #fff 0%, #f0f0f0 100%)',
-              color: '#667eea'
-            }}>
-              <Psychology sx={{ fontSize: 50 }} />
-            </Avatar>
+          <Avatar sx={{ 
+            width: 64, 
+            height: 64, 
+            background: 'rgba(255, 255, 255, 0.2)',
+            backdropFilter: 'blur(10px)',
+            border: '2px solid rgba(255, 255, 255, 0.3)'
+          }}>
+            <Psychology sx={{ fontSize: 36, color: 'white' }} />
+          </Avatar>
+          
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold', mb: 0.5 }}>
+              Yapay Zeka Model Bilgisi
+            </Typography>
+            <Typography variant="body1" sx={{ opacity: 0.95 }}>
+              Çocuklarda Primer İmmün Yetmezlik Ön Tanısında Yapay Zekanın Kullanımı
+            </Typography>
           </Box>
-          <Typography variant="h3" component="h1" sx={{ mb: 2, fontWeight: 'bold' }}>
-            Yapay Zeka Model Bilgisi
-          </Typography>
-          <Typography variant="h6" sx={{ opacity: 0.9, maxWidth: 600, mx: 'auto' }}>
-            Çocuklarda Primer İmmün Yetmezlik Ön Tanısında Yapay Zekanın Kullanımı
-          </Typography>
+          
+          <Chip 
+            label="AI Powered" 
+            sx={{ 
+              background: 'rgba(255, 255, 255, 0.2)',
+              color: 'white',
+              fontWeight: 'bold',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              fontSize: '0.9rem',
+              px: 1
+            }} 
+          />
         </Paper>
       </Box>
 
