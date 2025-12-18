@@ -94,8 +94,16 @@ export default function LoginPage() {
         await new Promise(resolve => setTimeout(resolve, 100));
         
         // Redirect to original page or dashboard
+        // SECURITY: Validate redirect parameter to prevent open redirect attacks
         const urlParams = new URLSearchParams(window.location.search);
-        const redirectTo = urlParams.get('redirect') || '/';
+        let redirectTo = urlParams.get('redirect') || '/';
+        
+        // Only allow internal redirects (must start with /)
+        // Prevent external redirects like https://evil.com
+        if (!redirectTo.startsWith('/') || redirectTo.startsWith('//')) {
+          redirectTo = '/';
+        }
+        
         router.push(redirectTo);
       } else {
         setError(data.error || 'Geçersiz kullanıcı adı veya şifre');

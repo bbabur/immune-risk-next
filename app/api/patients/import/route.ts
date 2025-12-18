@@ -7,6 +7,7 @@ interface ImportPatientData {
 }
 
 // Helper function to find column value by multiple possible names
+// SECURITY: Only exact and case-insensitive matches to prevent wrong column matching
 function findColumnValue(data: ImportPatientData, possibleNames: string[]): any {
   for (const name of possibleNames) {
     // Try exact match first
@@ -14,17 +15,10 @@ function findColumnValue(data: ImportPatientData, possibleNames: string[]): any 
       return data[name];
     }
     
-    // Try case-insensitive match
+    // Try case-insensitive match only (removed partial match to prevent 'ad' matching 'adres')
     const lowerName = name.toLowerCase();
     for (const key of Object.keys(data)) {
       if (key.toLowerCase() === lowerName && data[key] !== undefined && data[key] !== null && data[key] !== '') {
-        return data[key];
-      }
-    }
-    
-    // Try partial match (contains)
-    for (const key of Object.keys(data)) {
-      if (key.toLowerCase().includes(lowerName) && data[key] !== undefined && data[key] !== null && data[key] !== '') {
         return data[key];
       }
     }
