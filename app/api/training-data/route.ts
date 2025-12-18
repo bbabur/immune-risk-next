@@ -39,21 +39,11 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// DELETE - Tüm training data'yı sil
+// DELETE - Devre dışı bırakıldı (veri kaybını önlemek için)
 export async function DELETE() {
-  try {
-    const result = await prisma.trainingPatient.deleteMany({});
-    
-    return NextResponse.json({ 
-      message: `${result.count} kayıt silindi`,
-      count: result.count 
-    });
-  } catch (error) {
-    console.error('Training data silme hatası:', error);
-    return NextResponse.json(
-      { error: 'Silme işlemi başarısız' },
-      { status: 500 }
-    );
-  }
+  return NextResponse.json(
+    { error: 'Toplu silme işlemi güvenlik nedeniyle devre dışı bırakıldı. Tek tek silme için /api/training-data/[id] kullanın.' },
+    { status: 403 }
+  );
 }
 

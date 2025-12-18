@@ -69,17 +69,11 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// DELETE - Tüm Anti-HBs referanslarını sil (seed için)
+// DELETE - Devre dışı bırakıldı (veri kaybını önlemek için)
 export async function DELETE() {
-  try {
-    await prisma.antiHbsReference.deleteMany({});
-    return NextResponse.json({ message: 'Tüm referanslar silindi' });
-  } catch (error) {
-    console.error('Anti-HBs referans silme hatası:', error);
-    return NextResponse.json(
-      { error: 'Silme başarısız' },
-      { status: 500 }
-    );
-  }
+  return NextResponse.json(
+    { error: 'Toplu silme işlemi güvenlik nedeniyle devre dışı bırakıldı' },
+    { status: 403 }
+  );
 }
 

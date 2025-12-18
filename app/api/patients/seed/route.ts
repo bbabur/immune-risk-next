@@ -19,6 +19,17 @@ function parseNumber(value: any): number | null {
 
 export async function POST() {
   try {
+    // Mevcut veri varsa ekleme yapma (veri kaybını önle)
+    const existingCount = await prisma.patient.count();
+    if (existingCount > 0) {
+      return NextResponse.json({
+        success: true,
+        message: `Veritabanında zaten ${existingCount} hasta mevcut. Veri kaybını önlemek için seed yapılmadı.`,
+        skipped: true,
+        existingCount
+      });
+    }
+
     console.log(`🌱 Seed başlıyor: ${seedData.length} hasta`);
     
     let successCount = 0;

@@ -3,10 +3,17 @@ import { prisma } from '@/lib/prisma';
 
 export async function POST() {
   try {
-    // Önce mevcut verileri temizle
-    await prisma.antiHbsReference.deleteMany({});
+    // Mevcut veri varsa ekleme yapma (veri kaybını önle)
+    const existingCount = await prisma.antiHbsReference.count();
+    if (existingCount > 0) {
+      return NextResponse.json({
+        message: 'Anti-HBs referans verileri zaten mevcut, silme yapılmadı',
+        count: existingCount,
+        skipped: true
+      });
+    }
 
-    // Referans verilerini ekle
+    // Sadece boşsa referans verilerini ekle
     const references = [
       {
         ageGroupName: '0–12 ay (primer seri yeni tamamlanmış: 0–1–6 ay şeması)',

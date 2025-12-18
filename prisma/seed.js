@@ -255,28 +255,13 @@ const clinicalFeaturesData = [
 ];
 
 async function main() {
-  console.log('🌱 Dummy hasta kayıtları oluşturuluyor...');
+  console.log('⚠️  Bu seed script artık kullanılmıyor.');
+  console.log('📝 Hasta verileri web arayüzünden eklenmelidir.');
+  console.log('🔒 Mevcut veriler korundu - hiçbir silme işlemi yapılmadı.');
   
-  // Önce mevcut kayıtları temizle (sadece hasta kayıtlarını)
-  await prisma.patient.deleteMany({});
-  
-  // Hasta kayıtlarını oluştur
-  for (const patient of patientData) {
-    await prisma.patient.create({
-      data: patient
-    });
-  }
-  
-  // Klinik özellik kayıtları şimdilik eklenmeyecek
-  // ClinicalFeature tablosu mapping sorunu var
-  
-  console.log('✅ 10 dummy hasta kaydı başarıyla oluşturuldu!');
-  console.log('📊 Hasta dağılımı:');
-  console.log('   - Sağlıklı: 6 hasta');
-  console.log('   - İmmün yetmezlik: 4 hasta');
-  console.log('   - Düşük risk: 2 hasta');
-  console.log('   - Orta risk: 4 hasta');
-  console.log('   - Yüksek risk: 4 hasta');
+  // Mevcut hasta sayısını göster
+  const count = await prisma.patient.count();
+  console.log(`📊 Veritabanında ${count} hasta mevcut.`);
 }
 
 main()

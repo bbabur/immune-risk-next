@@ -54,7 +54,7 @@ export async function PUT(
   }
 }
 
-// DELETE - Tek training data sil
+// DELETE - Tek kayıt silme (önyüzden izinli)
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }

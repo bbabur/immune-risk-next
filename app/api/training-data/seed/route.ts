@@ -30,10 +30,11 @@ export async function POST() {
     
     if (existingCount > 0) {
       return NextResponse.json({
-        success: false,
-        message: `Veritabanında zaten ${existingCount} kayıt var. Silmek için DELETE /api/training-data kullanın.`,
-        currentCount: existingCount
-      }, { status: 400 });
+        success: true,
+        message: `Veritabanında zaten ${existingCount} kayıt mevcut. Veri güvenliği için yeni seed yapılmadı.`,
+        currentCount: existingCount,
+        skipped: true
+      });
     }
 
     console.log(`🌱 Training Data Seed başlıyor: ${seedData.length} kayıt`);

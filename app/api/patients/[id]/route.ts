@@ -115,3 +115,63 @@ export async function GET(
     );
   }
 }
+
+// DELETE - Tek hasta silme (önyüzden izinli)
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const client = new Client({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false
+    }
+  });
+
+  try {
+    await client.connect();
+    const { id } = await params;
+    const patientId = parseInt(id);
+
+    if (isNaN(patientId)) {
+      await client.end();
+      return NextResponse.json({ error: 'Geçersiz hasta ID' }, { status: 400 });
+    }
+
+    // İlişkili verileri önce sil (foreign key constraint)
+    await client.query('DELETE FROM clinical_features WHERE patient_id = $1', [patientId]);
+    await client.query('DELETE FROM family_history WHERE patient_id = $1', [patientId]);
+    await client.query('DELETE FROM infections WHERE patient_id = $1', [patientId]);
+    await client.query('DELETE FROM hospitalizations WHERE patient_id = $1', [patientId]);
+    await client.query('DELETE FROM lab_results WHERE patient_id = $1', [patientId]);
+    await client.query('DELETE FROM treatments WHERE patient_id = $1', [patientId]);
+    await client.query('DELETE FROM vaccinations WHERE patient_id = $1', [patientId]);
+    await client.query('DELETE FROM risk_assessments WHERE patient_id = $1', [patientId]);
+    await client.query('DELETE FROM notifications WHERE patient_id = $1', [patientId]);
+
+    // Hastayı sil
+    const result = await client.query('DELETE FROM patients WHERE id = $1 RETURNING id', [patientId]);
+    
+    await client.end();
+
+    if (result.rowCount === 0) {
+      return NextResponse.json({ error: 'Hasta bulunamadı' }, { status: 404 });
+    }
+
+    return NextResponse.json({ message: 'Hasta başarıyla silindi', id: patientId });
+  } catch (error) {
+    console.error('Hasta silinemedi:', error);
+    try {
+      await client.end();
+    } catch (e) {
+      // ignore
+    }
+    return NextResponse.json(
+      { 
+        error: 'Hasta silinemedi',
+        details: error instanceof Error ? error.message : 'Bilinmeyen hata'
+      },
+      { status: 500 }
+    );
+  }
+}
