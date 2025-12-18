@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Container,
   Typography,
@@ -46,6 +47,7 @@ interface User {
 }
 
 export default function UsersPage() {
+  const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
@@ -57,15 +59,53 @@ export default function UsersPage() {
   });
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
+    // Login ve admin kontrolü
+    const token = localStorage.getItem('token');
+    const userStr = localStorage.getItem('user');
+    
+    if (!token || !userStr) {
+      router.replace('/login?redirect=/users');
+      return;
+    }
+    
+    try {
+      const user = JSON.parse(userStr);
+      if (user.role !== 'admin') {
+        router.replace('/');
+        return;
+      }
+      setIsAdmin(true);
+    } catch (e) {
+      router.replace('/login');
+      return;
+    }
+    
+    setIsAuthenticated(true);
     loadUsers();
-  }, []);
+  }, [router]);
 
   const loadUsers = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/users');
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/users', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        router.replace('/login?redirect=/users&expired=true');
+        return;
+      }
+      
       if (response.ok) {
         const data = await response.json();
         setUsers(data);
@@ -98,11 +138,23 @@ export default function UsersPage() {
     }
 
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch('/api/users', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify(formData)
       });
+
+      if (response.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        router.replace('/login?redirect=/users&expired=true');
+        return;
+      }
 
       const data = await response.json();
 
@@ -122,9 +174,21 @@ export default function UsersPage() {
     if (!confirm('Bu kullanıcıyı silmek istediğinizden emin misiniz?')) return;
 
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch(`/api/users/${id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
+
+      if (response.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        router.replace('/login?redirect=/users&expired=true');
+        return;
+      }
 
       if (response.ok) {
         setSuccess('Kullanıcı silindi');
@@ -135,9 +199,9 @@ export default function UsersPage() {
     }
   };
 
-  if (loading) {
+  if (!isAuthenticated || loading) {
     return (
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 4, display: 'flex', justifyContent: 'center' }}>
+      <Container maxWidth="lg" sx={{ mt: 4, mb: 4, display: 'flex', justifyContent: 'center', minHeight: '60vh', alignItems: 'center' }}>
         <CircularProgress />
       </Container>
     );
