@@ -54,21 +54,33 @@ import ClinicalFeatureModal from '../../../components/ClinicalFeatureModal';
 
 interface Patient {
   id: number;
-  firstName: string;
-  lastName: string;
-  birth_date: string;
+  file_number?: string;
+  fileNumber?: string;
+  age_years?: number;
+  ageYears?: number;
+  age_months?: number;
+  ageMonths?: number;
   gender: string;
   height?: number;
   weight?: number;
   ethnicity?: string;
-  consanguinity?: boolean;
+  parental_consanguinity?: string;
+  parentalConsanguinity?: string;
+  birth_weight?: number;
   birthWeight?: number;
+  gestational_age?: number;
   gestationalAge?: number;
+  cord_fall_day?: number;
   cordFallDay?: number;
+  has_immune_deficiency?: boolean;
   hasImmuneDeficiency?: boolean;
+  diagnosis_type?: string;
   diagnosisType?: string;
+  diagnosis_date?: string;
   diagnosisDate?: string;
+  rule_based_score?: number;
   ruleBasedScore?: number;
+  final_risk_level?: string;
   finalRiskLevel?: string;
   clinicalFeatures?: ClinicalFeature[];
   familyHistory?: FamilyHistory[];
@@ -316,16 +328,15 @@ export default function PatientDetailPage() {
     }
   }, [params.id]);
 
-  const calculateAge = (birthDate: string) => {
-    const today = new Date();
-    const birth = new Date(birthDate);
-    let age = today.getFullYear() - birth.getFullYear();
-    const monthDiff = today.getMonth() - birth.getMonth();
+  // Yaş gösterimi - API'den gelen age_years ve age_months kullan
+  const formatAge = (patient: Patient) => {
+    const years = patient.age_years || patient.ageYears || 0;
+    const months = patient.age_months || patient.ageMonths || 0;
     
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-      age--;
-    }
-    return age;
+    if (years === 0 && months === 0) return '0 ay';
+    if (years === 0) return `${months} ay`;
+    if (months === 0) return `${years} yıl`;
+    return `${years} yıl ${months} ay`;
   };
 
   const getGenderIcon = (gender: string) => {
@@ -435,13 +446,13 @@ export default function PatientDetailPage() {
                     
                     <Stack spacing={2}>
                       <Box display="flex" alignItems="center" gap={1}>
-                        <Typography fontWeight="bold">ID:</Typography>
-                        <Chip label={patient.id} size="small" sx={{ bgcolor: 'white', color: 'primary.main' }} />
+                        <Typography fontWeight="bold">Dosya No:</Typography>
+                        <Chip label={patient.file_number || patient.fileNumber || `#${patient.id}`} size="small" sx={{ bgcolor: 'white', color: 'primary.main' }} />
                       </Box>
                       
                       <Box>
                         <Typography fontWeight="bold">Yaş:</Typography>
-                        <Typography>{calculateAge(patient.birth_date)} yaş</Typography>
+                        <Typography>{formatAge(patient)}</Typography>
                       </Box>
                       
                       <Box display="flex" alignItems="center" gap={1}>
@@ -467,7 +478,7 @@ export default function PatientDetailPage() {
                       
                       <Box>
                         <Typography fontWeight="bold">Ebeveyn Akrabalığı:</Typography>
-                        <Typography>{patient.consanguinity ? '✓ Var' : '✗ Yok'}</Typography>
+                        <Typography>{(patient.parental_consanguinity && patient.parental_consanguinity !== '0') || patient.parentalConsanguinity ? '✓ Var' : '✗ Yok'}</Typography>
                       </Box>
                     </Stack>
                   </CardContent>
@@ -485,23 +496,18 @@ export default function PatientDetailPage() {
                     
                     <Stack spacing={2}>
                       <Box>
-                        <Typography fontWeight="bold">Doğum Tarihi:</Typography>
-                        <Typography>{patient.birth_date}</Typography>
-                      </Box>
-                      
-                      <Box>
                         <Typography fontWeight="bold">Doğum Ağırlığı:</Typography>
-                        <Typography>{patient.birthWeight || 0} g</Typography>
+                        <Typography>{patient.birth_weight || patient.birthWeight || '-'} g</Typography>
                       </Box>
                       
                       <Box>
                         <Typography fontWeight="bold">Gebelik Haftası:</Typography>
-                        <Typography>{patient.gestationalAge || 0} hafta</Typography>
+                        <Typography>{patient.gestational_age || patient.gestationalAge || '-'} hafta</Typography>
                       </Box>
                       
                       <Box>
                         <Typography fontWeight="bold">Göbek Kordonu Düşme Günü:</Typography>
-                        <Typography>{patient.cordFallDay || 0} gün</Typography>
+                        <Typography>{patient.cord_fall_day || patient.cordFallDay || '-'} gün</Typography>
                       </Box>
                     </Stack>
                   </CardContent>
