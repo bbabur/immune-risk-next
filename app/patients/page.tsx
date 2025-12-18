@@ -41,26 +41,39 @@ export default function PatientsPage() {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     // Önce login kontrolü yap
     const token = localStorage.getItem('token');
-    if (!token) {
-      router.push('/login?redirect=/patients');
+    const user = localStorage.getItem('user');
+    
+    if (!token || !user) {
+      // Token veya user yoksa hemen login'e yönlendir
+      router.replace('/login?redirect=/patients');
       return;
     }
+    
+    // Token var, authenticated olarak işaretle ve verileri çek
+    setIsAuthenticated(true);
     fetchPatients();
   }, [router]);
 
   const fetchPatients = async () => {
     try {
-      const response = await fetch('/api/patients');
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/patients', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       
-      // 401 hatası - login'e yönlendir
+      // 401 hatası - session expired, login'e yönlendir
       if (response.status === 401) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        router.push('/login?redirect=/patients');
+        document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        router.replace('/login?redirect=/patients&expired=true');
         return;
       }
       
@@ -82,6 +95,17 @@ export default function PatientsPage() {
       setLoading(false);
     }
   };
+
+  // Henüz auth kontrolü yapılmadıysa boş göster
+  if (!isAuthenticated) {
+    return (
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
+          <CircularProgress />
+        </Box>
+      </Container>
+    );
+  }
 
   // Yaş gösterimi
   const formatAge = (ageYears?: number, ageMonths?: number) => {

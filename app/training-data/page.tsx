@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Container,
   Typography,
@@ -66,6 +67,7 @@ interface TrainingPatient {
 }
 
 export default function TrainingDataPage() {
+  const router = useRouter();
   const [trainingData, setTrainingData] = useState<TrainingPatient[]>([]);
   const [loading, setLoading] = useState(true);
   const [seeding, setSeeding] = useState(false);
@@ -76,15 +78,41 @@ export default function TrainingDataPage() {
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [detailPatient, setDetailPatient] = useState<TrainingPatient | null>(null);
   const [detailEditMode, setDetailEditMode] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
+    // Önce login kontrolü yap
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
+    
+    if (!token || !user) {
+      router.replace('/login?redirect=/training-data');
+      return;
+    }
+    
+    setIsAuthenticated(true);
     loadTrainingData();
-  }, []);
+  }, [router]);
 
   const loadTrainingData = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/training-data');
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/training-data', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      // 401 hatası - session expired
+      if (response.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        router.replace('/login?redirect=/training-data&expired=true');
+        return;
+      }
+      
       if (response.ok) {
         const data = await response.json();
         setTrainingData(data);
@@ -95,6 +123,15 @@ export default function TrainingDataPage() {
       setLoading(false);
     }
   };
+
+  // Henüz auth kontrolü yapılmadıysa loading göster
+  if (!isAuthenticated) {
+    return (
+      <Container maxWidth="xl" sx={{ mt: 4, mb: 4, display: 'flex', justifyContent: 'center', minHeight: '60vh', alignItems: 'center' }}>
+        <CircularProgress />
+      </Container>
+    );
+  }
 
   const handleSeed = async () => {
     // Önce mevcut veriyi kontrol et
