@@ -17,19 +17,14 @@ npx prisma generate
 
 # Wait for database to be ready
 echo "Waiting for database connection..."
-sleep 10
+sleep 5
 
-# Run database migrations
+# Run database migrations (sadece schema değişikliklerini uygula, veri silme!)
 echo "Running database migrations..."
-npx prisma db push --force-reset
 npx prisma migrate deploy
 
 # Build the application
 echo "Building Next.js application..."
 npm run build
-
-# Seed database with dummy data
-echo "Adding dummy patient data..."
-npm run prisma:seed
 
 echo "Build completed successfully!" 

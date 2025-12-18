@@ -8,33 +8,54 @@ export async function POST() {
     const adminPassword = await bcrypt.hash('Admin123456', 10);
     const userPassword = await bcrypt.hash('Mehmet123456', 10);
 
-    // Delete existing users
-    await prisma.user.deleteMany({});
+    let created = 0;
+    let skipped = 0;
 
-    // Create users - both as admin
-    const users = await prisma.user.createMany({
-      data: [
-        {
+    // Upsert admin user - sadece yoksa ekle, varsa dokunma
+    const existingAdmin = await prisma.user.findUnique({
+      where: { email: 'admin@example.com' }
+    });
+
+    if (!existingAdmin) {
+      await prisma.user.create({
+        data: {
           username: 'admin',
           email: 'admin@example.com',
           password: adminPassword,
           role: 'admin',
           isActive: true,
-        },
-        {
+        }
+      });
+      created++;
+    } else {
+      skipped++;
+    }
+
+    // Upsert mehmetbabur user - sadece yoksa ekle, varsa dokunma
+    const existingMehmet = await prisma.user.findUnique({
+      where: { email: 'mehmetbabur@example.com' }
+    });
+
+    if (!existingMehmet) {
+      await prisma.user.create({
+        data: {
           username: 'mehmetbabur',
           email: 'mehmetbabur@example.com',
           password: userPassword,
           role: 'admin',
           isActive: true,
         }
-      ]
-    });
+      });
+      created++;
+    } else {
+      skipped++;
+    }
 
     return NextResponse.json({
       success: true,
-      message: 'Kullanıcılar başarıyla oluşturuldu',
-      count: users.count
+      message: `Seed tamamlandı: ${created} yeni kullanıcı eklendi, ${skipped} kullanıcı zaten mevcut`,
+      created,
+      skipped
     });
   } catch (error) {
     console.error('User seed hatası:', error);
