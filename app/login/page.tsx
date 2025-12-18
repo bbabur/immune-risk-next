@@ -93,8 +93,10 @@ export default function LoginPage() {
         // Small delay to ensure cookie is set
         await new Promise(resolve => setTimeout(resolve, 100));
         
-        // Redirect to dashboard
-        router.push('/');
+        // Redirect to original page or dashboard
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirectTo = urlParams.get('redirect') || '/';
+        router.push(redirectTo);
       } else {
         setError(data.error || 'Geçersiz kullanıcı adı veya şifre');
       }
@@ -125,6 +127,12 @@ export default function LoginPage() {
               İmmün Risk AI sistemine hoş geldiniz
             </Typography>
           </Box>
+
+          {requireLogin && (
+            <Alert severity="info" sx={{ mb: 3 }} onClose={() => setRequireLogin(false)}>
+              🔐 Bu sayfaya erişmek için önce giriş yapmalısınız.
+            </Alert>
+          )}
 
           {expired && (
             <Alert severity="warning" sx={{ mb: 3 }} onClose={() => setExpired(false)}>

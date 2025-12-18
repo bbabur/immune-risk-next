@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { 
   Typography, 
   Table, 
@@ -23,30 +24,46 @@ import Link from 'next/link';
 
 interface Patient {
   id: number;
-  firstName?: string;
-  lastName?: string;
-  birthDate: string;
+  file_number?: string;
+  age_years?: number;
+  age_months?: number;
   gender: string;
-  finalRiskLevel?: string;
-  hasImmuneDeficiency?: boolean;
-  diagnosisType?: string;
-  birthWeight?: number;
-  gestationalAge?: number;
-  parentalConsanguinity?: boolean;
+  final_risk_level?: string;
+  has_immune_deficiency?: boolean;
+  diagnosis_type?: string;
+  birth_weight?: number;
+  gestational_age?: number;
+  parental_consanguinity?: string | boolean;
 }
 
 export default function PatientsPage() {
+  const router = useRouter();
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Önce login kontrolü yap
+    const token = localStorage.getItem('token');
+    if (!token) {
+      router.push('/login?redirect=/patients');
+      return;
+    }
     fetchPatients();
-  }, []);
+  }, [router]);
 
   const fetchPatients = async () => {
     try {
       const response = await fetch('/api/patients');
+      
+      // 401 hatası - login'e yönlendir
+      if (response.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        router.push('/login?redirect=/patients');
+        return;
+      }
+      
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.details || `API Hatası: ${response.status}`);
@@ -66,30 +83,18 @@ export default function PatientsPage() {
     }
   };
 
-  // KVKK - İsim maskeleme
-  const maskName = (firstName?: string, lastName?: string) => {
-    const first = firstName || '';
-    const last = lastName || '';
+  // Yaş gösterimi
+  const formatAge = (ageYears?: number, ageMonths?: number) => {
+    if (ageYears === undefined && ageMonths === undefined) return '-';
+    if (ageYears === null && ageMonths === null) return '-';
     
-    if (!first && !last) return 'Anonim Hasta';
+    const years = ageYears || 0;
+    const months = ageMonths || 0;
     
-    const maskString = (str: string) => {
-      if (str.length <= 1) return str;
-      return str.charAt(0) + '***';
-    };
-    
-    return `${maskString(first)} ${maskString(last)}`.trim();
-  };
-
-  const calculateAge = (birthDate: string) => {
-    const birth = new Date(birthDate);
-    const today = new Date();
-    let age = today.getFullYear() - birth.getFullYear();
-    const monthDiff = today.getMonth() - birth.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-      age--;
-    }
-    return age;
+    if (years === 0 && months === 0) return '0 ay';
+    if (years === 0) return `${months} ay`;
+    if (months === 0) return `${years} yıl`;
+    return `${years} yıl ${months} ay`;
   };
 
   const getGenderDisplay = (gender: string) => {
@@ -246,8 +251,8 @@ export default function PatientsPage() {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell><strong>Hasta No</strong></TableCell>
-                    <TableCell><strong>Kimlik</strong></TableCell>
+                    <TableCell><strong>Dosya No</strong></TableCell>
+                    <TableCell><strong>Hasta</strong></TableCell>
                     <TableCell><strong>Yaş</strong></TableCell>
                     <TableCell><strong>Cinsiyet</strong></TableCell>
                     <TableCell><strong>Tanı</strong></TableCell>
@@ -261,24 +266,24 @@ export default function PatientsPage() {
                   {patients.map((patient) => (
                     <TableRow key={patient.id} hover>
                       <TableCell>
-                        <Chip label={`#${patient.id}`} size="small" color="primary" variant="outlined" />
+                        <Chip label={patient.file_number || `#${patient.id}`} size="small" color="primary" variant="outlined" />
                       </TableCell>
                       <TableCell>
                         <Typography variant="body2" fontWeight="medium">
-                          {maskName(patient.firstName, patient.lastName)}
+                          Hasta #{patient.id}
                         </Typography>
                       </TableCell>
-                      <TableCell>{calculateAge(patient.birthDate)} yaş</TableCell>
+                      <TableCell>{formatAge(patient.age_years, patient.age_months)}</TableCell>
                       <TableCell>{getGenderDisplay(patient.gender)}</TableCell>
-                      <TableCell>{getDiagnosisChip(patient.hasImmuneDeficiency, patient.diagnosisType)}</TableCell>
+                      <TableCell>{getDiagnosisChip(patient.has_immune_deficiency, patient.diagnosis_type)}</TableCell>
                       <TableCell>
-                        {patient.birthWeight ? `${patient.birthWeight}g` : '-'}
+                        {patient.birth_weight ? `${patient.birth_weight}g` : '-'}
                       </TableCell>
                       <TableCell>
-                        {patient.gestationalAge ? `${patient.gestationalAge} hafta` : '-'}
+                        {patient.gestational_age ? `${patient.gestational_age} hafta` : '-'}
                       </TableCell>
                       <TableCell>
-                        {patient.parentalConsanguinity ? (
+                        {patient.parental_consanguinity && patient.parental_consanguinity !== '0' ? (
                           <Chip label="Var" size="small" color="warning" />
                         ) : (
                           <Chip label="Yok" size="small" color="default" />
