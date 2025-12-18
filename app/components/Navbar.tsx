@@ -426,6 +426,17 @@ export default function Navbar() {
           </ListItemIcon>
           Ayarlar
         </MenuItem>
+        {userRole === 'admin' && (
+          <>
+            <Divider />
+            <MenuItem onClick={() => { handleMenuClose(); router.push('/admin/database'); }}>
+              <ListItemIcon>
+                <Storage fontSize="small" />
+              </ListItemIcon>
+              Veritabanı Yönetimi
+            </MenuItem>
+          </>
+        )}
         <Divider />
         <MenuItem onClick={handleLogout}>
           <ListItemIcon>
