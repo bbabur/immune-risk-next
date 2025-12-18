@@ -227,54 +227,166 @@ export default function DatabaseAdminPage() {
   }
 
   return (
-    <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
-      {/* Header */}
-      <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <StorageIcon sx={{ fontSize: 40, color: 'primary.main' }} />
-          <Typography variant="h4" fontWeight="bold">
-            Veritabanı Yönetimi
-          </Typography>
+    <Box sx={{ 
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      py: 4
+    }}>
+      <Container maxWidth="xl">
+        {/* Header */}
+        <Box sx={{ 
+          mb: 4, 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'space-between',
+          background: 'rgba(255, 255, 255, 0.1)',
+          backdropFilter: 'blur(10px)',
+          borderRadius: 3,
+          p: 3,
+          border: '1px solid rgba(255, 255, 255, 0.2)',
+          boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)'
+        }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box sx={{ 
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              borderRadius: 2,
+              p: 1.5,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <StorageIcon sx={{ fontSize: 32, color: 'white' }} />
+            </Box>
+            <Box>
+              <Typography variant="h4" fontWeight="bold" sx={{ color: 'white' }}>
+                Veritabanı Yönetimi
+              </Typography>
+              <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+                Tüm veritabanı işlemlerini buradan yönetin
+              </Typography>
+            </Box>
+          </Box>
+          <Chip 
+            label="Admin Panel" 
+            sx={{ 
+              background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+              color: 'white',
+              fontWeight: 'bold',
+              px: 2,
+              py: 2.5,
+              fontSize: '0.9rem'
+            }} 
+          />
         </Box>
-        <Chip label="Admin Panel" color="error" />
-      </Box>
 
-      <Alert severity="warning" sx={{ mb: 3 }}>
-        <strong>Dikkat:</strong> Bu sayfa veritabanında doğrudan değişiklik yapmanıza izin verir. 
-        Dikkatli kullanın!
-      </Alert>
+        <Alert 
+          severity="warning" 
+          sx={{ 
+            mb: 3,
+            background: 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: 2,
+            border: '1px solid rgba(255, 152, 0, 0.3)'
+          }}
+        >
+          <strong>Dikkat:</strong> Bu sayfa veritabanında doğrudan değişiklik yapmanıza izin verir. 
+          Dikkatli kullanın!
+        </Alert>
 
-      {/* Tabs */}
-      <Paper sx={{ mb: 3 }}>
-        <Tabs value={tabValue} onChange={(e, v) => setTabValue(v)}>
-          <Tab icon={<TableIcon />} label="Tablolar" />
-          <Tab icon={<CodeIcon />} label="SQL Sorguları" />
-          <Tab icon={<StatsIcon />} label="İstatistikler" />
-        </Tabs>
-      </Paper>
+        {/* Tabs */}
+        <Paper sx={{ 
+          mb: 3,
+          background: 'rgba(255, 255, 255, 0.95)',
+          backdropFilter: 'blur(10px)',
+          borderRadius: 3,
+          border: '1px solid rgba(255, 255, 255, 0.2)',
+          overflow: 'hidden'
+        }}>
+          <Tabs 
+            value={tabValue} 
+            onChange={(e, v) => setTabValue(v)}
+            sx={{
+              '& .MuiTab-root': {
+                textTransform: 'none',
+                fontSize: '1rem',
+                fontWeight: 600,
+                minHeight: 64
+              },
+              '& .Mui-selected': {
+                color: '#667eea !important'
+              },
+              '& .MuiTabs-indicator': {
+                height: 3,
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+              }
+            }}
+          >
+            <Tab icon={<TableIcon />} iconPosition="start" label="Tablolar" />
+            <Tab icon={<CodeIcon />} iconPosition="start" label="SQL Sorguları" />
+            <Tab icon={<StatsIcon />} iconPosition="start" label="İstatistikler" />
+          </Tabs>
+        </Paper>
 
       {/* Tab 0: Tables */}
       {tabValue === 0 && (
         <Grid container spacing={3}>
           {/* Sol: Tablo Listesi */}
           <Grid item xs={12} md={3}>
-            <Paper sx={{ p: 2 }}>
+            <Paper sx={{ 
+              p: 2,
+              background: 'rgba(255, 255, 255, 0.95)',
+              backdropFilter: 'blur(10px)',
+              borderRadius: 3,
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.15)'
+            }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h6">Tablolar</Typography>
-                <IconButton size="small" onClick={loadTables}>
-                  <RefreshIcon />
+                <Typography variant="h6" fontWeight="bold" sx={{ 
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent'
+                }}>
+                  Tablolar
+                </Typography>
+                <IconButton 
+                  size="small" 
+                  onClick={loadTables}
+                  sx={{ 
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    color: 'white',
+                    '&:hover': {
+                      background: 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)'
+                    }
+                  }}
+                >
+                  <RefreshIcon fontSize="small" />
                 </IconButton>
               </Box>
-              <List>
+              <List sx={{ maxHeight: 600, overflow: 'auto' }}>
                 {tables.map((table) => (
                   <ListItemButton
                     key={table.table_name}
                     selected={selectedTable === table.table_name}
                     onClick={() => loadTableData(table.table_name)}
+                    sx={{
+                      borderRadius: 2,
+                      mb: 0.5,
+                      '&.Mui-selected': {
+                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        color: 'white',
+                        '&:hover': {
+                          background: 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)'
+                        },
+                        '& .MuiListItemText-secondary': {
+                          color: 'rgba(255, 255, 255, 0.8)'
+                        }
+                      }
+                    }}
                   >
                     <ListItemText
                       primary={table.table_name}
                       secondary={`${table.row_count} kayıt`}
+                      primaryTypographyProps={{ fontWeight: 600 }}
                     />
                   </ListItemButton>
                 ))}
@@ -285,21 +397,54 @@ export default function DatabaseAdminPage() {
           {/* Sağ: Tablo Verisi */}
           <Grid item xs={12} md={9}>
             {selectedTable ? (
-              <Paper sx={{ p: 2 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                  <Typography variant="h6">{selectedTable}</Typography>
+              <Paper sx={{ 
+                p: 3,
+                background: 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(10px)',
+                borderRadius: 3,
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.15)'
+              }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                  <Typography variant="h5" fontWeight="bold" sx={{ 
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent'
+                  }}>
+                    {selectedTable}
+                  </Typography>
                   <Box sx={{ display: 'flex', gap: 1 }}>
                     <Button
+                      variant="contained"
                       size="small"
                       startIcon={<DownloadIcon />}
                       onClick={() => exportTable(selectedTable)}
+                      sx={{
+                        background: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        '&:hover': {
+                          background: 'linear-gradient(135deg, #38ef7d 0%, #11998e 100%)'
+                        }
+                      }}
                     >
                       Export CSV
                     </Button>
                     <Button
+                      variant="outlined"
                       size="small"
                       startIcon={<RefreshIcon />}
                       onClick={() => loadTableData(selectedTable)}
+                      sx={{
+                        borderColor: '#667eea',
+                        color: '#667eea',
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        '&:hover': {
+                          borderColor: '#764ba2',
+                          background: 'rgba(102, 126, 234, 0.1)'
+                        }
+                      }}
                     >
                       Yenile
                     </Button>
@@ -356,10 +501,37 @@ export default function DatabaseAdminPage() {
                 </Typography>
               </Paper>
             ) : (
-              <Paper sx={{ p: 4, textAlign: 'center' }}>
-                <TableIcon sx={{ fontSize: 60, color: 'text.secondary', mb: 2 }} />
-                <Typography variant="h6" color="text.secondary">
+              <Paper sx={{ 
+                p: 6, 
+                textAlign: 'center',
+                background: 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(10px)',
+                borderRadius: 3,
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.15)'
+              }}>
+                <Box sx={{
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  borderRadius: '50%',
+                  width: 100,
+                  height: 100,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto',
+                  mb: 3
+                }}>
+                  <TableIcon sx={{ fontSize: 50, color: 'white' }} />
+                </Box>
+                <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ 
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent'
+                }}>
                   Görüntülemek için bir tablo seçin
+                </Typography>
+                <Typography variant="body1" color="text.secondary">
+                  Sol menüden bir tablo seçerek verilerini görüntüleyebilirsiniz
                 </Typography>
               </Paper>
             )}
@@ -369,36 +541,88 @@ export default function DatabaseAdminPage() {
 
       {/* Tab 1: SQL Queries */}
       {tabValue === 1 && (
-        <Paper sx={{ p: 3 }}>
-          <Typography variant="h6" gutterBottom>
+        <Paper sx={{ 
+          p: 4,
+          background: 'rgba(255, 255, 255, 0.95)',
+          backdropFilter: 'blur(10px)',
+          borderRadius: 3,
+          border: '1px solid rgba(255, 255, 255, 0.2)',
+          boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.15)'
+        }}>
+          <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ 
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            mb: 3
+          }}>
             SQL Sorgusu Çalıştır
           </Typography>
           
           <TextField
             fullWidth
             multiline
-            rows={8}
+            rows={10}
             value={sqlQuery}
             onChange={(e) => setSqlQuery(e.target.value)}
             placeholder="SELECT * FROM patients WHERE ..."
-            sx={{ mb: 2, fontFamily: 'monospace' }}
+            sx={{ 
+              mb: 3,
+              '& .MuiOutlinedInput-root': {
+                fontFamily: 'monospace',
+                fontSize: '0.95rem',
+                background: 'rgba(102, 126, 234, 0.05)',
+                borderRadius: 2,
+                '& fieldset': {
+                  borderColor: 'rgba(102, 126, 234, 0.3)',
+                  borderWidth: 2
+                },
+                '&:hover fieldset': {
+                  borderColor: 'rgba(102, 126, 234, 0.5)'
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#667eea'
+                }
+              }
+            }}
           />
 
           <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
             <Button
               variant="contained"
-              startIcon={sqlLoading ? <CircularProgress size={20} /> : <PlayIcon />}
+              size="large"
+              startIcon={sqlLoading ? <CircularProgress size={20} color="inherit" /> : <PlayIcon />}
               onClick={executeSQL}
               disabled={sqlLoading}
+              sx={{
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                textTransform: 'none',
+                fontWeight: 600,
+                px: 4,
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)'
+                }
+              }}
             >
               Çalıştır
             </Button>
             <Button
               variant="outlined"
+              size="large"
               onClick={() => {
                 setSqlQuery('');
                 setSqlResult(null);
                 setSqlError(null);
+              }}
+              sx={{
+                borderColor: '#667eea',
+                color: '#667eea',
+                textTransform: 'none',
+                fontWeight: 600,
+                px: 4,
+                '&:hover': {
+                  borderColor: '#764ba2',
+                  background: 'rgba(102, 126, 234, 0.1)'
+                }
               }}
             >
               Temizle
@@ -451,9 +675,20 @@ export default function DatabaseAdminPage() {
         <Box>
           <Button
             variant="contained"
+            size="large"
             startIcon={<RefreshIcon />}
             onClick={loadStats}
-            sx={{ mb: 3 }}
+            sx={{ 
+              mb: 3,
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              textTransform: 'none',
+              fontWeight: 600,
+              px: 4,
+              py: 1.5,
+              '&:hover': {
+                background: 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)'
+              }
+            }}
           >
             İstatistikleri Yükle
           </Button>
@@ -465,44 +700,86 @@ export default function DatabaseAdminPage() {
           ) : stats ? (
             <Grid container spacing={3}>
               <Grid item xs={12} md={4}>
-                <Card>
-                  <CardContent>
-                    <Typography color="text.secondary" gutterBottom>
+                <Card sx={{
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  color: 'white',
+                  borderRadius: 3,
+                  boxShadow: '0 8px 32px 0 rgba(102, 126, 234, 0.4)',
+                  transition: 'transform 0.3s ease',
+                  '&:hover': {
+                    transform: 'translateY(-8px)',
+                    boxShadow: '0 12px 40px 0 rgba(102, 126, 234, 0.5)'
+                  }
+                }}>
+                  <CardContent sx={{ p: 3 }}>
+                    <Typography variant="body2" sx={{ opacity: 0.9, mb: 2, fontWeight: 600 }}>
                       Toplam Hasta
                     </Typography>
-                    <Typography variant="h3" fontWeight="bold">
+                    <Typography variant="h2" fontWeight="bold">
                       {stats.totalPatients || 0}
                     </Typography>
                   </CardContent>
                 </Card>
               </Grid>
               <Grid item xs={12} md={4}>
-                <Card>
-                  <CardContent>
-                    <Typography color="text.secondary" gutterBottom>
+                <Card sx={{
+                  background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                  color: 'white',
+                  borderRadius: 3,
+                  boxShadow: '0 8px 32px 0 rgba(240, 147, 251, 0.4)',
+                  transition: 'transform 0.3s ease',
+                  '&:hover': {
+                    transform: 'translateY(-8px)',
+                    boxShadow: '0 12px 40px 0 rgba(240, 147, 251, 0.5)'
+                  }
+                }}>
+                  <CardContent sx={{ p: 3 }}>
+                    <Typography variant="body2" sx={{ opacity: 0.9, mb: 2, fontWeight: 600 }}>
                       Model Eğitim Datası
                     </Typography>
-                    <Typography variant="h3" fontWeight="bold">
+                    <Typography variant="h2" fontWeight="bold">
                       {stats.trainingData || 0}
                     </Typography>
                   </CardContent>
                 </Card>
               </Grid>
               <Grid item xs={12} md={4}>
-                <Card>
-                  <CardContent>
-                    <Typography color="text.secondary" gutterBottom>
+                <Card sx={{
+                  background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                  color: 'white',
+                  borderRadius: 3,
+                  boxShadow: '0 8px 32px 0 rgba(79, 172, 254, 0.4)',
+                  transition: 'transform 0.3s ease',
+                  '&:hover': {
+                    transform: 'translateY(-8px)',
+                    boxShadow: '0 12px 40px 0 rgba(79, 172, 254, 0.5)'
+                  }
+                }}>
+                  <CardContent sx={{ p: 3 }}>
+                    <Typography variant="body2" sx={{ opacity: 0.9, mb: 2, fontWeight: 600 }}>
                       Kullanıcılar
                     </Typography>
-                    <Typography variant="h3" fontWeight="bold">
+                    <Typography variant="h2" fontWeight="bold">
                       {stats.totalUsers || 0}
                     </Typography>
                   </CardContent>
                 </Card>
               </Grid>
               <Grid item xs={12}>
-                <Paper sx={{ p: 2 }}>
-                  <Typography variant="h6" gutterBottom>
+                <Paper sx={{ 
+                  p: 3,
+                  background: 'rgba(255, 255, 255, 0.95)',
+                  backdropFilter: 'blur(10px)',
+                  borderRadius: 3,
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.15)'
+                }}>
+                  <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ 
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    mb: 3
+                  }}>
                     Tablo Detayları
                   </Typography>
                   <TableContainer>
@@ -527,16 +804,44 @@ export default function DatabaseAdminPage() {
               </Grid>
             </Grid>
           ) : (
-            <Paper sx={{ p: 4, textAlign: 'center' }}>
-              <StatsIcon sx={{ fontSize: 60, color: 'text.secondary', mb: 2 }} />
-              <Typography variant="h6" color="text.secondary">
-                İstatistikleri görmek için "İstatistikleri Yükle" butonuna tıklayın
+            <Paper sx={{ 
+              p: 6, 
+              textAlign: 'center',
+              background: 'rgba(255, 255, 255, 0.95)',
+              backdropFilter: 'blur(10px)',
+              borderRadius: 3,
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.15)'
+            }}>
+              <Box sx={{
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                borderRadius: '50%',
+                width: 100,
+                height: 100,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto',
+                mb: 3
+              }}>
+                <StatsIcon sx={{ fontSize: 50, color: 'white' }} />
+              </Box>
+              <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ 
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
+              }}>
+                İstatistikleri görmek için butona tıklayın
+              </Typography>
+              <Typography variant="body1" color="text.secondary">
+                Veritabanı istatistiklerini görüntülemek için yukarıdaki butonu kullanın
               </Typography>
             </Paper>
           )}
         </Box>
       )}
-    </Container>
+      </Container>
+    </Box>
   );
 }
 
