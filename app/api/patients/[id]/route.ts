@@ -1,61 +1,117 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { Client } from 'pg';
+
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const client = new Client({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false
+    }
+  });
+
   try {
+    await client.connect();
     const { id } = await params;
     const patientId = parseInt(id);
 
     if (isNaN(patientId)) {
+      await client.end();
       return NextResponse.json({ error: 'Geçersiz hasta ID' }, { status: 400 });
     }
 
-    // Hasta bilgilerini ilişkili verilerle al
-    const patient = await prisma.patient.findUnique({
-      where: { id: patientId },
-      include: {
-        clinicalFeatures: {
-          orderBy: { dateRecorded: 'desc' }
-        },
-        familyHistory: true,
-        hospitalizations: {
-          orderBy: { admissionDate: 'desc' }
-        },
-        infections: {
-          orderBy: { dateRecorded: 'desc' }
-        },
-        labResults: {
-          orderBy: { testDate: 'desc' }
-        },
-        treatments: {
-          orderBy: { startDate: 'desc' }
-        },
-        vaccinations: {
-          orderBy: { vaccineDate: 'desc' }
-        },
-        riskAssessments: {
-          orderBy: { assessmentDate: 'desc' }
-        }
-      }
-    });
+    // Get patient basic info
+    const patientResult = await client.query(
+      `SELECT * FROM patients WHERE id = $1`,
+      [patientId]
+    );
 
-    if (!patient) {
+    if (patientResult.rows.length === 0) {
+      await client.end();
       return NextResponse.json({ error: 'Hasta bulunamadı' }, { status: 404 });
     }
 
-    // Format the response
+    const patient = patientResult.rows[0];
+
+    // Get related data (optional - if tables exist)
+    let clinicalFeatures = [];
+    let labResults = [];
+    let riskAssessments = [];
+
+    try {
+      const cfResult = await client.query(
+        `SELECT * FROM clinical_features WHERE patient_id = $1 ORDER BY created_at DESC`,
+        [patientId]
+      );
+      clinicalFeatures = cfResult.rows;
+    } catch (e) {
+      console.log('Clinical features table not found or empty');
+    }
+
+    try {
+      const lrResult = await client.query(
+        `SELECT * FROM lab_results WHERE patient_id = $1 ORDER BY test_date DESC`,
+        [patientId]
+      );
+      labResults = lrResult.rows;
+    } catch (e) {
+      console.log('Lab results table not found or empty');
+    }
+
+    try {
+      const raResult = await client.query(
+        `SELECT * FROM risk_assessments WHERE patient_id = $1 ORDER BY assessment_date DESC`,
+        [patientId]
+      );
+      riskAssessments = raResult.rows;
+    } catch (e) {
+      console.log('Risk assessments table not found or empty');
+    }
+
+    await client.end();
+
+    // Format response
     const formattedPatient = {
       ...patient,
-      birth_date: patient.birthDate,
-      consanguinity: patient.parentalConsanguinity
+      fileNumber: patient.file_number,
+      ageYears: patient.age_years,
+      ageMonths: patient.age_months,
+      birthWeight: patient.birth_weight,
+      gestationalAge: patient.gestational_age,
+      cordFallDay: patient.cord_fall_day,
+      parentalConsanguinity: patient.parental_consanguinity,
+      hasImmuneDeficiency: patient.has_immune_deficiency,
+      diagnosisType: patient.diagnosis_type,
+      diagnosisDate: patient.diagnosis_date,
+      ruleBasedScore: patient.rule_based_score,
+      mlScore: patient.ml_score,
+      finalRiskLevel: patient.final_risk_level,
+      createdAt: patient.created_at,
+      updatedAt: patient.updated_at,
+      clinicalFeatures,
+      labResults,
+      riskAssessments
     };
 
     return NextResponse.json(formattedPatient);
   } catch (error) {
-    console.error('Error fetching patient:', error);
-    return NextResponse.json({ error: 'Sunucu hatası' }, { status: 500 });
+    console.error('Hasta bilgileri alınamadı:', error);
+    try {
+      await client.end();
+    } catch (e) {
+      // ignore
+    }
+    return NextResponse.json(
+      { 
+        error: 'Hasta bilgileri alınamadı',
+        details: error instanceof Error ? error.message : 'Bilinmeyen hata'
+      },
+      { status: 500 }
+    );
   }
-} 
+}

@@ -1,27 +1,13 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
-// GET - Bildirimleri getir
+// GET - Bildirimleri getir (şimdilik devre dışı)
 export async function GET() {
   try {
-    const notifications = await prisma.notification.findMany({
-      orderBy: {
-        createdAt: 'desc'
-      },
-      include: {
-        patient: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true
-          }
-        }
-      },
-      take: 50 // Son 50 bildirim
-    });
-
+    // TODO: Implement with pg client when notifications table is ready
+    const notifications: any[] = [];
     return NextResponse.json(notifications);
   } catch (error) {
     console.error('Bildirimler getirilemedi:', error);
@@ -32,32 +18,18 @@ export async function GET() {
   }
 }
 
-// POST - Yeni bildirim oluştur
+// POST - Yeni bildirim oluştur (şimdilik devre dışı)
 export async function POST(request: Request) {
   try {
     const { title, message, type, patientId, category, data } = await request.json();
-
-    const notification = await prisma.notification.create({
-      data: {
-        title,
-        message,
-        type: type || 'info',
-        patientId,
-        category: category || 'system',
-        data: data || null
-      },
-      include: {
-        patient: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true
-          }
-        }
-      }
+    
+    // TODO: Implement with pg client when notifications table is ready
+    console.log('Notification created:', { title, message, type, patientId });
+    
+    return NextResponse.json({ 
+      success: true,
+      message: 'Bildirim kaydedildi (log only)' 
     });
-
-    return NextResponse.json(notification);
   } catch (error) {
     console.error('Bildirim oluşturulamadı:', error);
     return NextResponse.json(
