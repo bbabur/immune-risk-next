@@ -545,6 +545,7 @@ export default function PatientDetailPage() {
                         startIcon={<Update />}
                         fullWidth
                         sx={{ mt: 2 }}
+                        onClick={() => router.push(`/patients/${patient.id}/update-diagnosis`)}
                       >
                         Tanı Bilgilerini Güncelle
                       </Button>
