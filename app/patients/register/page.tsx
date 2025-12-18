@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Container,
@@ -18,7 +18,8 @@ import {
   Stack,
   Box,
   Alert,
-  Divider
+  Divider,
+  CircularProgress
 } from '@mui/material';
 
 interface PatientData {
@@ -40,6 +41,29 @@ export default function PatientRegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  useEffect(() => {
+    // Login kontrolü
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
+    
+    if (!token || !user) {
+      router.replace('/login?redirect=/patients/register');
+      return;
+    }
+    
+    setIsAuthenticated(true);
+  }, [router]);
+
+  // Henüz auth kontrolü yapılmadıysa loading göster
+  if (!isAuthenticated) {
+    return (
+      <Container maxWidth="md" sx={{ mt: 4, mb: 4, display: 'flex', justifyContent: 'center', minHeight: '60vh', alignItems: 'center' }}>
+        <CircularProgress />
+      </Container>
+    );
+  }
   
   const [formData, setFormData] = useState<PatientData>({
     fileNumber: '',
@@ -86,13 +110,24 @@ export default function PatientRegisterPage() {
     setSuccess(null);
 
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch('/api/patients/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(formData),
       });
+
+      // 401 hatası - session expired
+      if (response.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        router.replace('/login?redirect=/patients/register&expired=true');
+        return;
+      }
 
       const result = await response.json();
 
