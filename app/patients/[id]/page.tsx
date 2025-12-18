@@ -457,9 +457,24 @@ export default function PatientDetailPage() {
               <Box sx={{ flex: 1 }}>
                 <Card sx={{ bgcolor: 'primary.main', color: 'white', height: 'fit-content' }}>
                   <CardContent>
-                    <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
-                      Demografik Bilgiler
-                    </Typography>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                      <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                        Demografik Bilgiler
+                      </Typography>
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        startIcon={<Update />}
+                        onClick={() => router.push(`/patients/${patient.id}/update-info`)}
+                        sx={{ 
+                          color: 'white', 
+                          borderColor: 'white',
+                          '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' }
+                        }}
+                      >
+                        Güncelle
+                      </Button>
+                    </Box>
                     <Divider sx={{ bgcolor: 'white', opacity: 0.3, mb: 2 }} />
                     
                     <Stack spacing={2}>

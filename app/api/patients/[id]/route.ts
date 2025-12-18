@@ -116,6 +116,116 @@ export async function GET(
   }
 }
 
+// PATCH - Hasta bilgilerini güncelle
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const client = new Client({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false
+    }
+  });
+
+  try {
+    await client.connect();
+    const { id } = await params;
+    const patientId = parseInt(id);
+
+    if (isNaN(patientId)) {
+      await client.end();
+      return NextResponse.json({ error: 'Geçersiz hasta ID' }, { status: 400 });
+    }
+
+    const body = await request.json();
+    
+    // Güncellenebilir alanlar
+    const updates: string[] = [];
+    const values: any[] = [];
+    let paramIndex = 1;
+
+    if (body.height !== undefined && body.height !== '') {
+      updates.push(`height = $${paramIndex++}`);
+      values.push(body.height);
+    }
+    if (body.weight !== undefined && body.weight !== '') {
+      updates.push(`weight = $${paramIndex++}`);
+      values.push(body.weight);
+    }
+    if (body.ethnicity !== undefined) {
+      updates.push(`ethnicity = $${paramIndex++}`);
+      values.push(body.ethnicity);
+    }
+    if (body.parentalConsanguinity !== undefined) {
+      updates.push(`parental_consanguinity = $${paramIndex++}`);
+      values.push(body.parentalConsanguinity);
+    }
+    if (body.birthWeight !== undefined && body.birthWeight !== '') {
+      updates.push(`birth_weight = $${paramIndex++}`);
+      values.push(body.birthWeight);
+    }
+    if (body.gestationalAge !== undefined && body.gestationalAge !== '') {
+      updates.push(`gestational_age = $${paramIndex++}`);
+      values.push(body.gestationalAge);
+    }
+    if (body.cordFallDay !== undefined && body.cordFallDay !== '') {
+      updates.push(`cord_fall_day = $${paramIndex++}`);
+      values.push(body.cordFallDay);
+    }
+    if (body.birthType !== undefined) {
+      updates.push(`birth_type = $${paramIndex++}`);
+      values.push(body.birthType);
+    }
+    if (body.breastfeedingMonths !== undefined && body.breastfeedingMonths !== '') {
+      updates.push(`breastfeeding_months = $${paramIndex++}`);
+      values.push(body.breastfeedingMonths);
+    }
+
+    if (updates.length === 0) {
+      await client.end();
+      return NextResponse.json({ error: 'Güncellenecek alan bulunamadı' }, { status: 400 });
+    }
+
+    // updated_at alanını da güncelle
+    updates.push(`updated_at = NOW()`);
+    values.push(patientId);
+
+    const query = `
+      UPDATE patients 
+      SET ${updates.join(', ')}
+      WHERE id = $${paramIndex}
+      RETURNING *
+    `;
+
+    const result = await client.query(query, values);
+    await client.end();
+
+    if (result.rowCount === 0) {
+      return NextResponse.json({ error: 'Hasta bulunamadı' }, { status: 404 });
+    }
+
+    return NextResponse.json({
+      message: 'Hasta bilgileri başarıyla güncellendi',
+      patient: result.rows[0]
+    });
+  } catch (error) {
+    console.error('Hasta güncellenemedi:', error);
+    try {
+      await client.end();
+    } catch (e) {
+      // ignore
+    }
+    return NextResponse.json(
+      { 
+        error: 'Hasta güncellenemedi',
+        details: error instanceof Error ? error.message : 'Bilinmeyen hata'
+      },
+      { status: 500 }
+    );
+  }
+}
+
 // DELETE - Tek hasta silme (önyüzden izinli)
 export async function DELETE(
   request: NextRequest,
