@@ -801,6 +801,7 @@ export default function PatientDetailPage() {
                   variant="contained" 
                   startIcon={<Add />}
                   color="primary"
+                  onClick={() => router.push(`/patients/${params.id}/add-hospitalization`)}
                 >
                   Hastane Yatışı Ekle
                 </Button>
@@ -877,6 +878,7 @@ export default function PatientDetailPage() {
                   variant="contained" 
                   startIcon={<Add />}
                   color="primary"
+                  onClick={() => router.push(`/patients/${params.id}/add-infection`)}
                 >
                   Enfeksiyon Ekle
                 </Button>
@@ -946,6 +948,7 @@ export default function PatientDetailPage() {
                   variant="contained" 
                   startIcon={<Add />}
                   color="primary"
+                  onClick={() => router.push(`/patients/${params.id}/add-lab`)}
                 >
                   Laboratuvar Sonucu Ekle
                 </Button>
@@ -1014,6 +1017,7 @@ export default function PatientDetailPage() {
                   variant="contained" 
                   startIcon={<Add />}
                   color="primary"
+                  onClick={() => router.push(`/patients/${params.id}/add-treatment`)}
                 >
                   Tedavi Ekle
                 </Button>
@@ -1100,6 +1104,7 @@ export default function PatientDetailPage() {
                   variant="contained" 
                   startIcon={<Add />}
                   color="primary"
+                  onClick={() => router.push(`/patients/${params.id}/add-vaccination`)}
                 >
                   Aşı Ekle
                 </Button>
