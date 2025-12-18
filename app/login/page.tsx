@@ -36,13 +36,20 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [expired, setExpired] = useState(false);
+  const [requireLogin, setRequireLogin] = useState(false);
+  const [redirectPath, setRedirectPath] = useState<string | null>(null);
 
-  // Check for expired session on mount
+  // Check for expired session or redirect on mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.get('expired') === 'true') {
         setExpired(true);
+      }
+      const redirect = urlParams.get('redirect');
+      if (redirect && redirect !== '/') {
+        setRequireLogin(true);
+        setRedirectPath(redirect);
       }
     }
   }, []);
