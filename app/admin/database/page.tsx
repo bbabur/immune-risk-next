@@ -229,7 +229,7 @@ export default function DatabaseAdminPage() {
   return (
     <Box sx={{ 
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      background: 'linear-gradient(135deg, #1a365d 0%, #2c5282 50%, #2b6cb0 100%)',
       py: 4
     }}>
       <Container maxWidth="xl">
@@ -244,11 +244,11 @@ export default function DatabaseAdminPage() {
           borderRadius: 3,
           p: 3,
           border: '1px solid rgba(255, 255, 255, 0.2)',
-          boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)'
+          boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.2)'
         }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Box sx={{ 
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background: 'linear-gradient(135deg, #2b6cb0 0%, #3182ce 100%)',
               borderRadius: 2,
               p: 1.5,
               display: 'flex',
@@ -269,7 +269,7 @@ export default function DatabaseAdminPage() {
           <Chip 
             label="Admin Panel" 
             sx={{ 
-              background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+              background: 'linear-gradient(135deg, #38a169 0%, #48bb78 100%)',
               color: 'white',
               fontWeight: 'bold',
               px: 2,
@@ -313,11 +313,11 @@ export default function DatabaseAdminPage() {
                 minHeight: 64
               },
               '& .Mui-selected': {
-                color: '#667eea !important'
+                color: '#2b6cb0 !important'
               },
               '& .MuiTabs-indicator': {
                 height: 3,
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                background: 'linear-gradient(135deg, #2b6cb0 0%, #3182ce 100%)'
               }
             }}
           >
@@ -342,7 +342,7 @@ export default function DatabaseAdminPage() {
             }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                 <Typography variant="h6" fontWeight="bold" sx={{ 
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  background: 'linear-gradient(135deg, #2b6cb0 0%, #3182ce 100%)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent'
                 }}>
@@ -352,10 +352,10 @@ export default function DatabaseAdminPage() {
                   size="small" 
                   onClick={loadTables}
                   sx={{ 
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    background: 'linear-gradient(135deg, #2b6cb0 0%, #3182ce 100%)',
                     color: 'white',
                     '&:hover': {
-                      background: 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)'
+                      background: 'linear-gradient(135deg, #3182ce 0%, #4299e1 100%)'
                     }
                   }}
                 >
@@ -372,10 +372,10 @@ export default function DatabaseAdminPage() {
                       borderRadius: 2,
                       mb: 0.5,
                       '&.Mui-selected': {
-                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        background: 'linear-gradient(135deg, #2b6cb0 0%, #3182ce 100%)',
                         color: 'white',
                         '&:hover': {
-                          background: 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)'
+                          background: 'linear-gradient(135deg, #3182ce 0%, #2b6cb0 100%)'
                         },
                         '& .MuiListItemText-secondary': {
                           color: 'rgba(255, 255, 255, 0.8)'
@@ -407,7 +407,7 @@ export default function DatabaseAdminPage() {
               }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
                   <Typography variant="h5" fontWeight="bold" sx={{ 
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    background: 'linear-gradient(135deg, #2b6cb0 0%, #3182ce 100%)',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent'
                   }}>
@@ -436,13 +436,13 @@ export default function DatabaseAdminPage() {
                       startIcon={<RefreshIcon />}
                       onClick={() => loadTableData(selectedTable)}
                       sx={{
-                        borderColor: '#667eea',
-                        color: '#667eea',
+                        borderColor: '#2b6cb0',
+                        color: '#2b6cb0',
                         textTransform: 'none',
                         fontWeight: 600,
                         '&:hover': {
-                          borderColor: '#764ba2',
-                          background: 'rgba(102, 126, 234, 0.1)'
+                          borderColor: '#3182ce',
+                          background: 'rgba(43, 108, 176, 0.1)'
                         }
                       }}
                     >
@@ -511,7 +511,7 @@ export default function DatabaseAdminPage() {
                 boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.15)'
               }}>
                 <Box sx={{
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  background: 'linear-gradient(135deg, #2b6cb0 0%, #3182ce 100%)',
                   borderRadius: '50%',
                   width: 100,
                   height: 100,
@@ -524,7 +524,7 @@ export default function DatabaseAdminPage() {
                   <TableIcon sx={{ fontSize: 50, color: 'white' }} />
                 </Box>
                 <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ 
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  background: 'linear-gradient(135deg, #2b6cb0 0%, #3182ce 100%)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent'
                 }}>
@@ -550,7 +550,7 @@ export default function DatabaseAdminPage() {
           boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.15)'
         }}>
           <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ 
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            background: 'linear-gradient(135deg, #2b6cb0 0%, #3182ce 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             mb: 3
@@ -570,17 +570,17 @@ export default function DatabaseAdminPage() {
               '& .MuiOutlinedInput-root': {
                 fontFamily: 'monospace',
                 fontSize: '0.95rem',
-                background: 'rgba(102, 126, 234, 0.05)',
+                background: 'rgba(43, 108, 176, 0.05)',
                 borderRadius: 2,
                 '& fieldset': {
-                  borderColor: 'rgba(102, 126, 234, 0.3)',
+                  borderColor: 'rgba(43, 108, 176, 0.3)',
                   borderWidth: 2
                 },
                 '&:hover fieldset': {
-                  borderColor: 'rgba(102, 126, 234, 0.5)'
+                  borderColor: 'rgba(43, 108, 176, 0.5)'
                 },
                 '&.Mui-focused fieldset': {
-                  borderColor: '#667eea'
+                  borderColor: '#2b6cb0'
                 }
               }
             }}
@@ -594,12 +594,12 @@ export default function DatabaseAdminPage() {
               onClick={executeSQL}
               disabled={sqlLoading}
               sx={{
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                background: 'linear-gradient(135deg, #2b6cb0 0%, #3182ce 100%)',
                 textTransform: 'none',
                 fontWeight: 600,
                 px: 4,
                 '&:hover': {
-                  background: 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)'
+                  background: 'linear-gradient(135deg, #3182ce 0%, #2b6cb0 100%)'
                 }
               }}
             >
@@ -614,14 +614,14 @@ export default function DatabaseAdminPage() {
                 setSqlError(null);
               }}
               sx={{
-                borderColor: '#667eea',
-                color: '#667eea',
+                borderColor: '#2b6cb0',
+                color: '#2b6cb0',
                 textTransform: 'none',
                 fontWeight: 600,
                 px: 4,
                 '&:hover': {
-                  borderColor: '#764ba2',
-                  background: 'rgba(102, 126, 234, 0.1)'
+                  borderColor: '#3182ce',
+                  background: 'rgba(43, 108, 176, 0.1)'
                 }
               }}
             >
@@ -680,13 +680,13 @@ export default function DatabaseAdminPage() {
             onClick={loadStats}
             sx={{ 
               mb: 3,
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background: 'linear-gradient(135deg, #2b6cb0 0%, #3182ce 100%)',
               textTransform: 'none',
               fontWeight: 600,
               px: 4,
               py: 1.5,
               '&:hover': {
-                background: 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)'
+                background: 'linear-gradient(135deg, #3182ce 0%, #2b6cb0 100%)'
               }
             }}
           >
@@ -701,14 +701,14 @@ export default function DatabaseAdminPage() {
             <Grid container spacing={3}>
               <Grid item xs={12} md={4}>
                 <Card sx={{
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  background: 'linear-gradient(135deg, #2b6cb0 0%, #3182ce 100%)',
                   color: 'white',
                   borderRadius: 3,
-                  boxShadow: '0 8px 32px 0 rgba(102, 126, 234, 0.4)',
+                  boxShadow: '0 8px 32px 0 rgba(43, 108, 176, 0.4)',
                   transition: 'transform 0.3s ease',
                   '&:hover': {
                     transform: 'translateY(-8px)',
-                    boxShadow: '0 12px 40px 0 rgba(102, 126, 234, 0.5)'
+                    boxShadow: '0 12px 40px 0 rgba(43, 108, 176, 0.5)'
                   }
                 }}>
                   <CardContent sx={{ p: 3 }}>
@@ -723,14 +723,14 @@ export default function DatabaseAdminPage() {
               </Grid>
               <Grid item xs={12} md={4}>
                 <Card sx={{
-                  background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                  background: 'linear-gradient(135deg, #e53e3e 0%, #c53030 100%)',
                   color: 'white',
                   borderRadius: 3,
-                  boxShadow: '0 8px 32px 0 rgba(240, 147, 251, 0.4)',
+                  boxShadow: '0 8px 32px 0 rgba(229, 62, 62, 0.4)',
                   transition: 'transform 0.3s ease',
                   '&:hover': {
                     transform: 'translateY(-8px)',
-                    boxShadow: '0 12px 40px 0 rgba(240, 147, 251, 0.5)'
+                    boxShadow: '0 12px 40px 0 rgba(229, 62, 62, 0.5)'
                   }
                 }}>
                   <CardContent sx={{ p: 3 }}>
@@ -775,7 +775,7 @@ export default function DatabaseAdminPage() {
                   boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.15)'
                 }}>
                   <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ 
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    background: 'linear-gradient(135deg, #2b6cb0 0%, #3182ce 100%)',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                     mb: 3
@@ -814,7 +814,7 @@ export default function DatabaseAdminPage() {
               boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.15)'
             }}>
               <Box sx={{
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                background: 'linear-gradient(135deg, #2b6cb0 0%, #3182ce 100%)',
                 borderRadius: '50%',
                 width: 100,
                 height: 100,
@@ -827,7 +827,7 @@ export default function DatabaseAdminPage() {
                 <StatsIcon sx={{ fontSize: 50, color: 'white' }} />
               </Box>
               <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ 
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                background: 'linear-gradient(135deg, #2b6cb0 0%, #3182ce 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent'
               }}>
