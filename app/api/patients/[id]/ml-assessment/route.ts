@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Client } from 'pg';
 
-// ML servisi URL'i
-const ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'http://localhost:8000';
+// ML servisi URL'i - Production'da Render URL'i kullan
+const ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'https://immune-risk-ml-api.onrender.com';
 
 interface MLFeatures {
   otit_sayisi_ge_4: number;

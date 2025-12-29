@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// ML servisi URL'i - environment variable'dan alınır
-const ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'http://localhost:8000';
+// ML servisi URL'i - Production'da Render URL'i kullan
+const ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'https://immune-risk-ml-api.onrender.com';
 
 // İstek tipi tanımı
 interface PredictRequest {
