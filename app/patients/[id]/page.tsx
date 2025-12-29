@@ -85,6 +85,8 @@ interface Patient {
   diagnosisDate?: string;
   rule_based_score?: number;
   ruleBasedScore?: number;
+  ml_score?: number;
+  mlScore?: number;
   final_risk_level?: string;
   finalRiskLevel?: string;
   clinicalFeatures?: ClinicalFeature[];
@@ -550,55 +552,93 @@ export default function PatientDetailPage() {
 
               {/* Sağ Sütun - Tanı Bilgileri */}
               <Box sx={{ flex: 1 }}>
-                <Card sx={{ height: 'fit-content' }}>
+                <Card sx={{ 
+                  height: 'fit-content',
+                  bgcolor: (patient.hasImmuneDeficiency ?? patient.has_immune_deficiency) === true 
+                    ? 'error.50' 
+                    : (patient.hasImmuneDeficiency ?? patient.has_immune_deficiency) === false 
+                      ? 'success.50' 
+                      : 'background.paper'
+                }}>
                   <CardContent>
                     <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
-                      Tanı Bilgileri
+                      🔬 Tanı Bilgileri
                     </Typography>
                     <Divider sx={{ mb: 2 }} />
                     
                     <Stack spacing={2}>
                       <Box>
-                        <Typography fontWeight="bold">İmmün Yetmezlik:</Typography>
+                        <Typography fontWeight="bold">İmmün Yetmezlik Riski:</Typography>
                         {getDiagnosisChip(patient.hasImmuneDeficiency ?? patient.has_immune_deficiency)}
                       </Box>
                       
                       <Box>
-                        <Typography fontWeight="bold">Tanı Türü:</Typography>
-                        <Typography>{patient.diagnosisType || patient.diagnosis_type || 'Henüz değerlendirilmedi'}</Typography>
+                        <Typography fontWeight="bold">Tanı/Değerlendirme:</Typography>
+                        <Typography sx={{ 
+                          color: (patient.diagnosisType || patient.diagnosis_type) ? 'text.primary' : 'text.secondary',
+                          fontStyle: (patient.diagnosisType || patient.diagnosis_type) ? 'normal' : 'italic'
+                        }}>
+                          {patient.diagnosisType || patient.diagnosis_type || 'Henüz ML değerlendirmesi yapılmadı'}
+                        </Typography>
                       </Box>
                       
-                      <Box>
-                        <Typography fontWeight="bold">Tanı Tarihi:</Typography>
-                        <Typography>{patient.diagnosisDate || patient.diagnosis_date || '-'}</Typography>
-                      </Box>
+                      {(patient.diagnosisDate || patient.diagnosis_date) && (
+                        <Box>
+                          <Typography fontWeight="bold">Değerlendirme Tarihi:</Typography>
+                          <Typography>{patient.diagnosisDate || patient.diagnosis_date}</Typography>
+                        </Box>
+                      )}
+
+                      {/* ML Skor gösterimi */}
+                      {(patient.mlScore !== undefined || patient.ml_score !== undefined) && (
+                        <Box>
+                          <Typography fontWeight="bold">ML Skoru:</Typography>
+                          <Typography>
+                            %{(((patient.mlScore ?? patient.ml_score) || 0) * 100).toFixed(1)} olasılık
+                          </Typography>
+                        </Box>
+                      )}
+
+                      {/* Risk Seviyesi */}
+                      {(patient.finalRiskLevel || patient.final_risk_level) && (
+                        <Box>
+                          <Typography fontWeight="bold">Risk Seviyesi:</Typography>
+                          <Chip 
+                            label={patient.finalRiskLevel || patient.final_risk_level} 
+                            color={
+                              (patient.finalRiskLevel || patient.final_risk_level)?.includes('Yüksek') ? 'error' :
+                              (patient.finalRiskLevel || patient.final_risk_level)?.includes('Orta') ? 'warning' : 'success'
+                            }
+                            size="small"
+                          />
+                        </Box>
+                      )}
                       
                       {/* ML değerlendirmesi yapılmışsa Görüntüle, yapılmamışsa Değerlendir */}
-                      {(patient.diagnosisType || patient.diagnosis_type) ? (
+                      <Box sx={{ mt: 2, display: 'flex', gap: 1, flexDirection: 'column' }}>
+                        {(patient.diagnosisType || patient.diagnosis_type) && (
+                          <Button
+                            variant="contained"
+                            size="small"
+                            color="success"
+                            startIcon={<Assessment />}
+                            fullWidth
+                            onClick={() => router.push(`/patients/${patient.id}/ml-result`)}
+                          >
+                            ML Sonucunu Görüntüle
+                          </Button>
+                        )}
                         <Button
-                          variant="contained"
-                          size="small"
-                          color="success"
-                          startIcon={<Assessment />}
-                          fullWidth
-                          sx={{ mt: 2 }}
-                          onClick={() => router.push(`/patients/${patient.id}/ml-result`)}
-                        >
-                          ML Sonucunu Görüntüle
-                        </Button>
-                      ) : (
-                        <Button
-                          variant="contained"
+                          variant={(patient.diagnosisType || patient.diagnosis_type) ? "outlined" : "contained"}
                           size="small"
                           color="primary"
                           startIcon={<Psychology />}
                           fullWidth
-                          sx={{ mt: 2 }}
                           onClick={() => router.push(`/patients/${patient.id}/ml-assessment`)}
                         >
-                          ML Değerlendirmesi Yap
+                          {(patient.diagnosisType || patient.diagnosis_type) ? 'Yeniden Değerlendir' : 'ML Değerlendirmesi Yap'}
                         </Button>
-                      )}
+                      </Box>
                     </Stack>
                   </CardContent>
                 </Card>
