@@ -560,29 +560,45 @@ export default function PatientDetailPage() {
                     <Stack spacing={2}>
                       <Box>
                         <Typography fontWeight="bold">İmmün Yetmezlik:</Typography>
-                        {getDiagnosisChip(patient.hasImmuneDeficiency)}
+                        {getDiagnosisChip(patient.hasImmuneDeficiency ?? patient.has_immune_deficiency)}
                       </Box>
                       
                       <Box>
                         <Typography fontWeight="bold">Tanı Türü:</Typography>
-                        <Typography>{patient.diagnosisType || 'CVID'}</Typography>
+                        <Typography>{patient.diagnosisType || patient.diagnosis_type || 'Henüz değerlendirilmedi'}</Typography>
                       </Box>
                       
                       <Box>
                         <Typography fontWeight="bold">Tanı Tarihi:</Typography>
-                        <Typography>{patient.diagnosisDate || '10/02/2024'}</Typography>
+                        <Typography>{patient.diagnosisDate || patient.diagnosis_date || '-'}</Typography>
                       </Box>
                       
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        startIcon={<Update />}
-                        fullWidth
-                        sx={{ mt: 2 }}
-                        onClick={() => router.push(`/patients/${patient.id}/update-diagnosis`)}
-                      >
-                        Tanı Bilgilerini Güncelle
-                      </Button>
+                      {/* ML değerlendirmesi yapılmışsa Görüntüle, yapılmamışsa Değerlendir */}
+                      {(patient.diagnosisType || patient.diagnosis_type) ? (
+                        <Button
+                          variant="contained"
+                          size="small"
+                          color="success"
+                          startIcon={<Assessment />}
+                          fullWidth
+                          sx={{ mt: 2 }}
+                          onClick={() => router.push(`/patients/${patient.id}/ml-result`)}
+                        >
+                          ML Sonucunu Görüntüle
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="contained"
+                          size="small"
+                          color="primary"
+                          startIcon={<Psychology />}
+                          fullWidth
+                          sx={{ mt: 2 }}
+                          onClick={() => router.push(`/patients/${patient.id}/ml-assessment`)}
+                        >
+                          ML Değerlendirmesi Yap
+                        </Button>
+                      )}
                     </Stack>
                   </CardContent>
                 </Card>
@@ -1182,9 +1198,9 @@ export default function PatientDetailPage() {
           Geri
         </Button>
         <Typography variant="h4" fontWeight="bold">
-          {maskName(patient.firstName, patient.lastName)}
+          {maskName(patient.firstName || '', patient.lastName || '')}
         </Typography>
-        <Chip label={patient.lastName} size="small" color="primary" />
+        <Chip label={patient.file_number || patient.fileNumber || `#${patient.id}`} size="small" color="primary" />
       </Box>
 
       {/* Tab Navigation */}

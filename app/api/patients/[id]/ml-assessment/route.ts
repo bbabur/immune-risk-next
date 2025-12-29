@@ -160,12 +160,21 @@ export async function POST(
       ]
     );
 
-    // Patient tablosunu güncelle
+    // Patient tablosunu güncelle - ML sonucuna göre tanı bilgisini de güncelle
+    const hasImmuneDeficiency = mlResult.prediction === 1;
+    const diagnosisType = hasImmuneDeficiency ? 'ML Değerlendirmesi - Risk Tespit Edildi' : 'ML Değerlendirmesi - Risk Tespit Edilmedi';
+    const diagnosisDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+    
     await client.query(
       `UPDATE patients 
-       SET ml_score = $1, final_risk_level = $2, updated_at = NOW()
-       WHERE id = $3`,
-      [mlResult.probability, mlResult.risk_level, patientId]
+       SET ml_score = $1, 
+           final_risk_level = $2, 
+           has_immune_deficiency = $3,
+           diagnosis_type = $4,
+           diagnosis_date = $5,
+           updated_at = NOW()
+       WHERE id = $6`,
+      [mlResult.probability, mlResult.risk_level, hasImmuneDeficiency, diagnosisType, diagnosisDate, patientId]
     );
 
     await client.end();

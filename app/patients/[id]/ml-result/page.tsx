@@ -53,22 +53,55 @@ export default function MLResultPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Session storage'dan sonucu al
-    const storedResult = sessionStorage.getItem('mlResult');
-    
-    if (storedResult) {
-      try {
-        const parsed = JSON.parse(storedResult);
-        setResult(parsed);
-      } catch {
-        setError('Sonuç verisi okunamadı');
+    const fetchResult = async () => {
+      // Önce session storage'dan sonucu al
+      const storedResult = sessionStorage.getItem('mlResult');
+      
+      if (storedResult) {
+        try {
+          const parsed = JSON.parse(storedResult);
+          setResult(parsed);
+          setLoading(false);
+          return;
+        } catch {
+          // Session storage'dan okunamadı, API'den dene
+        }
       }
-    } else {
-      setError('ML değerlendirme sonucu bulunamadı. Lütfen değerlendirmeyi tekrar yapın.');
-    }
+      
+      // Session storage'da yoksa veritabanından çek
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`/api/patients/${patientId}/ml-assessment`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          // API'den gelen veriyi uygun formata çevir
+          setResult({
+            success: true,
+            prediction: data.ml_prediction,
+            probability: data.ml_probability,
+            risk_level: data.ml_risk_level || data.risk_level,
+            message: data.recommendation || '',
+            features: data.ml_features ? JSON.parse(data.ml_features) : {},
+            patientId: patientId,
+            assessmentDate: data.assessment_date
+          });
+        } else {
+          setError('ML değerlendirme sonucu bulunamadı. Lütfen değerlendirmeyi yapın.');
+        }
+      } catch (err) {
+        setError('ML değerlendirme sonucu yüklenemedi.');
+      }
+      
+      setLoading(false);
+    };
     
-    setLoading(false);
-  }, []);
+    fetchResult();
+  }, [patientId]);
 
   const getRiskColor = (riskLevel: string) => {
     if (riskLevel.includes('Çok Yüksek')) return 'error';
