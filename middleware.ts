@@ -57,8 +57,12 @@ export function middleware(request: NextRequest) {
   // For protected routes, check authentication
   if (isProtectedPage || isProtectedApi) {
     // Get token from cookie or header
-    const token = request.cookies.get('token')?.value || 
-                  request.headers.get('authorization')?.replace('Bearer ', '');
+    const cookieToken = request.cookies.get('token')?.value;
+    const headerToken = request.headers.get('authorization')?.replace('Bearer ', '');
+    const token = cookieToken || headerToken;
+    
+    // Debug log (production'da console.log çalışır, Render logs'ta görünür)
+    console.log(`[Middleware] Path: ${pathname}, Cookie token: ${cookieToken ? 'exists' : 'missing'}, Header token: ${headerToken ? 'exists' : 'missing'}`);
     
     if (!token) {
       if (isProtectedApi) {

@@ -102,9 +102,7 @@ export default function LoginPage() {
         document.cookie = cookieValue;
         
         console.log('Token saved to cookie, secure:', isSecure);
-        
-        // Small delay to ensure cookie is set
-        await new Promise(resolve => setTimeout(resolve, 200));
+        console.log('Cookie value:', document.cookie);
         
         // Redirect to original page or dashboard
         // SECURITY: Validate redirect parameter to prevent open redirect attacks
@@ -117,7 +115,9 @@ export default function LoginPage() {
           redirectTo = '/';
         }
         
-        router.push(redirectTo);
+        // Tam sayfa yenilemesi yap - middleware cookie'yi görsün
+        // router.push yerine window.location kullan
+        window.location.href = redirectTo;
       } else {
         setError(data.error || 'Geçersiz kullanıcı adı veya şifre');
       }
