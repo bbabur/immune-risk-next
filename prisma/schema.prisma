@@ -226,6 +226,12 @@ model RiskAssessment {
 
   modelVersion    String? @map("model_version")
   modelConfidence Float?  @map("model_confidence")
+  
+  // ML Değerlendirme Sonuçları
+  mlPrediction    Int?    @map("ml_prediction")     // 0 = Risk yok, 1 = Risk var
+  mlProbability   Float?  @map("ml_probability")    // Tahmin olasılığı (0-1)
+  mlRiskLevel     String? @map("ml_risk_level")     // ML risk seviyesi
+  mlFeatures      Json?   @map("ml_features")       // Değerlendirmede kullanılan özellikler
 
   patient Patient @relation(fields: [patientId], references: [id])
 

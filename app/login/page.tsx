@@ -84,14 +84,27 @@ export default function LoginPage() {
         localStorage.setItem('user', JSON.stringify(data.user));
         localStorage.setItem('token', data.token);
         
-        // Save to cookie for middleware (SameSite=Lax for better compatibility)
-        const cookieValue = `token=${data.token}; path=/; max-age=${24 * 60 * 60}; samesite=lax${window.location.protocol === 'https:' ? '; secure' : ''}`;
+        // Save to cookie for middleware
+        // Production'da (HTTPS) secure flag ekle, SameSite=Lax kullan
+        const isSecure = window.location.protocol === 'https:';
+        const cookieParts = [
+          `token=${data.token}`,
+          'path=/',
+          `max-age=${24 * 60 * 60}`,
+          'samesite=lax'
+        ];
+        
+        if (isSecure) {
+          cookieParts.push('secure');
+        }
+        
+        const cookieValue = cookieParts.join('; ');
         document.cookie = cookieValue;
         
-        console.log('Token saved to cookie:', data.token);
+        console.log('Token saved to cookie, secure:', isSecure);
         
         // Small delay to ensure cookie is set
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 200));
         
         // Redirect to original page or dashboard
         // SECURITY: Validate redirect parameter to prevent open redirect attacks

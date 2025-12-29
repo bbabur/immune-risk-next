@@ -48,7 +48,8 @@ import {
   Cancel,
   Warning,
   Info,
-  Brightness3
+  Brightness3,
+  Psychology
 } from '@mui/icons-material';
 import ClinicalFeatureModal from '../../../components/ClinicalFeatureModal';
 
@@ -591,14 +592,25 @@ export default function PatientDetailPage() {
             {/* Risk Değerlendirme */}
             <Card sx={{ mb: 3, bgcolor: 'info.main', color: 'white' }}>
               <CardContent>
-                <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>
-                  📊 Risk Değerlendirme
-                </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                    📊 Risk Değerlendirme
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    startIcon={<Psychology />}
+                    onClick={() => router.push(`/patients/${patient.id}/ml-assessment`)}
+                    sx={{ bgcolor: 'white', color: 'info.main', '&:hover': { bgcolor: 'grey.100' } }}
+                  >
+                    ML Değerlendirmesi Yap
+                  </Button>
+                </Box>
                 
                 <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, mt: 2 }}>
                   <Paper sx={{ flex: 1, p: 2, textAlign: 'center', bgcolor: 'white', color: 'text.primary' }}>
                     <Typography variant="h4" fontWeight="bold">
-                      {patient.ruleBasedScore || 5}
+                      {patient.ruleBasedScore || '-'}
                     </Typography>
                     <Typography variant="body2">
                       Kural Puanı
@@ -622,7 +634,7 @@ export default function PatientDetailPage() {
                   
                   <Paper sx={{ flex: 1, p: 2, textAlign: 'center', bgcolor: 'white', color: 'text.primary' }}>
                     <Typography variant="h4" fontWeight="bold">
-                      {patient.ruleBasedScore || 5}
+                      {patient.ruleBasedScore || '-'}
                     </Typography>
                     <Typography variant="body2">
                       Toplam Puan
@@ -638,14 +650,16 @@ export default function PatientDetailPage() {
                     </Typography>
                     <Typography variant="h5" fontWeight="bold" color="white">
                       {patient.finalRiskLevel === 'high' ? 'Yüksek Risk' : 
-                       patient.finalRiskLevel === 'medium' ? 'Orta Risk' : 'Düşük Risk'}
+                       patient.finalRiskLevel === 'medium' ? 'Orta Risk' : 
+                       patient.finalRiskLevel ? patient.finalRiskLevel : 'Değerlendirilmedi'}
                     </Typography>
                     <Button
                       variant="contained"
                       size="small"
                       sx={{ mt: 1, bgcolor: 'primary.main' }}
+                      onClick={() => router.push(`/patients/${patient.id}/ml-assessment`)}
                     >
-                      Yeniden Değerlendir
+                      Değerlendir
                     </Button>
                   </Paper>
                 </Box>

@@ -18,6 +18,8 @@ services:
         value: https://immune-risk-next.onrender.com
       - key: NEXTAUTH_SECRET
         generateValue: true
+      - key: ML_SERVICE_URL
+        value: https://immune-risk-ml-api.onrender.com
 
 databases:
   - name: immune-risk-db

@@ -92,8 +92,28 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Login hatası:', error);
+    
+    // Prisma bağlantı hatası kontrolü
+    const errorMessage = error instanceof Error ? error.message : 'Bilinmeyen hata';
+    
+    if (errorMessage.includes('connect') || errorMessage.includes('Connection')) {
+      console.error('Veritabanı bağlantı hatası:', errorMessage);
+      return NextResponse.json(
+        { error: 'Veritabanına bağlanılamadı. Lütfen daha sonra tekrar deneyin.' },
+        { status: 503 }
+      );
+    }
+    
+    if (errorMessage.includes('timeout') || errorMessage.includes('Timeout')) {
+      console.error('Veritabanı timeout hatası:', errorMessage);
+      return NextResponse.json(
+        { error: 'İşlem zaman aşımına uğradı. Lütfen tekrar deneyin.' },
+        { status: 504 }
+      );
+    }
+    
     return NextResponse.json(
-      { error: 'Giriş başarısız' },
+      { error: 'Giriş başarısız. Lütfen tekrar deneyin.' },
       { status: 500 }
     );
   }
