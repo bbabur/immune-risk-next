@@ -384,19 +384,6 @@ export default function HomePage() {
             </CardContent>
           </Card>
 
-          {/* Hakkımızda Butonu */}
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-            <Button 
-              variant="outlined" 
-              color="primary"
-              startIcon={<Info />}
-              component={Link}
-              href="/about"
-              sx={{ px: 4, py: 2 }}
-            >
-              Hakkımızda
-            </Button>
-          </Box>
         </Container>
       </Box>
 
