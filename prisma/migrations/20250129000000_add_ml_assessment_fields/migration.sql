@@ -9,3 +9,4 @@ ALTER TABLE "risk_assessments" ADD COLUMN IF NOT EXISTS "ml_features" JSONB;
 -- Yorum: ml_risk_level = Risk seviyesi açıklaması
 -- Yorum: ml_features = Değerlendirmede kullanılan 21 özellik
 
+

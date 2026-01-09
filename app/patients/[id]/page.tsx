@@ -614,9 +614,9 @@ export default function PatientDetailPage() {
                         </Box>
                       )}
                       
-                      {/* ML değerlendirmesi yapılmışsa Görüntüle, yapılmamışsa Değerlendir */}
-                      <Box sx={{ mt: 2, display: 'flex', gap: 1, flexDirection: 'column' }}>
-                        {(patient.diagnosisType || patient.diagnosis_type) && (
+                      {/* ML değerlendirmesi yapılmışsa sadece Görüntüle, yapılmamışsa Değerlendir */}
+                      <Box sx={{ mt: 2 }}>
+                        {(patient.diagnosisType || patient.diagnosis_type) ? (
                           <Button
                             variant="contained"
                             size="small"
@@ -627,17 +627,18 @@ export default function PatientDetailPage() {
                           >
                             ML Sonucunu Görüntüle
                           </Button>
+                        ) : (
+                          <Button
+                            variant="contained"
+                            size="small"
+                            color="primary"
+                            startIcon={<Psychology />}
+                            fullWidth
+                            onClick={() => router.push(`/patients/${patient.id}/ml-assessment`)}
+                          >
+                            ML Değerlendirmesi Yap
+                          </Button>
                         )}
-                        <Button
-                          variant={(patient.diagnosisType || patient.diagnosis_type) ? "outlined" : "contained"}
-                          size="small"
-                          color="primary"
-                          startIcon={<Psychology />}
-                          fullWidth
-                          onClick={() => router.push(`/patients/${patient.id}/ml-assessment`)}
-                        >
-                          {(patient.diagnosisType || patient.diagnosis_type) ? 'Yeniden Değerlendir' : 'ML Değerlendirmesi Yap'}
-                        </Button>
                       </Box>
                     </Stack>
                   </CardContent>
