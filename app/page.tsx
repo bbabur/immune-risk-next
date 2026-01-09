@@ -324,7 +324,7 @@ export default function HomePage() {
                   href="/patients/register"
                   fullWidth
                 >
-                  Yeni Ekle
+                  Yeni Hasta Ekle
                 </Button>
               </CardContent>
             </Card>
