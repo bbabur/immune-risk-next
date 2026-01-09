@@ -646,6 +646,7 @@ export default function PatientDetailPage() {
               </Box>
             </Box>
 
+
           </Box>
         );
 
