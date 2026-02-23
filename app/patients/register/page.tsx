@@ -13,9 +13,6 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  FormControlLabel,
-  Radio,
-  RadioGroup,
   Stack,
   Box,
   Alert,
@@ -379,29 +376,27 @@ export default function PatientRegisterPage() {
       case 1:
         return (
           <Stack spacing={3}>
-            <Typography variant="h6" color="primary">Enfeksiyon Kriterleri</Typography>
+            <Typography variant="h6" color="primary">Enfeksiyon Kriterleri (sayısal değer girin)</Typography>
             <Divider />
             
             {[
-              { key: 'otit_sayisi_ge_4', label: '1 Yıl İçinde Otit Sayısı ≥4' },
-              { key: 'sinuzit_sayisi_ge_2', label: '1 Yıl İçinde Sinüzit Sayısı ≥2' },
-              { key: 'pnomoni_ge_2', label: '1 Yıl İçinde ≥2 Pnömoni' },
-              { key: 'derin_enf_ge_2', label: 'Septisemi Dahil ≥2 Derin Enfeksiyon' },
+              { key: 'otit_sayisi_ge_4', label: '1 Yıl İçinde Otit Sayısı (≥4 risk)' },
+              { key: 'sinuzit_sayisi_ge_2', label: '1 Yıl İçinde Sinüzit Sayısı (≥2 risk)' },
+              { key: 'pnomoni_ge_2', label: '1 Yıl İçinde Pnömoni Sayısı (≥2 risk)' },
+              { key: 'derin_enf_ge_2', label: 'Septisemi Dahil Derin Enfeksiyon Sayısı (≥2 risk)' },
             ].map(({ key, label }) => (
-              <FormControl key={key} component="fieldset">
-                <Typography variant="body1">{label}</Typography>
-                <RadioGroup
-                  row
-                  value={(formData as any)[key]}
-                  onChange={(e) => handleMLFeatureChange(key, parseInt(e.target.value))}
-                >
-                  <FormControlLabel value={0} control={<Radio />} label="Hayır" />
-                  <FormControlLabel value={1} control={<Radio />} label="Evet" />
-                </RadioGroup>
-              </FormControl>
+              <TextField
+                key={key}
+                fullWidth
+                label={label}
+                type="number"
+                value={(formData as any)[key]}
+                onChange={(e) => handleMLFeatureChange(key, parseFloat(e.target.value) || 0)}
+                inputProps={{ min: 0, step: 1 }}
+              />
             ))}
 
-            <Typography variant="h6" color="primary" sx={{ mt: 2 }}>Tedavi ve Hastane</Typography>
+            <Typography variant="h6" color="primary" sx={{ mt: 2 }}>Tedavi ve Hastane (0/1)</Typography>
             <Divider />
             
             {[
@@ -410,20 +405,18 @@ export default function PatientRegisterPage() {
               { key: 'hastane_yatis', label: 'Hastaneye Yatış Varlığı' },
               { key: 'yogun_bakim', label: 'Yoğun Bakımda Yatış' },
             ].map(({ key, label }) => (
-              <FormControl key={key} component="fieldset">
-                <Typography variant="body1">{label}</Typography>
-                <RadioGroup
-                  row
-                  value={(formData as any)[key]}
-                  onChange={(e) => handleMLFeatureChange(key, parseInt(e.target.value))}
-                >
-                  <FormControlLabel value={0} control={<Radio />} label="Hayır" />
-                  <FormControlLabel value={1} control={<Radio />} label="Evet" />
-                </RadioGroup>
-              </FormControl>
+              <TextField
+                key={key}
+                fullWidth
+                label={label}
+                type="number"
+                value={(formData as any)[key]}
+                onChange={(e) => handleMLFeatureChange(key, parseFloat(e.target.value) || 0)}
+                inputProps={{ min: 0, max: 1, step: 1 }}
+              />
             ))}
 
-            <Typography variant="h6" color="primary" sx={{ mt: 2 }}>Klinik Özellikler</Typography>
+            <Typography variant="h6" color="primary" sx={{ mt: 2 }}>Klinik Özellikler (0/1)</Typography>
             <Divider />
             
             {[
@@ -435,37 +428,33 @@ export default function PatientRegisterPage() {
               { key: 'konjenital_kalp', label: 'Konjenital Kalp Hastalığı' },
               { key: 'kronik_ishal', label: 'Kronik İshal' },
             ].map(({ key, label }) => (
-              <FormControl key={key} component="fieldset">
-                <Typography variant="body1">{label}</Typography>
-                <RadioGroup
-                  row
-                  value={(formData as any)[key]}
-                  onChange={(e) => handleMLFeatureChange(key, parseInt(e.target.value))}
-                >
-                  <FormControlLabel value={0} control={<Radio />} label="Hayır" />
-                  <FormControlLabel value={1} control={<Radio />} label="Evet" />
-                </RadioGroup>
-              </FormControl>
+              <TextField
+                key={key}
+                fullWidth
+                label={label}
+                type="number"
+                value={(formData as any)[key]}
+                onChange={(e) => handleMLFeatureChange(key, parseFloat(e.target.value) || 0)}
+                inputProps={{ min: 0, max: 1, step: 1 }}
+              />
             ))}
 
-            <Typography variant="h6" color="primary" sx={{ mt: 2 }}>Aile Öyküsü</Typography>
+            <Typography variant="h6" color="primary" sx={{ mt: 2 }}>Aile Öyküsü (0/1)</Typography>
             <Divider />
             
             {[
               { key: 'aile_oykusu_boy', label: 'Ailede Doğuştan İmmün Yetmezlik Öyküsü' },
               { key: 'aile_erken_olum', label: 'Ailede Erken Ölüm Öyküsü' },
             ].map(({ key, label }) => (
-              <FormControl key={key} component="fieldset">
-                <Typography variant="body1">{label}</Typography>
-                <RadioGroup
-                  row
-                  value={(formData as any)[key]}
-                  onChange={(e) => handleMLFeatureChange(key, parseInt(e.target.value))}
-                >
-                  <FormControlLabel value={0} control={<Radio />} label="Hayır" />
-                  <FormControlLabel value={1} control={<Radio />} label="Evet" />
-                </RadioGroup>
-              </FormControl>
+              <TextField
+                key={key}
+                fullWidth
+                label={label}
+                type="number"
+                value={(formData as any)[key]}
+                onChange={(e) => handleMLFeatureChange(key, parseFloat(e.target.value) || 0)}
+                inputProps={{ min: 0, max: 1, step: 1 }}
+              />
             ))}
           </Stack>
         );

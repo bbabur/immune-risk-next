@@ -8,10 +8,6 @@ import {
   CardContent,
   Typography,
   Button,
-  FormControl,
-  FormControlLabel,
-  Radio,
-  RadioGroup,
   Stack,
   Box,
   Alert,
@@ -57,25 +53,53 @@ interface PatientData {
   parentalConsanguinity: string;
 }
 
-const featureLabels: Record<keyof Omit<MLFeatures, 'cinsiyet' | 'yas' | 'gobek_kordon_gunu'>, string> = {
-  otit_sayisi_ge_4: '1 Yıl İçinde Otit Sayısı ≥4',
-  sinuzit_sayisi_ge_2: '1 Yıl İçinde Sinüzit Sayısı ≥2',
-  iki_aydan_fazla_ab: '2 Aydan Fazla Oral Antibiyotik Kullanımı',
-  pnomoni_ge_2: '1 Yıl İçinde ≥2 Pnömoni',
-  kilo_alamama: 'Bebeğin Kilo Alamaması veya Normal Büyümemesi',
-  tekrarlayan_apse: 'Tekrarlayan, Derin Cilt veya Organ Apseleri',
-  pamukcuk_mantar: 'Ağızda veya Deride Kalıcı Pamukçuk veya Mantar',
-  iv_antibiyotik: 'İntravenöz Antibiyotik Gerektiren Enfeksiyonlar',
-  derin_enf_ge_2: 'Septisemi Dahil ≥2 Derin Enfeksiyon',
-  aile_oykusu_boy: 'Ailede Doğuştan İmmün Yetmezlik Öyküsü',
-  hastane_yatis: 'Hastaneye Yatış Varlığı',
-  bcg_lenfadenopati: 'BCG Aşısı Sonrası Lenfadenopati',
-  kronik_cilt: 'Kronik Cilt (Deri) Problemleri',
-  konjenital_kalp: 'Konjenital Kalp Hastalığı',
-  kronik_ishal: 'Kronik İshal',
-  yogun_bakim: 'Yoğun Bakımda Yatış',
-  akrabalik: 'Anne-Baba Arasında Akrabalık Varlığı',
-  aile_erken_olum: 'Ailede Erken Ölüm Öyküsü',
+// API sırasına göre tüm alanlar - main.py ile birebir eşleşir
+const API_FIELD_ORDER: (keyof MLFeatures)[] = [
+  'otit_sayisi_ge_4',
+  'sinuzit_sayisi_ge_2',
+  'iki_aydan_fazla_ab',
+  'pnomoni_ge_2',
+  'kilo_alamama',
+  'tekrarlayan_apse',
+  'pamukcuk_mantar',
+  'iv_antibiyotik',
+  'derin_enf_ge_2',
+  'aile_oykusu_boy',
+  'cinsiyet',
+  'yas',
+  'hastane_yatis',
+  'bcg_lenfadenopati',
+  'kronik_cilt',
+  'gobek_kordon_gunu',
+  'konjenital_kalp',
+  'kronik_ishal',
+  'yogun_bakim',
+  'akrabalik',
+  'aile_erken_olum',
+];
+
+const featureLabels: Record<keyof MLFeatures, string> = {
+  otit_sayisi_ge_4: '1 Yıl İçinde Otit Sayısı (≥4 risk)',
+  sinuzit_sayisi_ge_2: '1 Yıl İçinde Sinüzit Sayısı (≥2 risk)',
+  iki_aydan_fazla_ab: '2 Aydan Fazla Oral Antibiyotik Kullanımı (0/1)',
+  pnomoni_ge_2: '1 Yıl İçinde Pnömoni Sayısı (≥2 risk)',
+  kilo_alamama: 'Bir Bebeğin Kilo Alamaması veya Normal Büyümemesi (0/1)',
+  tekrarlayan_apse: 'Tekrarlayan, Derin Cilt veya Organ Apseleri (0/1)',
+  pamukcuk_mantar: 'Ağızda veya Deride Kalıcı Pamukçuk yada Mantar Enfeksiyonu (0/1)',
+  iv_antibiyotik: 'İntravenöz Antibiyotik Gerektiren Enfeksiyonlar (0/1)',
+  derin_enf_ge_2: 'Septisemi Dahil ≥2 Derin Enfeksiyon (sayı girin)',
+  aile_oykusu_boy: 'Ailede Doğuştan İmmün Yetmezlik oyküsü (0/1)',
+  cinsiyet: 'Cinsiyet (0=Kız, 1=Erkek) — sayı girin',
+  yas: 'Yaş (yıl)',
+  hastane_yatis: 'Hastaneye Yatış Varlığı (0/1)',
+  bcg_lenfadenopati: 'BCG Aşısı Sonrası Lenfadenopati (0/1)',
+  kronik_cilt: 'Kronik Cilt (deri) Problemleri (0/1)',
+  gobek_kordon_gunu: 'Göbek Kordonunun Düşme Günü',
+  konjenital_kalp: 'Konjenital Kalp Hastalığı (0/1)',
+  kronik_ishal: 'Kronik İshal (0/1)',
+  yogun_bakim: 'Yoğun Bakımda Yatış (0/1)',
+  akrabalik: 'Anne-Baba Arasında Akrabalık Varlığı (0/1)',
+  aile_erken_olum: 'Ailede Erken Ölüm Öyküsü (0/1)',
 };
 
 export default function MLAssessmentPage() {
@@ -250,121 +274,29 @@ export default function MLAssessmentPage() {
       <Card>
         <CardContent>
           <Typography variant="h6" gutterBottom color="primary">
-            Enfeksiyon Kriterleri
+            ML Özellikleri (API sırasına göre – main.py ile birebir eşleşir)
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Tüm alanlar API&apos;nin beklediği formatta gönderilir.
           </Typography>
           <Divider sx={{ mb: 2 }} />
           
           <Stack spacing={2}>
-            {(['otit_sayisi_ge_4', 'sinuzit_sayisi_ge_2', 'pnomoni_ge_2', 'derin_enf_ge_2'] as const).map((key) => (
-              <FormControl key={key} component="fieldset">
-                <Typography variant="body1" sx={{ mb: 1 }}>{featureLabels[key]}</Typography>
-                <RadioGroup
-                  row
-                  value={features[key]}
-                  onChange={(e) => handleFeatureChange(key, parseInt(e.target.value))}
-                >
-                  <FormControlLabel value={0} control={<Radio />} label="Hayır" />
-                  <FormControlLabel value={1} control={<Radio />} label="Evet" />
-                </RadioGroup>
-              </FormControl>
+            {API_FIELD_ORDER.map((key) => (
+              <TextField
+                key={key}
+                label={`${key} — ${featureLabels[key]}`}
+                type="number"
+                value={features[key]}
+                onChange={(e) => handleFeatureChange(key, parseFloat(e.target.value) || 0)}
+                inputProps={{ 
+                  min: 0, 
+                  step: key === 'yas' ? 0.1 : 1 
+                }}
+                fullWidth
+                size="small"
+              />
             ))}
-          </Stack>
-
-          <Typography variant="h6" gutterBottom color="primary" sx={{ mt: 4 }}>
-            Tedavi ve Hastane Kriterleri
-          </Typography>
-          <Divider sx={{ mb: 2 }} />
-          
-          <Stack spacing={2}>
-            {(['iki_aydan_fazla_ab', 'iv_antibiyotik', 'hastane_yatis', 'yogun_bakim'] as const).map((key) => (
-              <FormControl key={key} component="fieldset">
-                <Typography variant="body1" sx={{ mb: 1 }}>{featureLabels[key]}</Typography>
-                <RadioGroup
-                  row
-                  value={features[key]}
-                  onChange={(e) => handleFeatureChange(key, parseInt(e.target.value))}
-                >
-                  <FormControlLabel value={0} control={<Radio />} label="Hayır" />
-                  <FormControlLabel value={1} control={<Radio />} label="Evet" />
-                </RadioGroup>
-              </FormControl>
-            ))}
-          </Stack>
-
-          <Typography variant="h6" gutterBottom color="primary" sx={{ mt: 4 }}>
-            Klinik Özellikler
-          </Typography>
-          <Divider sx={{ mb: 2 }} />
-          
-          <Stack spacing={2}>
-            {(['kilo_alamama', 'tekrarlayan_apse', 'pamukcuk_mantar', 'bcg_lenfadenopati', 'kronik_cilt', 'konjenital_kalp', 'kronik_ishal'] as const).map((key) => (
-              <FormControl key={key} component="fieldset">
-                <Typography variant="body1" sx={{ mb: 1 }}>{featureLabels[key]}</Typography>
-                <RadioGroup
-                  row
-                  value={features[key]}
-                  onChange={(e) => handleFeatureChange(key, parseInt(e.target.value))}
-                >
-                  <FormControlLabel value={0} control={<Radio />} label="Hayır" />
-                  <FormControlLabel value={1} control={<Radio />} label="Evet" />
-                </RadioGroup>
-              </FormControl>
-            ))}
-          </Stack>
-
-          <Typography variant="h6" gutterBottom color="primary" sx={{ mt: 4 }}>
-            Aile Öyküsü
-          </Typography>
-          <Divider sx={{ mb: 2 }} />
-          
-          <Stack spacing={2}>
-            {(['aile_oykusu_boy', 'akrabalik', 'aile_erken_olum'] as const).map((key) => (
-              <FormControl key={key} component="fieldset">
-                <Typography variant="body1" sx={{ mb: 1 }}>{featureLabels[key]}</Typography>
-                <RadioGroup
-                  row
-                  value={features[key]}
-                  onChange={(e) => handleFeatureChange(key, parseInt(e.target.value))}
-                >
-                  <FormControlLabel value={0} control={<Radio />} label="Hayır" />
-                  <FormControlLabel value={1} control={<Radio />} label="Evet" />
-                </RadioGroup>
-              </FormControl>
-            ))}
-          </Stack>
-
-          <Typography variant="h6" gutterBottom color="primary" sx={{ mt: 4 }}>
-            Demografik Bilgiler (Otomatik Dolduruldu)
-          </Typography>
-          <Divider sx={{ mb: 2 }} />
-          
-          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
-            <TextField
-              label="Yaş (Yıl)"
-              type="number"
-              value={features.yas}
-              onChange={(e) => handleFeatureChange('yas', parseFloat(e.target.value) || 0)}
-              inputProps={{ step: 0.1 }}
-              fullWidth
-            />
-            <FormControl component="fieldset" fullWidth>
-              <Typography variant="body2" sx={{ mb: 1 }}>Cinsiyet</Typography>
-              <RadioGroup
-                row
-                value={features.cinsiyet}
-                onChange={(e) => handleFeatureChange('cinsiyet', parseInt(e.target.value))}
-              >
-                <FormControlLabel value={0} control={<Radio />} label="Kız" />
-                <FormControlLabel value={1} control={<Radio />} label="Erkek" />
-              </RadioGroup>
-            </FormControl>
-            <TextField
-              label="Göbek Kordonu Düşme Günü"
-              type="number"
-              value={features.gobek_kordon_gunu}
-              onChange={(e) => handleFeatureChange('gobek_kordon_gunu', parseInt(e.target.value) || 7)}
-              fullWidth
-            />
           </Stack>
 
           <Box display="flex" justifyContent="center" gap={2} sx={{ mt: 4 }}>
