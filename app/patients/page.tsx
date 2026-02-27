@@ -130,11 +130,11 @@ export default function PatientsPage() {
           <span>Erkek</span>
         </Box>
       );
-    } else if (genderLower === 'female' || genderLower === 'kız' || genderLower === 'f') {
+    } else if (genderLower === 'female' || genderLower === 'kız' || genderLower === 'kadın' || genderLower === 'f') {
       return (
         <Box display="flex" alignItems="center" gap={1}>
           <Female color="error" fontSize="small" />
-          <span>Kız</span>
+          <span>Kadın</span>
         </Box>
       );
     } else {

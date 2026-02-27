@@ -158,27 +158,27 @@ export default function MLResultPage() {
   };
 
   const featureLabels: Record<string, string> = {
-    otit_sayisi_ge_4: '1 Yıl İçinde Otit ≥4',
-    sinuzit_sayisi_ge_2: '1 Yıl İçinde Sinüzit ≥2',
-    iki_aydan_fazla_ab: '2 Ay+ Antibiyotik',
-    pnomoni_ge_2: '1 Yıl İçinde Pnömoni ≥2',
-    kilo_alamama: 'Kilo Alamama',
-    tekrarlayan_apse: 'Tekrarlayan Apse',
-    pamukcuk_mantar: 'Pamukçuk/Mantar',
-    iv_antibiyotik: 'IV Antibiyotik',
-    derin_enf_ge_2: 'Derin Enfeksiyon ≥2',
-    aile_oykusu_boy: 'Ailede İmmün Yetmezlik',
-    cinsiyet: 'Cinsiyet',
-    yas: 'Yaş',
-    hastane_yatis: 'Hastane Yatışı',
-    bcg_lenfadenopati: 'BCG Lenfadenopati',
-    kronik_cilt: 'Kronik Cilt Problemi',
-    gobek_kordon_gunu: 'Göbek Kordon Günü',
-    konjenital_kalp: 'Konjenital Kalp',
+    otit_sayisi_ge_4: '1 Yıl İçinde Otit Sayısı ≥4',
+    sinuzit_sayisi_ge_2: '1 Yıl İçinde Sinüzit Sayısı ≥2',
+    iki_aydan_fazla_ab: '2 Aydan Fazla Oral Antibiyotik Kullanımı',
+    pnomoni_ge_2: '1 yıl içinde ≥2 pnömoni',
+    kilo_alamama: 'Bir Bebeğin Kilo Alamaması veya Normal Büyümemesi',
+    tekrarlayan_apse: 'Tekrarlayan, Derin Cilt veya Organ Apseleri',
+    pamukcuk_mantar: 'Ağızda veya Deride Kalıcı Pamukçuk yada Mantar Enfeksiyonu',
+    iv_antibiyotik: 'İntravenöz Antibiyotik Gerektiren Enfeksiyonlar',
+    derin_enf_ge_2: 'Septisemi Dâhil ≥2 Derin Enfeksiyon',
+    aile_oykusu_boy: 'Ailede Doğuştan İmmün Yetmezlik Öyküsü',
+    cinsiyet: 'Cinsiyet (0=Erkek, 1=Kadın)',
+    yas: 'YAŞ (yıl)',
+    hastane_yatis: 'Hastaneye Yatış Varlığı',
+    bcg_lenfadenopati: 'BCG Aşısı Sonrası Lenfadenopati',
+    kronik_cilt: 'Kronik Cilt (deri) Problemleri',
+    gobek_kordon_gunu: 'Göbek Kordonunun Düşme Günü',
+    konjenital_kalp: 'Konjenital Kalp Hastalığı',
     kronik_ishal: 'Kronik İshal',
-    yogun_bakim: 'Yoğun Bakım',
-    akrabalik: 'Akrabalık',
-    aile_erken_olum: 'Ailede Erken Ölüm',
+    yogun_bakim: 'Yoğun Bakımda Yatış',
+    akrabalik: 'Anne-Baba Arasında Akrabalık Varlığı',
+    aile_erken_olum: 'Ailede Erken Ölüm Öyküsü',
   };
 
   if (loading) {
@@ -306,9 +306,9 @@ export default function MLResultPage() {
               const label = featureLabels[key] || key;
               let displayValue = value;
               
-              // Özel gösterimler
+              // Özel gösterimler (JSON formatı: 0=Erkek, 1=Kadın)
               if (key === 'cinsiyet') {
-                displayValue = value === 1 ? 'Erkek' : 'Kız';
+                displayValue = value === 0 ? 'Erkek' : 'Kadın';
               } else if (key === 'yas') {
                 displayValue = `${value.toFixed(1)} yıl`;
               } else if (key === 'gobek_kordon_gunu') {

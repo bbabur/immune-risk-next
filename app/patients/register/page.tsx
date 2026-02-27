@@ -208,7 +208,7 @@ export default function PatientRegisterPage() {
       // ML değerlendirmesi yap
       if (runML) {
         const yas = (formData.ageYears || 0) + ((formData.ageMonths || 0) / 12);
-        const cinsiyet = formData.gender === 'male' ? 1 : 0;
+        const cinsiyet = formData.gender === 'male' ? 0 : 1; // Model Excel formatı: 0=Erkek, 1=Kadın
         const akrabalik = formData.parentalConsanguinity === '1' ? 1 : 0;
         const gobek_kordon_gunu = formData.cordFallDay || 7;
 
@@ -315,15 +315,15 @@ export default function PatientRegisterPage() {
                 required
               />
               <FormControl fullWidth required>
-                <InputLabel>Cinsiyet</InputLabel>
+                <InputLabel>Cinsiyet (0=Erkek, 1=Kadın)</InputLabel>
                 <Select
                   name="gender"
                   value={formData.gender}
                   onChange={handleSelectChange}
-                  label="Cinsiyet"
+                  label="Cinsiyet (0=Erkek, 1=Kadın)"
                 >
-                  <MenuItem value="male">Erkek</MenuItem>
-                  <MenuItem value="female">Kız</MenuItem>
+                  <MenuItem value="male">Erkek (0)</MenuItem>
+                  <MenuItem value="female">Kadın (1)</MenuItem>
                 </Select>
               </FormControl>
             </Stack>
@@ -361,10 +361,10 @@ export default function PatientRegisterPage() {
                 value={formData.gestationalAge}
                 onChange={handleChange}
               />
-              <TextField
-                fullWidth
-                label="Göbek Kordonu Düşme Günü"
-                name="cordFallDay"
+            <TextField
+              fullWidth
+              label="Göbek Kordonunun Düşme Günü"
+              name="cordFallDay"
                 type="number"
                 value={formData.cordFallDay}
                 onChange={handleChange}
@@ -380,10 +380,10 @@ export default function PatientRegisterPage() {
             <Divider />
             
             {[
-              { key: 'otit_sayisi_ge_4', label: '1 Yıl İçinde Otit Sayısı (≥4 risk)' },
-              { key: 'sinuzit_sayisi_ge_2', label: '1 Yıl İçinde Sinüzit Sayısı (≥2 risk)' },
-              { key: 'pnomoni_ge_2', label: '1 Yıl İçinde Pnömoni Sayısı (≥2 risk)' },
-              { key: 'derin_enf_ge_2', label: 'Septisemi Dahil Derin Enfeksiyon Sayısı (≥2 risk)' },
+              { key: 'otit_sayisi_ge_4', label: '1 Yıl İçinde Otit Sayısı ≥4' },
+              { key: 'sinuzit_sayisi_ge_2', label: '1 Yıl İçinde Sinüzit Sayısı ≥2' },
+              { key: 'pnomoni_ge_2', label: '1 yıl içinde ≥2 pnömoni' },
+              { key: 'derin_enf_ge_2', label: 'Septisemi Dâhil ≥2 Derin Enfeksiyon' },
             ].map(({ key, label }) => (
               <TextField
                 key={key}
@@ -400,10 +400,10 @@ export default function PatientRegisterPage() {
             <Divider />
             
             {[
-              { key: 'iki_aydan_fazla_ab', label: '2 Aydan Fazla Oral Antibiyotik Kullanımı' },
-              { key: 'iv_antibiyotik', label: 'İntravenöz Antibiyotik Gerektiren Enfeksiyonlar' },
-              { key: 'hastane_yatis', label: 'Hastaneye Yatış Varlığı' },
-              { key: 'yogun_bakim', label: 'Yoğun Bakımda Yatış' },
+              { key: 'iki_aydan_fazla_ab', label: '2 Aydan Fazla Oral Antibiyotik Kullanımı (0/1)' },
+              { key: 'iv_antibiyotik', label: 'İntravenöz Antibiyotik Gerektiren Enfeksiyonlar (0/1)' },
+              { key: 'hastane_yatis', label: 'Hastaneye Yatış Varlığı (0/1)' },
+              { key: 'yogun_bakim', label: 'Yoğun Bakımda Yatış (0/1)' },
             ].map(({ key, label }) => (
               <TextField
                 key={key}
@@ -420,13 +420,13 @@ export default function PatientRegisterPage() {
             <Divider />
             
             {[
-              { key: 'kilo_alamama', label: 'Bebeğin Kilo Alamaması veya Normal Büyümemesi' },
-              { key: 'tekrarlayan_apse', label: 'Tekrarlayan, Derin Cilt veya Organ Apseleri' },
-              { key: 'pamukcuk_mantar', label: 'Ağızda veya Deride Kalıcı Pamukçuk/Mantar' },
-              { key: 'bcg_lenfadenopati', label: 'BCG Aşısı Sonrası Lenfadenopati' },
-              { key: 'kronik_cilt', label: 'Kronik Cilt (Deri) Problemleri' },
-              { key: 'konjenital_kalp', label: 'Konjenital Kalp Hastalığı' },
-              { key: 'kronik_ishal', label: 'Kronik İshal' },
+              { key: 'kilo_alamama', label: 'Bir Bebeğin Kilo Alamaması veya Normal Büyümemesi (0/1)' },
+              { key: 'tekrarlayan_apse', label: 'Tekrarlayan, Derin Cilt veya Organ Apseleri (0/1)' },
+              { key: 'pamukcuk_mantar', label: 'Ağızda veya Deride Kalıcı Pamukçuk yada Mantar Enfeksiyonu (0/1)' },
+              { key: 'bcg_lenfadenopati', label: 'BCG Aşısı Sonrası Lenfadenopati (0/1)' },
+              { key: 'kronik_cilt', label: 'Kronik Cilt (deri) Problemleri (0/1)' },
+              { key: 'konjenital_kalp', label: 'Konjenital Kalp Hastalığı (0/1)' },
+              { key: 'kronik_ishal', label: 'Kronik İshal (0/1)' },
             ].map(({ key, label }) => (
               <TextField
                 key={key}
@@ -443,8 +443,8 @@ export default function PatientRegisterPage() {
             <Divider />
             
             {[
-              { key: 'aile_oykusu_boy', label: 'Ailede Doğuştan İmmün Yetmezlik Öyküsü' },
-              { key: 'aile_erken_olum', label: 'Ailede Erken Ölüm Öyküsü' },
+              { key: 'aile_oykusu_boy', label: 'Ailede Doğuştan İmmün Yetmezlik Öyküsü (0/1)' },
+              { key: 'aile_erken_olum', label: 'Ailede Erken Ölüm Öyküsü (0/1)' },
             ].map(({ key, label }) => (
               <TextField
                 key={key}

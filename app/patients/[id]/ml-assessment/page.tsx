@@ -15,7 +15,11 @@ import {
   CircularProgress,
   TextField,
   Paper,
-  Chip
+  Chip,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
 } from '@mui/material';
 import { Psychology, ArrowBack, PlayArrow } from '@mui/icons-material';
 
@@ -89,7 +93,7 @@ const featureLabels: Record<keyof MLFeatures, string> = {
   iv_antibiyotik: 'İntravenöz Antibiyotik Gerektiren Enfeksiyonlar (0/1)',
   derin_enf_ge_2: 'Septisemi Dahil ≥2 Derin Enfeksiyon (sayı girin)',
   aile_oykusu_boy: 'Ailede Doğuştan İmmün Yetmezlik oyküsü (0/1)',
-  cinsiyet: 'Cinsiyet (0=Kız, 1=Erkek) — sayı girin',
+  cinsiyet: 'Cinsiyet (0=Erkek, 1=Kadın)',
   yas: 'Yaş (yıl)',
   hastane_yatis: 'Hastaneye Yatış Varlığı (0/1)',
   bcg_lenfadenopati: 'BCG Aşısı Sonrası Lenfadenopati (0/1)',
@@ -159,8 +163,19 @@ export default function MLAssessmentPage() {
         setPatient(data);
         
         // Hasta verilerinden otomatik doldurulan alanlar
-        const age = data.ageYears + (data.ageMonths || 0) / 12;
-        const gender = data.gender === 'male' ? 1 : 0;
+        // Yaş: ageYears+ageMonths varsa kullan, yoksa birthDate'den hesapla
+        let age = (data.ageYears ?? 0) + ((data.ageMonths ?? 0) / 12);
+        if (isNaN(age) || age === 0) {
+          const birthDate = data.birth_date || data.birthDate;
+          if (birthDate) {
+            const birth = new Date(birthDate);
+            const now = new Date();
+            age = (now.getTime() - birth.getTime()) / (365.25 * 24 * 60 * 60 * 1000);
+          }
+        }
+        // Cinsiyet: Model Excel ile eğitildi - 0=Erkek, 1=Kadın (YZ SONUCU ile uyumlu)
+        const genderVal = String(data.gender || '').toLowerCase();
+        const gender = (genderVal === 'male' || genderVal === 'erkek') ? 0 : 1;
         const cordDay = data.cordFallDay || 7;
         const consanguinity = data.parentalConsanguinity === '1' ? 1 : 0;
         
@@ -266,7 +281,7 @@ export default function MLAssessmentPage() {
           <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap">
             <Chip label={`Dosya No: ${patient.fileNumber}`} color="primary" />
             <Chip label={`Yaş: ${patient.ageYears} yıl ${patient.ageMonths} ay`} />
-            <Chip label={`Cinsiyet: ${patient.gender === 'male' ? 'Erkek' : 'Kız'}`} />
+            <Chip label={`Cinsiyet: ${patient.gender === 'male' || patient.gender === 'Erkek' ? 'Erkek (0)' : 'Kadın (1)'}`} />
           </Stack>
         </Paper>
       )}
@@ -283,19 +298,33 @@ export default function MLAssessmentPage() {
           
           <Stack spacing={2}>
             {API_FIELD_ORDER.map((key) => (
-              <TextField
-                key={key}
-                label={`${key} — ${featureLabels[key]}`}
-                type="number"
-                value={features[key]}
-                onChange={(e) => handleFeatureChange(key, parseFloat(e.target.value) || 0)}
-                inputProps={{ 
-                  min: 0, 
-                  step: key === 'yas' ? 0.1 : 1 
-                }}
-                fullWidth
-                size="small"
-              />
+              key === 'cinsiyet' ? (
+                <FormControl key={key} fullWidth size="small">
+                  <InputLabel>Cinsiyet (0=Erkek, 1=Kadın)</InputLabel>
+                  <Select
+                    value={features.cinsiyet}
+                    label="Cinsiyet (0=Erkek, 1=Kadın)"
+                    onChange={(e) => handleFeatureChange('cinsiyet', Number(e.target.value))}
+                  >
+                    <MenuItem value={0}>Erkek (0)</MenuItem>
+                    <MenuItem value={1}>Kadın (1)</MenuItem>
+                  </Select>
+                </FormControl>
+              ) : (
+                <TextField
+                  key={key}
+                  label={`${key} — ${featureLabels[key]}`}
+                  type="number"
+                  value={features[key]}
+                  onChange={(e) => handleFeatureChange(key, parseFloat(e.target.value) || 0)}
+                  inputProps={{ 
+                    min: 0, 
+                    step: key === 'yas' ? 0.1 : 1 
+                  }}
+                  fullWidth
+                  size="small"
+                />
+              )
             ))}
           </Stack>
 
