@@ -207,33 +207,39 @@ export default function PatientRegisterPage() {
 
       // ML değerlendirmesi yap
       if (runML) {
-        const yas = (formData.ageYears || 0) + ((formData.ageMonths || 0) / 12);
+        // Sayıya çevir - undefined/NaN/'' için 0 kullan
+        const toNum = (v: unknown) => {
+          const n = Number(v);
+          return isNaN(n) ? 0 : n;
+        };
+
+        const yas = toNum(formData.ageYears) + (toNum(formData.ageMonths) / 12);
         const cinsiyet = formData.gender === 'male' ? 0 : 1; // Model Excel formatı: 0=Erkek, 1=Kadın
         const akrabalik = formData.parentalConsanguinity === '1' ? 1 : 0;
-        const gobek_kordon_gunu = formData.cordFallDay || 7;
+        const gobek_kordon_gunu = toNum(formData.cordFallDay) || 7;
 
         const mlFeatures = {
-          otit_sayisi_ge_4: formData.otit_sayisi_ge_4,
-          sinuzit_sayisi_ge_2: formData.sinuzit_sayisi_ge_2,
-          iki_aydan_fazla_ab: formData.iki_aydan_fazla_ab,
-          pnomoni_ge_2: formData.pnomoni_ge_2,
-          kilo_alamama: formData.kilo_alamama,
-          tekrarlayan_apse: formData.tekrarlayan_apse,
-          pamukcuk_mantar: formData.pamukcuk_mantar,
-          iv_antibiyotik: formData.iv_antibiyotik,
-          derin_enf_ge_2: formData.derin_enf_ge_2,
-          aile_oykusu_boy: formData.aile_oykusu_boy,
+          otit_sayisi_ge_4: toNum(formData.otit_sayisi_ge_4),
+          sinuzit_sayisi_ge_2: toNum(formData.sinuzit_sayisi_ge_2),
+          iki_aydan_fazla_ab: toNum(formData.iki_aydan_fazla_ab),
+          pnomoni_ge_2: toNum(formData.pnomoni_ge_2),
+          kilo_alamama: toNum(formData.kilo_alamama),
+          tekrarlayan_apse: toNum(formData.tekrarlayan_apse),
+          pamukcuk_mantar: toNum(formData.pamukcuk_mantar),
+          iv_antibiyotik: toNum(formData.iv_antibiyotik),
+          derin_enf_ge_2: toNum(formData.derin_enf_ge_2),
+          aile_oykusu_boy: toNum(formData.aile_oykusu_boy),
           cinsiyet,
           yas,
-          hastane_yatis: formData.hastane_yatis,
-          bcg_lenfadenopati: formData.bcg_lenfadenopati,
-          kronik_cilt: formData.kronik_cilt,
+          hastane_yatis: toNum(formData.hastane_yatis),
+          bcg_lenfadenopati: toNum(formData.bcg_lenfadenopati),
+          kronik_cilt: toNum(formData.kronik_cilt),
           gobek_kordon_gunu,
-          konjenital_kalp: formData.konjenital_kalp,
-          kronik_ishal: formData.kronik_ishal,
-          yogun_bakim: formData.yogun_bakim,
+          konjenital_kalp: toNum(formData.konjenital_kalp),
+          kronik_ishal: toNum(formData.kronik_ishal),
+          yogun_bakim: toNum(formData.yogun_bakim),
           akrabalik,
-          aile_erken_olum: formData.aile_erken_olum,
+          aile_erken_olum: toNum(formData.aile_erken_olum),
         };
 
         const mlResponse = await fetch(`/api/patients/${patientId}/ml-assessment`, {

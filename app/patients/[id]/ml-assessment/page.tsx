@@ -174,10 +174,12 @@ export default function MLAssessmentPage() {
           }
         }
         // Cinsiyet: Model Excel ile eğitildi - 0=Erkek, 1=Kadın (YZ SONUCU ile uyumlu)
-        const genderVal = String(data.gender || '').toLowerCase();
-        const gender = (genderVal === 'male' || genderVal === 'erkek') ? 0 : 1;
-        const cordDay = data.cordFallDay || 7;
-        const consanguinity = data.parentalConsanguinity === '1' ? 1 : 0;
+        const genderVal = String(data.gender ?? '').toLowerCase().trim();
+        const isErkek = ['0', 'male', 'erkek', 'm', 'e'].includes(genderVal);
+        const isKadin = ['1', 'female', 'kadın', 'kız', 'kadin', 'f', 'k'].includes(genderVal);
+        const gender = isErkek ? 0 : isKadin ? 1 : 0; // Bilinmiyorsa varsayılan Erkek
+        const cordDay = Number(data.cordFallDay) || 7;
+        const consanguinity = (data.parentalConsanguinity === '1' || data.parentalConsanguinity === 1 || data.parentalConsanguinity === true) ? 1 : 0;
         
         setFeatures(prev => ({
           ...prev,

@@ -54,15 +54,18 @@ export default function MLResultPage() {
 
   useEffect(() => {
     const fetchResult = async () => {
-      // Önce session storage'dan sonucu al
+      // Session storage'dan sadece aynı hastaya ait sonucu kullan
       const storedResult = sessionStorage.getItem('mlResult');
       
       if (storedResult) {
         try {
           const parsed = JSON.parse(storedResult);
-          setResult(parsed);
-          setLoading(false);
-          return;
+          // URL'deki hasta ID ile eşleşiyorsa kullan, yoksa API'den çek
+          if (String(parsed.patientId) === String(patientId)) {
+            setResult(parsed);
+            setLoading(false);
+            return;
+          }
         } catch {
           // Session storage'dan okunamadı, API'den dene
         }
@@ -91,10 +94,14 @@ export default function MLResultPage() {
             assessmentDate: data.assessment_date
           });
         } else {
-          setError('ML değerlendirme sonucu bulunamadı. Lütfen değerlendirmeyi yapın.');
+          // Sonuç yoksa ML değerlendirme sayfasına yönlendir
+          router.replace(`/patients/${patientId}/ml-assessment`);
+          return;
         }
       } catch (err) {
-        setError('ML değerlendirme sonucu yüklenemedi.');
+        // Hata varsa ML değerlendirme sayfasına yönlendir
+        router.replace(`/patients/${patientId}/ml-assessment`);
+        return;
       }
       
       setLoading(false);
@@ -304,20 +311,24 @@ export default function MLResultPage() {
           <Box display="flex" flexWrap="wrap" gap={1}>
             {Object.entries(result.features).map(([key, value]) => {
               const label = featureLabels[key] || key;
-              let displayValue = value;
+              let displayValue: string | number = value;
               
-              // Özel gösterimler (JSON formatı: 0=Erkek, 1=Kadın)
-              if (key === 'cinsiyet') {
+              // Sayısal alanlar - gerçek değeri göster (Evet/Hayır değil)
+              const countFields = ['otit_sayisi_ge_4', 'sinuzit_sayisi_ge_2', 'pnomoni_ge_2', 'derin_enf_ge_2', 'iki_aydan_fazla_ab', 'tekrarlayan_apse'];
+              if (countFields.includes(key) && typeof value === 'number') {
+                displayValue = value;
+              } else if (key === 'cinsiyet') {
                 displayValue = value === 0 ? 'Erkek' : 'Kadın';
               } else if (key === 'yas') {
-                displayValue = `${value.toFixed(1)} yıl`;
+                displayValue = `${Number(value).toFixed(1)} yıl`;
               } else if (key === 'gobek_kordon_gunu') {
                 displayValue = `${value} gün`;
               } else {
-                displayValue = value === 1 ? 'Evet' : 'Hayır';
+                // 0/1 binary alanlar
+                displayValue = value === 1 || (typeof value === 'number' && value >= 1) ? 'Evet' : 'Hayır';
               }
               
-              const isPositive = typeof value === 'number' && value === 1 && 
+              const isPositive = typeof value === 'number' && value >= 1 && 
                 !['cinsiyet', 'yas', 'gobek_kordon_gunu'].includes(key);
               
               return (

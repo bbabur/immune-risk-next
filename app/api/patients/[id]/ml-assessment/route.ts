@@ -82,11 +82,54 @@ export async function POST(
 
   try {
     const body = await request.json();
-    const features: MLFeatures = body.features;
+    const raw = body.features || {};
     const patientId = parseInt(params.id);
 
-    console.log('ML değerlendirmesi yapılıyor, hasta:', patientId);
-    console.log('Özellikler:', features);
+    console.log('[ML API Request] Frontend\'den gelen ham veri:', JSON.stringify(raw));
+
+    // Tüm değerleri sayıya çevir - undefined/NaN için 0
+    const toNum = (v: unknown) => {
+      const n = Number(v);
+      return isNaN(n) ? 0 : n;
+    };
+
+    // Cinsiyet: string (male/female/erkek/kadın) veya sayı (0/1) kabul et
+    const parseCinsiyet = (v: unknown): number => {
+      const n = Number(v);
+      if (!isNaN(n) && (n === 0 || n === 1)) return n;
+      const s = String(v ?? '').toLowerCase().trim();
+      if (['1', 'female', 'kadın', 'kız', 'kadin', 'f', 'k'].includes(s)) return 1;
+      return 0; // male, erkek, 0, bilinmiyor
+    };
+
+    const features: MLFeatures = {
+      otit_sayisi_ge_4: toNum(raw.otit_sayisi_ge_4),
+      sinuzit_sayisi_ge_2: toNum(raw.sinuzit_sayisi_ge_2),
+      iki_aydan_fazla_ab: toNum(raw.iki_aydan_fazla_ab),
+      pnomoni_ge_2: toNum(raw.pnomoni_ge_2),
+      kilo_alamama: toNum(raw.kilo_alamama),
+      tekrarlayan_apse: toNum(raw.tekrarlayan_apse),
+      pamukcuk_mantar: toNum(raw.pamukcuk_mantar),
+      iv_antibiyotik: toNum(raw.iv_antibiyotik),
+      derin_enf_ge_2: toNum(raw.derin_enf_ge_2),
+      aile_oykusu_boy: toNum(raw.aile_oykusu_boy),
+      cinsiyet: parseCinsiyet(raw.cinsiyet),
+      yas: toNum(raw.yas),
+      hastane_yatis: toNum(raw.hastane_yatis),
+      bcg_lenfadenopati: toNum(raw.bcg_lenfadenopati),
+      kronik_cilt: toNum(raw.kronik_cilt),
+      gobek_kordon_gunu: toNum(raw.gobek_kordon_gunu) || 7,
+      konjenital_kalp: toNum(raw.konjenital_kalp),
+      kronik_ishal: toNum(raw.kronik_ishal),
+      yogun_bakim: toNum(raw.yogun_bakim),
+      akrabalik: toNum(raw.akrabalik),
+      aile_erken_olum: toNum(raw.aile_erken_olum),
+    };
+
+    const requestBody = JSON.stringify(features);
+    console.log('[ML API Request] Hasta ID:', patientId);
+    console.log('[ML API Request] ML servisine gönderilen JSON (kopyala-yapıştır için):');
+    console.log(requestBody);
 
     // ML servisine istek at
     let mlResult;
