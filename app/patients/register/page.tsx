@@ -27,8 +27,7 @@ import { Psychology, Save, ArrowBack, ArrowForward } from '@mui/icons-material';
 interface PatientData {
   // Demografik Bilgiler
   fileNumber: string;
-  ageYears: number | '';
-  ageMonths: number | '';
+  ageMonths: number | '';  // Yaş ay cinsinden (model ay bekliyor)
   gender: string;
   height: number | '';
   weight: number | '';
@@ -82,7 +81,6 @@ export default function PatientRegisterPage() {
 
   const [formData, setFormData] = useState<PatientData>({
     fileNumber: '',
-    ageYears: '',
     ageMonths: '',
     gender: '',
     height: '',
@@ -176,7 +174,7 @@ export default function PatientRegisterPage() {
         },
         body: JSON.stringify({
           fileNumber: formData.fileNumber,
-          ageYears: formData.ageYears,
+          ageYears: 0,
           ageMonths: formData.ageMonths,
           gender: formData.gender,
           height: formData.height,
@@ -213,7 +211,7 @@ export default function PatientRegisterPage() {
           return isNaN(n) ? 0 : n;
         };
 
-        const yas = toNum(formData.ageYears) * 12 + toNum(formData.ageMonths); // Model ay cinsinden bekliyor
+        const yas = toNum(formData.ageMonths); // Yaş doğrudan ay cinsinden
         const cinsiyet = formData.gender === 'male' ? 0 : 1; // Model Excel formatı: 0=Erkek, 1=Kadın
         const akrabalik = formData.parentalConsanguinity === '1' ? 1 : 0;
         const gobek_kordon_gunu = toNum(formData.cordFallDay) || 7;
@@ -302,22 +300,12 @@ export default function PatientRegisterPage() {
             <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
               <TextField
                 fullWidth
-                label="Yaş (Yıl)"
-                name="ageYears"
-                type="number"
-                value={formData.ageYears}
-                onChange={handleChange}
-                inputProps={{ min: 0, max: 18 }}
-                required
-              />
-              <TextField
-                fullWidth
-                label="Yaş (Ay)"
+                label="Yaş (Ay) — örn: 5 yaş = 60"
                 name="ageMonths"
                 type="number"
                 value={formData.ageMonths}
                 onChange={handleChange}
-                inputProps={{ min: 0, max: 11 }}
+                inputProps={{ min: 0, max: 216 }}
                 required
               />
               <FormControl fullWidth required>

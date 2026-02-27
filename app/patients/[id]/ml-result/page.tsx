@@ -308,23 +308,23 @@ export default function MLResultPage() {
               const label = featureLabels[key] || key;
               let displayValue: string | number = value;
               
-              // Sayısal alanlar - gerçek değeri göster (Evet/Hayır değil)
-              const countFields = ['otit_sayisi_ge_4', 'sinuzit_sayisi_ge_2', 'pnomoni_ge_2', 'derin_enf_ge_2', 'iki_aydan_fazla_ab', 'tekrarlayan_apse'];
-              if (countFields.includes(key) && typeof value === 'number') {
-                displayValue = value;
-              } else if (key === 'cinsiyet') {
+              const COUNT_FIELDS = ['otit_sayisi_ge_4', 'sinuzit_sayisi_ge_2', 'pnomoni_ge_2', 'derin_enf_ge_2'];
+              const SKIP_HIGHLIGHT = ['cinsiyet', 'yas', 'gobek_kordon_gunu'];
+
+              if (key === 'cinsiyet') {
                 displayValue = value === 0 ? 'Erkek' : 'Kadın';
               } else if (key === 'yas') {
                 displayValue = `${Math.round(Number(value))} ay`;
               } else if (key === 'gobek_kordon_gunu') {
                 displayValue = `${value} gün`;
+              } else if (COUNT_FIELDS.includes(key)) {
+                displayValue = Number(value);
               } else {
                 // 0/1 binary alanlar
-                displayValue = value === 1 || (typeof value === 'number' && value >= 1) ? 'Evet' : 'Hayır';
+                displayValue = Number(value) >= 1 ? 'Evet' : 'Hayır';
               }
-              
-              const isPositive = typeof value === 'number' && value >= 1 && 
-                !['cinsiyet', 'yas', 'gobek_kordon_gunu'].includes(key);
+
+              const isPositive = !SKIP_HIGHLIGHT.includes(key) && typeof value === 'number' && value >= 1;
               
               return (
                 <Chip
