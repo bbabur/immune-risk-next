@@ -176,7 +176,7 @@ export default function MLResultPage() {
     derin_enf_ge_2: 'Septisemi Dâhil ≥2 Derin Enfeksiyon',
     aile_oykusu_boy: 'Ailede Doğuştan İmmün Yetmezlik Öyküsü',
     cinsiyet: 'Cinsiyet (0=Erkek, 1=Kadın)',
-    yas: 'YAŞ (yıl)',
+    yas: 'YAŞ (ay)',
     hastane_yatis: 'Hastaneye Yatış Varlığı',
     bcg_lenfadenopati: 'BCG Aşısı Sonrası Lenfadenopati',
     kronik_cilt: 'Kronik Cilt (deri) Problemleri',
@@ -264,11 +264,6 @@ export default function MLResultPage() {
                 />
               </Typography>
               
-              {result.probability !== null && (
-                <Typography variant="h6" color="text.secondary" gutterBottom>
-                  Tahmin Olasılığı: <strong>%{(result.probability * 100).toFixed(1)}</strong>
-                </Typography>
-              )}
               
               <Typography variant="body1" sx={{ mt: 2 }}>
                 {result.message}
@@ -320,7 +315,7 @@ export default function MLResultPage() {
               } else if (key === 'cinsiyet') {
                 displayValue = value === 0 ? 'Erkek' : 'Kadın';
               } else if (key === 'yas') {
-                displayValue = `${Number(value).toFixed(1)} yıl`;
+                displayValue = `${Math.round(Number(value))} ay`;
               } else if (key === 'gobek_kordon_gunu') {
                 displayValue = `${value} gün`;
               } else {

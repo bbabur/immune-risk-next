@@ -213,7 +213,7 @@ export default function PatientRegisterPage() {
           return isNaN(n) ? 0 : n;
         };
 
-        const yas = toNum(formData.ageYears) + (toNum(formData.ageMonths) / 12);
+        const yas = toNum(formData.ageYears) * 12 + toNum(formData.ageMonths); // Model ay cinsinden bekliyor
         const cinsiyet = formData.gender === 'male' ? 0 : 1; // Model Excel formatı: 0=Erkek, 1=Kadın
         const akrabalik = formData.parentalConsanguinity === '1' ? 1 : 0;
         const gobek_kordon_gunu = toNum(formData.cordFallDay) || 7;
@@ -398,7 +398,7 @@ export default function PatientRegisterPage() {
                 type="number"
                 value={(formData as any)[key]}
                 onChange={(e) => handleMLFeatureChange(key, parseFloat(e.target.value) || 0)}
-                inputProps={{ min: 0, step: 1 }}
+                inputProps={{ min: 0, max: 10, step: 1 }}
               />
             ))}
 
@@ -406,61 +406,67 @@ export default function PatientRegisterPage() {
             <Divider />
             
             {[
-              { key: 'iki_aydan_fazla_ab', label: '2 Aydan Fazla Oral Antibiyotik Kullanımı (0/1)' },
-              { key: 'iv_antibiyotik', label: 'İntravenöz Antibiyotik Gerektiren Enfeksiyonlar (0/1)' },
-              { key: 'hastane_yatis', label: 'Hastaneye Yatış Varlığı (0/1)' },
-              { key: 'yogun_bakim', label: 'Yoğun Bakımda Yatış (0/1)' },
+              { key: 'iki_aydan_fazla_ab', label: '2 Aydan Fazla Oral Antibiyotik Kullanımı' },
+              { key: 'iv_antibiyotik', label: 'İntravenöz Antibiyotik Gerektiren Enfeksiyonlar' },
+              { key: 'hastane_yatis', label: 'Hastaneye Yatış Varlığı' },
+              { key: 'yogun_bakim', label: 'Yoğun Bakımda Yatış' },
             ].map(({ key, label }) => (
-              <TextField
-                key={key}
-                fullWidth
-                label={label}
-                type="number"
-                value={(formData as any)[key]}
-                onChange={(e) => handleMLFeatureChange(key, parseFloat(e.target.value) || 0)}
-                inputProps={{ min: 0, max: 1, step: 1 }}
-              />
+              <FormControl key={key} fullWidth>
+                <InputLabel>{label}</InputLabel>
+                <Select
+                  value={(formData as any)[key]}
+                  label={label}
+                  onChange={(e) => handleMLFeatureChange(key, Number(e.target.value))}
+                >
+                  <MenuItem value={0}>Hayır</MenuItem>
+                  <MenuItem value={1}>Evet</MenuItem>
+                </Select>
+              </FormControl>
             ))}
 
             <Typography variant="h6" color="primary" sx={{ mt: 2 }}>Klinik Özellikler (0/1)</Typography>
             <Divider />
             
             {[
-              { key: 'kilo_alamama', label: 'Bir Bebeğin Kilo Alamaması veya Normal Büyümemesi (0/1)' },
-              { key: 'tekrarlayan_apse', label: 'Tekrarlayan, Derin Cilt veya Organ Apseleri (0/1)' },
-              { key: 'pamukcuk_mantar', label: 'Ağızda veya Deride Kalıcı Pamukçuk yada Mantar Enfeksiyonu (0/1)' },
-              { key: 'bcg_lenfadenopati', label: 'BCG Aşısı Sonrası Lenfadenopati (0/1)' },
-              { key: 'kronik_cilt', label: 'Kronik Cilt (deri) Problemleri (0/1)' },
-              { key: 'konjenital_kalp', label: 'Konjenital Kalp Hastalığı (0/1)' },
-              { key: 'kronik_ishal', label: 'Kronik İshal (0/1)' },
+              { key: 'kilo_alamama', label: 'Bir Bebeğin Kilo Alamaması veya Normal Büyümemesi' },
+              { key: 'tekrarlayan_apse', label: 'Tekrarlayan, Derin Cilt veya Organ Apseleri' },
+              { key: 'pamukcuk_mantar', label: 'Ağızda veya Deride Kalıcı Pamukçuk yada Mantar Enfeksiyonu' },
+              { key: 'bcg_lenfadenopati', label: 'BCG Aşısı Sonrası Lenfadenopati' },
+              { key: 'kronik_cilt', label: 'Kronik Cilt (deri) Problemleri' },
+              { key: 'konjenital_kalp', label: 'Konjenital Kalp Hastalığı' },
+              { key: 'kronik_ishal', label: 'Kronik İshal' },
             ].map(({ key, label }) => (
-              <TextField
-                key={key}
-                fullWidth
-                label={label}
-                type="number"
-                value={(formData as any)[key]}
-                onChange={(e) => handleMLFeatureChange(key, parseFloat(e.target.value) || 0)}
-                inputProps={{ min: 0, max: 1, step: 1 }}
-              />
+              <FormControl key={key} fullWidth>
+                <InputLabel>{label}</InputLabel>
+                <Select
+                  value={(formData as any)[key]}
+                  label={label}
+                  onChange={(e) => handleMLFeatureChange(key, Number(e.target.value))}
+                >
+                  <MenuItem value={0}>Hayır</MenuItem>
+                  <MenuItem value={1}>Evet</MenuItem>
+                </Select>
+              </FormControl>
             ))}
 
             <Typography variant="h6" color="primary" sx={{ mt: 2 }}>Aile Öyküsü (0/1)</Typography>
             <Divider />
             
             {[
-              { key: 'aile_oykusu_boy', label: 'Ailede Doğuştan İmmün Yetmezlik Öyküsü (0/1)' },
-              { key: 'aile_erken_olum', label: 'Ailede Erken Ölüm Öyküsü (0/1)' },
+              { key: 'aile_oykusu_boy', label: 'Ailede Doğuştan İmmün Yetmezlik Öyküsü' },
+              { key: 'aile_erken_olum', label: 'Ailede Erken Ölüm Öyküsü' },
             ].map(({ key, label }) => (
-              <TextField
-                key={key}
-                fullWidth
-                label={label}
-                type="number"
-                value={(formData as any)[key]}
-                onChange={(e) => handleMLFeatureChange(key, parseFloat(e.target.value) || 0)}
-                inputProps={{ min: 0, max: 1, step: 1 }}
-              />
+              <FormControl key={key} fullWidth>
+                <InputLabel>{label}</InputLabel>
+                <Select
+                  value={(formData as any)[key]}
+                  label={label}
+                  onChange={(e) => handleMLFeatureChange(key, Number(e.target.value))}
+                >
+                  <MenuItem value={0}>Hayır</MenuItem>
+                  <MenuItem value={1}>Evet</MenuItem>
+                </Select>
+              </FormControl>
             ))}
           </Stack>
         );

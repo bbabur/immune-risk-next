@@ -94,7 +94,7 @@ const featureLabels: Record<keyof MLFeatures, string> = {
   derin_enf_ge_2: 'Septisemi Dahil ≥2 Derin Enfeksiyon (sayı girin)',
   aile_oykusu_boy: 'Ailede Doğuştan İmmün Yetmezlik oyküsü (0/1)',
   cinsiyet: 'Cinsiyet (0=Erkek, 1=Kadın)',
-  yas: 'Yaş (yıl)',
+  yas: 'Yaş (ay)',
   hastane_yatis: 'Hastaneye Yatış Varlığı (0/1)',
   bcg_lenfadenopati: 'BCG Aşısı Sonrası Lenfadenopati (0/1)',
   kronik_cilt: 'Kronik Cilt (deri) Problemleri (0/1)',
@@ -163,14 +163,14 @@ export default function MLAssessmentPage() {
         setPatient(data);
         
         // Hasta verilerinden otomatik doldurulan alanlar
-        // Yaş: ageYears+ageMonths varsa kullan, yoksa birthDate'den hesapla
-        let age = (data.ageYears ?? 0) + ((data.ageMonths ?? 0) / 12);
+        // Yaş: ay cinsinden (model Excel ile ay olarak eğitildi)
+        let age = (data.ageYears ?? 0) * 12 + (data.ageMonths ?? 0);
         if (isNaN(age) || age === 0) {
           const birthDate = data.birth_date || data.birthDate;
           if (birthDate) {
             const birth = new Date(birthDate);
             const now = new Date();
-            age = (now.getTime() - birth.getTime()) / (365.25 * 24 * 60 * 60 * 1000);
+            age = Math.round((now.getTime() - birth.getTime()) / (365.25 / 12 * 24 * 60 * 60 * 1000));
           }
         }
         // Cinsiyet: Model Excel ile eğitildi - 0=Erkek, 1=Kadın (YZ SONUCU ile uyumlu)
@@ -299,35 +299,64 @@ export default function MLAssessmentPage() {
           <Divider sx={{ mb: 2 }} />
           
           <Stack spacing={2}>
-            {API_FIELD_ORDER.map((key) => (
-              key === 'cinsiyet' ? (
-                <FormControl key={key} fullWidth size="small">
-                  <InputLabel>Cinsiyet (0=Erkek, 1=Kadın)</InputLabel>
-                  <Select
-                    value={features.cinsiyet}
-                    label="Cinsiyet (0=Erkek, 1=Kadın)"
-                    onChange={(e) => handleFeatureChange('cinsiyet', Number(e.target.value))}
-                  >
-                    <MenuItem value={0}>Erkek (0)</MenuItem>
-                    <MenuItem value={1}>Kadın (1)</MenuItem>
-                  </Select>
-                </FormControl>
-              ) : (
+            {API_FIELD_ORDER.map((key) => {
+              const BINARY_FIELDS = [
+                'iki_aydan_fazla_ab', 'kilo_alamama', 'tekrarlayan_apse', 'pamukcuk_mantar',
+                'iv_antibiyotik', 'aile_oykusu_boy', 'hastane_yatis', 'bcg_lenfadenopati',
+                'kronik_cilt', 'konjenital_kalp', 'kronik_ishal', 'yogun_bakim',
+                'akrabalik', 'aile_erken_olum',
+              ];
+              const COUNT_FIELDS = ['otit_sayisi_ge_4', 'sinuzit_sayisi_ge_2', 'pnomoni_ge_2', 'derin_enf_ge_2'];
+
+              if (key === 'cinsiyet') {
+                return (
+                  <FormControl key={key} fullWidth size="small">
+                    <InputLabel>Cinsiyet</InputLabel>
+                    <Select
+                      value={features.cinsiyet}
+                      label="Cinsiyet"
+                      onChange={(e) => handleFeatureChange('cinsiyet', Number(e.target.value))}
+                    >
+                      <MenuItem value={0}>Erkek</MenuItem>
+                      <MenuItem value={1}>Kadın</MenuItem>
+                    </Select>
+                  </FormControl>
+                );
+              }
+
+              if (BINARY_FIELDS.includes(key)) {
+                return (
+                  <FormControl key={key} fullWidth size="small">
+                    <InputLabel>{featureLabels[key]}</InputLabel>
+                    <Select
+                      value={features[key]}
+                      label={featureLabels[key]}
+                      onChange={(e) => handleFeatureChange(key, Number(e.target.value))}
+                    >
+                      <MenuItem value={0}>Hayır</MenuItem>
+                      <MenuItem value={1}>Evet</MenuItem>
+                    </Select>
+                  </FormControl>
+                );
+              }
+
+              return (
                 <TextField
                   key={key}
-                  label={`${key} — ${featureLabels[key]}`}
+                  label={featureLabels[key]}
                   type="number"
                   value={features[key]}
                   onChange={(e) => handleFeatureChange(key, parseFloat(e.target.value) || 0)}
                   inputProps={{ 
                     min: 0, 
-                    step: key === 'yas' ? 0.1 : 1 
+                    max: COUNT_FIELDS.includes(key) ? 10 : undefined,
+                    step: 1,
                   }}
                   fullWidth
                   size="small"
                 />
-              )
-            ))}
+              );
+            })}
           </Stack>
 
           <Box display="flex" justifyContent="center" gap={2} sx={{ mt: 4 }}>
