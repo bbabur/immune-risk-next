@@ -175,33 +175,62 @@ export async function POST(
       recommendation = 'Rutin pediatrik takip önerilir. Şüpheli bulgular gelişirse tekrar değerlendirme yapılabilir.';
     }
 
-    // Risk assessment kaydı oluştur
-    const result = await client.query(
-      `INSERT INTO risk_assessments (
-        patient_id,
-        assessment_date,
-        risk_level,
-        recommendation,
-        model_version,
-        model_confidence,
-        ml_prediction,
-        ml_probability,
-        ml_risk_level,
-        ml_features
-      ) VALUES ($1, NOW(), $2, $3, $4, $5, $6, $7, $8, $9)
-      RETURNING *`,
-      [
-        patientId,
-        mlResult.risk_level,
-        recommendation,
-        '1.0.0',
-        mlResult.probability,
-        mlResult.prediction,
-        mlResult.probability,
-        mlResult.risk_level,
-        JSON.stringify(features)
-      ]
+    // Mevcut ML kaydı var mı kontrol et
+    const existing = await client.query(
+      `SELECT id FROM risk_assessments WHERE patient_id = $1 AND ml_prediction IS NOT NULL LIMIT 1`,
+      [patientId]
     );
+
+    let result;
+    if (existing.rows.length > 0) {
+      // Güncelle
+      result = await client.query(
+        `UPDATE risk_assessments SET
+          assessment_date = NOW(),
+          risk_level = $2,
+          recommendation = $3,
+          model_version = $4,
+          model_confidence = $5,
+          ml_prediction = $6,
+          ml_probability = $7,
+          ml_risk_level = $8,
+          ml_features = $9
+        WHERE id = $1
+        RETURNING *`,
+        [
+          existing.rows[0].id,
+          mlResult.risk_level,
+          recommendation,
+          '1.0.0',
+          mlResult.probability,
+          mlResult.prediction,
+          mlResult.probability,
+          mlResult.risk_level,
+          JSON.stringify(features)
+        ]
+      );
+    } else {
+      // Yeni kayıt oluştur
+      result = await client.query(
+        `INSERT INTO risk_assessments (
+          patient_id, assessment_date, risk_level, recommendation,
+          model_version, model_confidence, ml_prediction, ml_probability,
+          ml_risk_level, ml_features
+        ) VALUES ($1, NOW(), $2, $3, $4, $5, $6, $7, $8, $9)
+        RETURNING *`,
+        [
+          patientId,
+          mlResult.risk_level,
+          recommendation,
+          '1.0.0',
+          mlResult.probability,
+          mlResult.prediction,
+          mlResult.probability,
+          mlResult.risk_level,
+          JSON.stringify(features)
+        ]
+      );
+    }
 
     // Patient tablosunu güncelle - ML sonucuna göre tanı bilgisini de güncelle
     const hasImmuneDeficiency = mlResult.prediction === 1;
