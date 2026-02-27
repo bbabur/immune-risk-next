@@ -162,8 +162,7 @@ export default function MLAssessmentPage() {
         const data = await response.json();
         setPatient(data);
         
-        // Hasta verilerinden otomatik doldurulan alanlar
-        // Yaş: ay cinsinden (model Excel ile ay olarak eğitildi)
+        // Hasta verilerinden temel alanları hesapla
         let age = (data.ageYears ?? 0) * 12 + (data.ageMonths ?? 0);
         if (isNaN(age) || age === 0) {
           const birthDate = data.birth_date || data.birthDate;
@@ -173,14 +172,56 @@ export default function MLAssessmentPage() {
             age = Math.round((now.getTime() - birth.getTime()) / (365.25 / 12 * 24 * 60 * 60 * 1000));
           }
         }
-        // Cinsiyet: Model Excel ile eğitildi - 0=Erkek, 1=Kadın (YZ SONUCU ile uyumlu)
         const genderVal = String(data.gender ?? '').toLowerCase().trim();
         const isErkek = ['0', 'male', 'erkek', 'm', 'e'].includes(genderVal);
         const isKadin = ['1', 'female', 'kadın', 'kız', 'kadin', 'f', 'k'].includes(genderVal);
-        const gender = isErkek ? 0 : isKadin ? 1 : 0; // Bilinmiyorsa varsayılan Erkek
+        const gender = isErkek ? 0 : isKadin ? 1 : 0;
         const cordDay = Number(data.cordFallDay) || 7;
         const consanguinity = (data.parentalConsanguinity === '1' || data.parentalConsanguinity === 1 || data.parentalConsanguinity === true) ? 1 : 0;
-        
+
+        // Önceki ML değerlendirmesinden 21 alanı yükle
+        try {
+          const token2 = localStorage.getItem('token');
+          const prevRes = await fetch(`/api/patients/${patientId}/ml-assessment`, {
+            headers: { 'Authorization': `Bearer ${token2}` }
+          });
+          if (prevRes.ok) {
+            const prevData = await prevRes.json();
+            const savedFeatures = prevData.ml_features
+              ? (typeof prevData.ml_features === 'string' ? JSON.parse(prevData.ml_features) : prevData.ml_features)
+              : null;
+            if (savedFeatures) {
+              setFeatures({
+                otit_sayisi_ge_4:    savedFeatures.otit_sayisi_ge_4    ?? 0,
+                sinuzit_sayisi_ge_2: savedFeatures.sinuzit_sayisi_ge_2 ?? 0,
+                iki_aydan_fazla_ab:  savedFeatures.iki_aydan_fazla_ab  ?? 0,
+                pnomoni_ge_2:        savedFeatures.pnomoni_ge_2        ?? 0,
+                kilo_alamama:        savedFeatures.kilo_alamama        ?? 0,
+                tekrarlayan_apse:    savedFeatures.tekrarlayan_apse    ?? 0,
+                pamukcuk_mantar:     savedFeatures.pamukcuk_mantar     ?? 0,
+                iv_antibiyotik:      savedFeatures.iv_antibiyotik      ?? 0,
+                derin_enf_ge_2:      savedFeatures.derin_enf_ge_2      ?? 0,
+                aile_oykusu_boy:     savedFeatures.aile_oykusu_boy     ?? 0,
+                cinsiyet:            gender,
+                yas:                 age,
+                hastane_yatis:       savedFeatures.hastane_yatis       ?? 0,
+                bcg_lenfadenopati:   savedFeatures.bcg_lenfadenopati   ?? 0,
+                kronik_cilt:         savedFeatures.kronik_cilt         ?? 0,
+                gobek_kordon_gunu:   cordDay,
+                konjenital_kalp:     savedFeatures.konjenital_kalp     ?? 0,
+                kronik_ishal:        savedFeatures.kronik_ishal        ?? 0,
+                yogun_bakim:         savedFeatures.yogun_bakim         ?? 0,
+                akrabalik:           consanguinity,
+                aile_erken_olum:     savedFeatures.aile_erken_olum     ?? 0,
+              });
+              return;
+            }
+          }
+        } catch {
+          // Önceki değerlendirme yoksa devam et
+        }
+
+        // Önceki değerlendirme yoksa sadece hasta bilgilerinden doldur
         setFeatures(prev => ({
           ...prev,
           cinsiyet: gender,
