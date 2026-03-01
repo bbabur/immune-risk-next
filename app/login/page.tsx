@@ -85,7 +85,6 @@ export default function LoginPage() {
         localStorage.setItem('token', data.token);
         
         // Save to cookie for middleware
-        // Production'da (HTTPS) secure flag ekle, SameSite=Lax kullan
         const isSecure = window.location.protocol === 'https:';
         const cookieParts = [
           `token=${data.token}`,
@@ -98,25 +97,22 @@ export default function LoginPage() {
           cookieParts.push('secure');
         }
         
-        const cookieValue = cookieParts.join('; ');
-        document.cookie = cookieValue;
-        
-        console.log('Token saved to cookie, secure:', isSecure);
-        console.log('Cookie value:', document.cookie);
+        document.cookie = cookieParts.join('; ');
+
+        // İlk girişte şifre değiştirme zorunluluğu
+        if (data.mustChangePassword) {
+          window.location.href = '/change-password';
+          return;
+        }
         
         // Redirect to original page or dashboard
-        // SECURITY: Validate redirect parameter to prevent open redirect attacks
         const urlParams = new URLSearchParams(window.location.search);
         let redirectTo = urlParams.get('redirect') || '/';
         
-        // Only allow internal redirects (must start with /)
-        // Prevent external redirects like https://evil.com
         if (!redirectTo.startsWith('/') || redirectTo.startsWith('//')) {
           redirectTo = '/';
         }
         
-        // Tam sayfa yenilemesi yap - middleware cookie'yi görsün
-        // router.push yerine window.location kullan
         window.location.href = redirectTo;
       } else {
         setError(data.error || 'Geçersiz kullanıcı adı veya şifre');

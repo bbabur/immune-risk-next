@@ -68,6 +68,9 @@ export async function POST(request: NextRequest) {
       data: { lastLogin: new Date() }
     });
 
+    // must_change_password kontrolü (kolon yoksa false kabul et)
+    const mustChangePassword = (user as any).mustChangePassword ?? false;
+
     // Create token
     const userData = {
       id: user.id.toString(),
@@ -87,7 +90,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       user: userData,
-      token
+      token,
+      mustChangePassword
     });
 
   } catch (error) {

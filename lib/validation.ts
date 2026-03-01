@@ -19,8 +19,8 @@ export function validateEmail(email: string): boolean {
 }
 
 export function validateUsername(username: string): boolean {
-  // Only allow alphanumeric, underscore, and hyphen
-  const usernameRegex = /^[a-zA-Z0-9_-]{3,30}$/;
+  // Allow alphanumeric, underscore, hyphen and dot
+  const usernameRegex = /^[a-zA-Z0-9_.\-]{3,30}$/;
   return usernameRegex.test(username);
 }
 
