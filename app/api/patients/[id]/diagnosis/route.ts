@@ -3,10 +3,11 @@ import { prisma } from '@/lib/db';
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const patientId = parseInt(params.id);
+    const { id } = await params;
+    const patientId = parseInt(id);
 
     if (isNaN(patientId)) {
       return NextResponse.json(

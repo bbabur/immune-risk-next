@@ -4,10 +4,11 @@ import { prisma } from '@/lib/prisma';
 // GET - Tek training data getir
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id);
+    const { id: rawId } = await params;
+    const id = parseInt(rawId);
     
     const trainingPatient = await prisma.trainingPatient.findUnique({
       where: { id }
@@ -33,10 +34,11 @@ export async function GET(
 // PUT - Training data güncelle
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id);
+    const { id: rawId } = await params;
+    const id = parseInt(rawId);
     const body = await request.json();
     
     const trainingPatient = await prisma.trainingPatient.update({
@@ -57,10 +59,11 @@ export async function PUT(
 // DELETE - Tek kayıt silme (önyüzden izinli)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id);
+    const { id: rawId } = await params;
+    const id = parseInt(rawId);
     
     await prisma.trainingPatient.delete({
       where: { id }
@@ -75,4 +78,3 @@ export async function DELETE(
     );
   }
 }
-

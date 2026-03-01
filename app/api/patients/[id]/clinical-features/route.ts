@@ -3,11 +3,12 @@ import prisma from '@/lib/prisma';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const data = await request.json();
-    const patientId = parseInt(params.id);
+    const { id } = await params;
+    const patientId = parseInt(id);
 
     const clinicalFeature = await prisma.clinicalFeature.create({
       data: {
@@ -41,10 +42,11 @@ export async function POST(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const patientId = parseInt(params.id);
+    const { id } = await params;
+    const patientId = parseInt(id);
     const clinicalFeatures = await prisma.clinicalFeature.findMany({
       where: { patientId },
       orderBy: { createdAt: 'desc' },

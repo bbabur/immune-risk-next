@@ -4,10 +4,11 @@ import { prisma } from '@/lib/prisma';
 // GET - Kullanıcı bilgilerini getir
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id);
+    const { id: rawId } = await params;
+    const id = parseInt(rawId);
 
     const user = await prisma.user.findUnique({
       where: { id },
@@ -42,10 +43,11 @@ export async function GET(
 // DELETE - Tek kullanıcı silme (önyüzden izinli)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id);
+    const { id: rawId } = await params;
+    const id = parseInt(rawId);
 
     // Admin kullanıcıları koruma (id=1 ve id=2 silinemez)
     if (id <= 2) {
@@ -68,4 +70,3 @@ export async function DELETE(
     );
   }
 }
-

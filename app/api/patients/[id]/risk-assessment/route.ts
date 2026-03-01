@@ -3,7 +3,7 @@ import { Client } from 'pg';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const client = new Client({
     connectionString: process.env.DATABASE_URL,
@@ -14,7 +14,8 @@ export async function GET(
 
   try {
     await client.connect();
-    const patientId = parseInt(params.id);
+    const { id } = await params;
+    const patientId = parseInt(id);
     
     // Get latest risk assessment
     const result = await client.query(
@@ -51,7 +52,7 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const client = new Client({
     connectionString: process.env.DATABASE_URL,
@@ -62,7 +63,8 @@ export async function POST(
 
   try {
     await client.connect();
-    const patientId = parseInt(params.id);
+    const { id } = await params;
+    const patientId = parseInt(id);
     
     console.log('Creating risk assessment for patient:', patientId);
 

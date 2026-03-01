@@ -31,7 +31,7 @@ interface MLFeatures {
 // GET - Son ML değerlendirmesini getir
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const client = new Client({
     connectionString: process.env.DATABASE_URL,
@@ -40,7 +40,8 @@ export async function GET(
 
   try {
     await client.connect();
-    const patientId = parseInt(params.id);
+    const { id } = await params;
+    const patientId = parseInt(id);
     
     const result = await client.query(
       `SELECT * FROM risk_assessments 
@@ -73,7 +74,7 @@ export async function GET(
 // POST - ML değerlendirmesi yap ve kaydet
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const client = new Client({
     connectionString: process.env.DATABASE_URL,
@@ -83,7 +84,8 @@ export async function POST(
   try {
     const body = await request.json();
     const raw = body.features || {};
-    const patientId = parseInt(params.id);
+    const { id } = await params;
+    const patientId = parseInt(id);
 
     console.log('[ML API Request] Frontend\'den gelen ham veri:', JSON.stringify(raw));
 
