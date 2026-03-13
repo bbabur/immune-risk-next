@@ -44,3 +44,22 @@ next-env.d.ts
 
 # ML service (ayrı repo olarak yönetiliyor)
 /ml-service/immune-risk-ml-api
+
+# Backup files - never commit user data
+/backups/
+*.backup.json
+*_backup_*.json
+
+# Excel/data files - use proper data management
+*.xlsx
+*.xls
+
+# Local dev scripts output
+scripts/db/*.log
+scripts/dev/*.log
+
+# Environment examples (keep .env.example, ignore actual env files)
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local

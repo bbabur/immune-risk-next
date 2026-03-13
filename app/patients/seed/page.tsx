@@ -53,6 +53,10 @@ export default function PatientSeedPage() {
   const [result, setResult] = useState<SeedResult | null>(null);
 
   useEffect(() => {
+    if (process.env.NODE_ENV === 'production') {
+      router.replace('/');
+      return;
+    }
     loadStatus();
   }, []);
 

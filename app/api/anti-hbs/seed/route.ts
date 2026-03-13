@@ -1,7 +1,21 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function POST() {
+function requireAdminToken(request: NextRequest): boolean {
+  const token = request.cookies.get('token')?.value || request.headers.get('authorization')?.replace('Bearer ', '');
+  if (!token) return false;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.role === 'admin' && payload.exp > Date.now() / 1000;
+  } catch {
+    return false;
+  }
+}
+
+export async function POST(request: NextRequest) {
+  if (!requireAdminToken(request)) {
+    return NextResponse.json({ error: 'Forbidden: Admin only' }, { status: 403 });
+  }
   try {
     // Mevcut veri varsa ekleme yapma (veri kaybını önle)
     const existingCount = await prisma.antiHbsReference.count();

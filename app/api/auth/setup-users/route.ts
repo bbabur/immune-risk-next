@@ -2,6 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Client } from 'pg';
 import * as bcrypt from 'bcryptjs';
 
+function requireAdminToken(request: NextRequest): boolean {
+  const token = request.cookies.get('token')?.value || request.headers.get('authorization')?.replace('Bearer ', '');
+  if (!token) return false;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.role === 'admin' && payload.exp > Date.now() / 1000;
+  } catch {
+    return false;
+  }
+}
+
 const USERS_TO_CREATE = [
   { username: 'burak.babur',   email: 'burak.babur@system.local',   role: 'doctor' },
   { username: 'mehmet.babur',  email: 'mehmet.babur@system.local',  role: 'doctor' },
@@ -11,6 +22,10 @@ const USERS_TO_CREATE = [
 const DEFAULT_PASSWORD = '12345678';
 
 export async function POST(request: NextRequest) {
+  if (!requireAdminToken(request)) {
+    return NextResponse.json({ error: 'Forbidden: Admin only' }, { status: 403 });
+  }
+
   const client = new Client({
     connectionString: process.env.DATABASE_URL,
     ssl: { rejectUnauthorized: false },

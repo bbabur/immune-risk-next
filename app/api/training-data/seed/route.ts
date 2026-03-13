@@ -1,6 +1,17 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import seedData from '@/prisma/patient-seed-data.json';
+
+function requireAdminToken(request: NextRequest): boolean {
+  const token = request.cookies.get('token')?.value || request.headers.get('authorization')?.replace('Bearer ', '');
+  if (!token) return false;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.role === 'admin' && payload.exp > Date.now() / 1000;
+  } catch {
+    return false;
+  }
+}
 
 // Helper functions
 function parseBoolean(value: any): boolean {
@@ -23,7 +34,10 @@ function calculateAgeInMonths(birthDate: string): number {
   return Math.max(0, months);
 }
 
-export async function POST() {
+export async function POST(request: NextRequest) {
+  if (!requireAdminToken(request)) {
+    return NextResponse.json({ error: 'Forbidden: Admin only' }, { status: 403 });
+  }
   try {
     // Önce mevcut veri var mı kontrol et
     const existingCount = await prisma.trainingPatient.count();

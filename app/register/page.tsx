@@ -47,7 +47,7 @@ import {
   LocalHospital
 } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
-import { useNotification } from '@/components/NotificationProvider';
+import { useNotification } from '@/components/ui/NotificationProvider';
 import Link from 'next/link';
 
 interface PatientFormData {

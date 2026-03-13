@@ -13,6 +13,12 @@ const protectedRoutes = [
   '/users',
 ];
 
+// Admin-only routes (require auth + admin role)
+const adminOnlyRoutes = [
+  '/patients/seed',
+  '/admin',
+];
+
 // Routes that need exact match
 const exactProtectedRoutes = ['/'];
 
@@ -54,6 +60,26 @@ export function middleware(request: NextRequest) {
     }
   }
   
+  // Block admin-only routes for non-admins
+  const isAdminRoute = adminOnlyRoutes.some(route => pathname.startsWith(route));
+  if (isAdminRoute) {
+    const token = request.cookies.get('token')?.value || request.headers.get('authorization')?.replace('Bearer ', '');
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload.role !== 'admin') {
+          const url = request.nextUrl.clone();
+          url.pathname = '/';
+          return NextResponse.redirect(url);
+        }
+      } catch {
+        const url = request.nextUrl.clone();
+        url.pathname = '/login';
+        return NextResponse.redirect(url);
+      }
+    }
+  }
+
   // For protected routes, check authentication
   if (isProtectedPage || isProtectedApi) {
     // Get token from cookie or header

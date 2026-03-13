@@ -35,7 +35,7 @@ import {
   AccessTime
 } from '@mui/icons-material';
 import Link from 'next/link';
-import { useNotification } from '@/components/NotificationProvider';
+import { useNotification } from '@/components/ui/NotificationProvider';
 
 interface Stats {
   patientCount: number;

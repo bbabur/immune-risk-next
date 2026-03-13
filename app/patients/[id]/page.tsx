@@ -51,7 +51,7 @@ import {
   Brightness3,
   Psychology
 } from '@mui/icons-material';
-import ClinicalFeatureModal from '../../../components/ClinicalFeatureModal';
+import ClinicalFeatureModal from '@/components/features/patients/ClinicalFeatureModal';
 
 interface Patient {
   id: number;
